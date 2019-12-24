@@ -29,9 +29,9 @@ public final class AnnotationsUtil
 
   @SuppressWarnings( "unchecked" )
   @Nonnull
-  static List<AnnotationMirror> getRepeatingAnnotations( @Nonnull final Element typeElement,
-                                                         @Nonnull final String containerClassName,
-                                                         @Nonnull final String annotationClassName )
+  public static List<AnnotationMirror> getRepeatingAnnotations( @Nonnull final Element typeElement,
+                                                                @Nonnull final String containerClassName,
+                                                                @Nonnull final String annotationClassName )
   {
     final AnnotationValue annotationValue = findAnnotationValue( typeElement, containerClassName, "value" );
     if ( null != annotationValue )

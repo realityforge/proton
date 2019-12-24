@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Make the `AnnotationsUtil.getRepeatingAnnotations(...)` utility method public.
+
 ### [v0.02](https://github.com/realityforge/proton-processor-pack/tree/v0.02) (2019-12-24) · [Full Changelog](https://github.com/realityforge/proton-processor-pack/compare/v0.01...v0.02)
 
 Changes in this release:
