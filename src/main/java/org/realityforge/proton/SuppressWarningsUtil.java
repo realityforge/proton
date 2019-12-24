@@ -116,7 +116,15 @@ public final class SuppressWarningsUtil
                                                     @Nonnull final FieldSpec.Builder field,
                                                     @Nonnull final Collection<TypeMirror> types )
   {
-    final AnnotationSpec suppress = maybeSuppressWarningsAnnotation( processingEnv, types );
+    addSuppressWarningsIfRequired( processingEnv, field, Collections.emptyList(), types );
+  }
+
+  public static void addSuppressWarningsIfRequired( @Nonnull final ProcessingEnvironment processingEnv,
+                                                    @Nonnull final FieldSpec.Builder field,
+                                                    @Nonnull final Collection<String> additionalSuppressions,
+                                                    @Nonnull final Collection<TypeMirror> types )
+  {
+    final AnnotationSpec suppress = maybeSuppressWarningsAnnotation( processingEnv, additionalSuppressions, types );
     if ( null != suppress )
     {
       field.addAnnotation( suppress );
