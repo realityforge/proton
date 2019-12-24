@@ -3,6 +3,7 @@ package org.realityforge.proton;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeSpec;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -121,6 +122,32 @@ public final class SuppressWarningsUtil
 
   public static void addSuppressWarningsIfRequired( @Nonnull final ProcessingEnvironment processingEnv,
                                                     @Nonnull final FieldSpec.Builder field,
+                                                    @Nonnull final Collection<String> additionalSuppressions,
+                                                    @Nonnull final Collection<TypeMirror> types )
+  {
+    final AnnotationSpec suppress = maybeSuppressWarningsAnnotation( processingEnv, additionalSuppressions, types );
+    if ( null != suppress )
+    {
+      field.addAnnotation( suppress );
+    }
+  }
+
+  public static void addSuppressWarningsIfRequired( @Nonnull final ProcessingEnvironment processingEnv,
+                                                    @Nonnull final ParameterSpec.Builder field,
+                                                    @Nonnull final TypeMirror type )
+  {
+    addSuppressWarningsIfRequired( processingEnv, field, Collections.singleton( type ) );
+  }
+
+  public static void addSuppressWarningsIfRequired( @Nonnull final ProcessingEnvironment processingEnv,
+                                                    @Nonnull final ParameterSpec.Builder field,
+                                                    @Nonnull final Collection<TypeMirror> types )
+  {
+    addSuppressWarningsIfRequired( processingEnv, field, Collections.emptyList(), types );
+  }
+
+  public static void addSuppressWarningsIfRequired( @Nonnull final ProcessingEnvironment processingEnv,
+                                                    @Nonnull final ParameterSpec.Builder field,
                                                     @Nonnull final Collection<String> additionalSuppressions,
                                                     @Nonnull final Collection<TypeMirror> types )
   {

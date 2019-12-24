@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Add missing variant of `SuppressWarningsUtil.addSuppressWarningsIfRequired(...)` for FieldSpec.Builder types.
+* Add variants of `SuppressWarningsUtil.addSuppressWarningsIfRequired(...)` for ParameterSpec.Builder type.
 
 ### [v0.03](https://github.com/realityforge/proton-processor-pack/tree/v0.03) (2019-12-24) · [Full Changelog](https://github.com/realityforge/proton-processor-pack/compare/v0.02...v0.03)
 
