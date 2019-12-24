@@ -1,5 +1,7 @@
 # Change Log
 
+### Unreleased
+
 ### [v0.03](https://github.com/realityforge/proton-processor-pack/tree/v0.03) (2019-12-24) · [Full Changelog](https://github.com/realityforge/proton-processor-pack/compare/v0.02...v0.03)
 
 Changes in this release:
