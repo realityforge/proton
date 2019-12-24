@@ -2,6 +2,7 @@ package org.realityforge.proton;
 
 import com.google.auto.common.AnnotationMirrors;
 import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -24,6 +25,25 @@ public final class AnnotationsUtil
 {
   private AnnotationsUtil()
   {
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Nonnull
+  static List<AnnotationMirror> getRepeatingAnnotations( @Nonnull final Element typeElement,
+                                                         @Nonnull final String containerClassName,
+                                                         @Nonnull final String annotationClassName )
+  {
+    final AnnotationValue annotationValue = findAnnotationValue( typeElement, containerClassName, "value" );
+    if ( null != annotationValue )
+    {
+      return ( (List<AnnotationValue>) annotationValue.getValue() ).stream().
+        map( v -> (AnnotationMirror) v.getValue() ).collect( Collectors.toList() );
+    }
+    else
+    {
+      final AnnotationMirror annotation = findAnnotationByType( typeElement, annotationClassName );
+      return null != annotation ? Collections.singletonList( annotation ) : Collections.emptyList();
+    }
   }
 
   @SuppressWarnings( "unchecked" )
