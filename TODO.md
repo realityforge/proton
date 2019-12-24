@@ -9,3 +9,5 @@ complete as there is too much un-said.
   reduce the build time and artifact size in downstream projects that typically shade/relocate the code
   into a local package. Due to inefficiences in this process it is not uncommon to have ~18MB processor
   jars where otherwise a 100K jar would suffice.
+
+* Add artifact that supports our normal pattern for writing tests.
