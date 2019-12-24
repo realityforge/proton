@@ -18,9 +18,9 @@ define 'proton-processor-pack' do
   pom.include_transitive_dependencies << artifact(:javax_annotation)
 
   compile.with :javax_annotation,
-               :jetbrains_annotations,
-               :javacsv,
-               :testng
+               :autocommon,
+               :javapoet,
+               :guava
 
   package(:jar)
   package(:sources)
