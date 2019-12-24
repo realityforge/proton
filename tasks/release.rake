@@ -1,5 +1,8 @@
 require File.expand_path(File.dirname(__FILE__) + '/util')
 
+ENV['PREVIOUS_PRODUCT_VERSION'] = nil if ENV['PREVIOUS_PRODUCT_VERSION'].to_s == ''
+ENV['PRODUCT_VERSION'] = nil if ENV['PRODUCT_VERSION'].to_s == ''
+
 def stage(stage_name, description, options = {})
   if ENV['STAGE'].nil? || ENV['STAGE'] == stage_name || options[:always_run]
     puts "🚀 Release Stage: #{stage_name} - #{description}"
@@ -16,20 +19,19 @@ def stage(stage_name, description, options = {})
   end
 end
 
+def calc_next_version(version)
+  version_parts = version.split('.')
+  "#{version_parts[0]}.#{sprintf('%02d', version_parts[1].to_i + 1)}#{version_parts.length > 2 ? ".#{version_parts[2]}" : ''}"
+end
+
 desc 'Perform a release'
 task 'perform_release' do
 
   in_dir(WORKSPACE_DIR) do
     stage('ExtractVersion', 'Extract the last version from CHANGELOG.md and derive next version unless specified', :always_run => true) do
       changelog = IO.read('CHANGELOG.md')
-      ENV['PREVIOUS_PRODUCT_VERSION'] ||= changelog[/^### \[v(\d+\.\d+)\]/, 1]
-
-      next_version = ENV['PRODUCT_VERSION']
-      unless next_version
-        version_parts = ENV['PREVIOUS_PRODUCT_VERSION'].split('.')
-        next_version = "#{version_parts[0]}.#{sprintf('%02d', version_parts[1].to_i + 1)}"
-        ENV['PRODUCT_VERSION'] = next_version
-      end
+      ENV['PREVIOUS_PRODUCT_VERSION'] ||= changelog[/^### \[v(\d+\.\d+(\.\d+)?)\]/, 1] || '0.00'
+      ENV['PRODUCT_VERSION'] ||= calc_next_version(ENV['PREVIOUS_PRODUCT_VERSION'])
 
       # Also initialize release date if required
       ENV['RELEASE_DATE'] ||= Time.now.strftime('%Y-%m-%d')
