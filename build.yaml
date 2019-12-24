@@ -1,0 +1,9 @@
+repositories:
+  remote:
+   - https://repo.maven.apache.org/maven2
+   - https://stocksoftware.jfrog.io/stocksoftware/public
+
+artifacts:
+  idea_codestyle: au.com.stocksoftware.idea.codestyle:idea-codestyle:xml:1.14
+
+  javax_annotation: org.realityforge.javax.annotation:javax.annotation:jar:1.0.1
