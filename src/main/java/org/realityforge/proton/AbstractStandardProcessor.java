@@ -20,7 +20,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import static javax.tools.Diagnostic.Kind.*;
+import javax.tools.Diagnostic;
 
 public abstract class AbstractStandardProcessor
   extends AbstractProcessor
@@ -58,8 +58,8 @@ public abstract class AbstractStandardProcessor
       {
         processingEnv
           .getMessager()
-          .printMessage( ERROR, getClass().getSimpleName() + " failed to process " + _invalidTypeCount +
-                                " types. See earlier warnings for further details." );
+          .printMessage( Diagnostic.Kind.ERROR, getClass().getSimpleName() + " failed to process " + _invalidTypeCount +
+                                                " types. See earlier warnings for further details." );
       }
       _invalidTypeCount = 0;
     }
@@ -93,11 +93,11 @@ public abstract class AbstractStandardProcessor
     _invalidTypeCount++;
     if ( !deferErrors || env.errorRaised() || env.processingOver() )
     {
-      processingEnv.getMessager().printMessage( ERROR, message, element );
+      processingEnv.getMessager().printMessage( Diagnostic.Kind.ERROR, message, element );
     }
     else
     {
-      processingEnv.getMessager().printMessage( WARNING, message, element );
+      processingEnv.getMessager().printMessage( Diagnostic.Kind.WARNING, message, element );
     }
   }
 
