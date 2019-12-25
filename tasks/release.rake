@@ -59,7 +59,7 @@ task 'perform_release' do
       from = '0.00' == ENV['PREVIOUS_PRODUCT_VERSION'] ? `git rev-list --max-parents=0 HEAD`.strip : "v#{ENV['PREVIOUS_PRODUCT_VERSION']}"
 
       header = <<CONTENT
-### [v#{ENV['PRODUCT_VERSION']}](https://github.com/realityforge/proton-processor-pack/tree/v#{ENV['PRODUCT_VERSION']}) (#{ENV['RELEASE_DATE']}) · [Full Changelog](https://github.com/realityforge/proton-processor-pack/compare/#{from}...v#{ENV['PRODUCT_VERSION']})
+### [v#{ENV['PRODUCT_VERSION']}](https://github.com/realityforge/proton/tree/v#{ENV['PRODUCT_VERSION']}) (#{ENV['RELEASE_DATE']}) · [Full Changelog](https://github.com/realityforge/proton/compare/#{from}...v#{ENV['PRODUCT_VERSION']})
 
 Changes in this release:
 CONTENT
@@ -126,13 +126,13 @@ HEADER
 
       client = Octokit::Client.new(:netrc => true, :auto_paginate => true)
       client.login
-      client.create_release('realityforge/proton-processor-pack', tag, :name => tag, :body => changes, :draft => false, :prerelease => prerelease)
+      client.create_release('realityforge/proton', tag, :name => tag, :body => changes, :draft => false, :prerelease => prerelease)
 
-      candidates = client.list_milestones('realityforge/proton-processor-pack').select {|m| m[:title].to_s == tag}
+      candidates = client.list_milestones('realityforge/proton').select {|m| m[:title].to_s == tag}
       unless candidates.empty?
         milestone = candidates[0]
         unless milestone[:state] == 'closed'
-          client.update_milestone('realityforge/proton-processor-pack', milestone[:number], :state => 'closed')
+          client.update_milestone('realityforge/proton', milestone[:number], :state => 'closed')
         end
       end
     end

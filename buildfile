@@ -3,8 +3,8 @@ require 'buildr/gpg'
 require 'buildr/single_intermediate_layout'
 require 'buildr/jacoco'
 
-desc 'Utilities for building annotation processors'
-define 'proton-processor-pack' do
+desc 'Proton Annotation Processor Library'
+define 'proton' do
   project.group = 'org.realityforge.proton'
   compile.options.source = '1.8'
   compile.options.target = '1.8'
@@ -13,18 +13,21 @@ define 'proton-processor-pack' do
   project.version = ENV['PRODUCT_VERSION'] if ENV['PRODUCT_VERSION']
 
   pom.add_apache_v2_license
-  pom.add_github_project('realityforge/proton-processor-pack')
+  pom.add_github_project('realityforge/proton')
   pom.add_developer('realityforge', 'Peter Donald')
   pom.include_transitive_dependencies << artifact(:javax_annotation)
 
-  compile.with :javax_annotation,
-               :autocommon,
-               :javapoet,
-               :guava
+  desc 'Utilities for building annotation processors'
+  define 'core' do
+    compile.with :javax_annotation,
+                 :autocommon,
+                 :javapoet,
+                 :guava
 
-  package(:jar)
-  package(:sources)
-  package(:javadoc)
+    package(:jar)
+    package(:sources)
+    package(:javadoc)
+  end
 
   iml.excluded_directories << project._('tmp')
 
