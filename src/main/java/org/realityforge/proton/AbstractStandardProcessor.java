@@ -33,12 +33,7 @@ public abstract class AbstractStandardProcessor
   public boolean process( @Nonnull final Set<? extends TypeElement> annotations, @Nonnull final RoundEnvironment env )
   {
     final Collection<TypeElement> elements = getTypeElementsToProcess( env );
-
-    final Map<String, String> options = processingEnv.getOptions();
-    final String deferUnresolvedValue = options.get( getOptionPrefix() + ".defer.unresolved" );
-    final boolean deferUnresolved = null == deferUnresolvedValue || "true".equals( deferUnresolvedValue );
-
-    if ( deferUnresolved )
+    if ( shouldDeferUnresolved() )
     {
       final Collection<TypeElement> elementsToProcess = deriveElementsToProcess( elements );
       processElements( env, elementsToProcess );
@@ -64,6 +59,13 @@ public abstract class AbstractStandardProcessor
       _invalidTypeCount = 0;
     }
     return true;
+  }
+
+  protected boolean shouldDeferUnresolved()
+  {
+    final Map<String, String> options = processingEnv.getOptions();
+    final String deferUnresolvedValue = options.get( getOptionPrefix() + ".defer.unresolved" );
+    return null == deferUnresolvedValue || "true".equals( deferUnresolvedValue );
   }
 
   @Nonnull

@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Extract the logic for determining whether unresolved types are processed into `AbstractStandardProcessor.shouldDeferUnresolved()` so that subclasses can override the behaviour.
+
 ### [v0.04](https://github.com/realityforge/proton-processor-pack/tree/v0.04) (2019-12-24) · [Full Changelog](https://github.com/realityforge/proton-processor-pack/compare/v0.03...v0.04)
 
 Changes in this release:
