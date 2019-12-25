@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.06](https://github.com/realityforge/proton/tree/v0.06) (2019-12-25) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.05...v0.06)
+
+Changes in this release:
 
 * Rename library to `proton` and define a separate module named `core` that contains the same contents as was previously in the `proton-processor-pack` artifact.
 * Introduce a `qa` module the contains the base class we use to test the annotation processors.
