@@ -29,6 +29,21 @@ define 'proton' do
     package(:javadoc)
   end
 
+  desc 'Utilities to help testing annotation processors'
+  define 'qa' do
+    compile.with project('core'),
+                 project('core').compile.dependencies,
+                 :testng,
+                 :compile_testing,
+                 :truth,
+                 :junit,
+                 :hamcrest_core
+
+    package(:jar)
+    package(:sources)
+    package(:javadoc)
+  end
+
   iml.excluded_directories << project._('tmp')
 
   ipr.add_component_from_artifact(:idea_codestyle)
