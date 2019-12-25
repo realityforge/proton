@@ -11,5 +11,3 @@ complete as there is too much un-said.
   jars where otherwise a 100K jar would suffice.
 
 * Add artifact that supports our normal pattern for writing tests.
-
-* Rename project to just `proton` and move current base project to `proton-core`
