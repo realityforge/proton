@@ -1,6 +1,5 @@
 package org.realityforge.proton;
 
-import com.google.auto.common.MoreElements;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
@@ -23,6 +22,8 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.AnnotatedConstruct;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.NestingKind;
@@ -123,11 +124,15 @@ public final class GeneratorUtil
     return name.toString();
   }
 
-  @SuppressWarnings( "UnstableApiUsage" )
   @Nonnull
-  public static PackageElement getPackageElement( @Nonnull final TypeElement element )
+  public static PackageElement getPackageElement( @Nonnull final Element outerElement )
   {
-    return MoreElements.getPackage( element );
+    Element element = outerElement;
+    while ( ElementKind.PACKAGE != element.getKind() )
+    {
+      element = element.getEnclosingElement();
+    }
+    return (PackageElement) element;
   }
 
   public static void emitJavaType( @Nonnull final String packageName,

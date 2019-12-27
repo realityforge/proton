@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Decouple `GeneratorUtil` from `com.google.auto:auto-common`.
+* Change the `GeneratorUtil.getPackageElement(...)` to take an `Element` so can retrieve the package of any element rather than just a`TypeElement`.
+
 ### [v0.06](https://github.com/realityforge/proton/tree/v0.06) (2019-12-25) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.05...v0.06)
 
 Changes in this release:
