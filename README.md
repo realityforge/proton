@@ -17,3 +17,8 @@ a [Contributing](CONTRIBUTING.md) document is under development.
 # License
 
 The project is licensed under [Apache License, Version 2.0](LICENSE).
+
+# Credit
+
+* [Stock Software](http://www.stocksoftware.com.au/) for providing significant support in building and maintaining
+  the tools from which this was originally extracted.
