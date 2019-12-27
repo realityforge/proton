@@ -1,8 +1,7 @@
 package org.realityforge.proton;
 
-import com.google.auto.common.AnnotationMirrors;
-import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -15,10 +14,12 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
 
 @SuppressWarnings( { "SameParameterValue", "WeakerAccess", "unused", "RedundantSuppression" } )
 public final class AnnotationsUtil
@@ -105,11 +106,48 @@ public final class AnnotationsUtil
   private static AnnotationValue findAnnotationValue( @Nonnull final AnnotationMirror annotation,
                                                       @Nonnull final String parameterName )
   {
-    final ImmutableMap<ExecutableElement, AnnotationValue> values =
-      AnnotationMirrors.getAnnotationValuesWithDefaults( annotation );
+    final Map<ExecutableElement, AnnotationValue> values = getAnnotationValuesWithDefaults( annotation );
     final ExecutableElement annotationKey = values.keySet().stream().
       filter( k -> parameterName.equals( k.getSimpleName().toString() ) ).findFirst().orElse( null );
     return values.get( annotationKey );
+  }
+
+  /**
+   * Returns the {@link AnnotationMirror}'s map of {@link AnnotationValue} indexed by {@link
+   * ExecutableElement}, supplying default values from the annotation if the annotation property has
+   * not been set. This is equivalent to {@link
+   * Elements#getElementValuesWithDefaults(AnnotationMirror)} but can be called statically without
+   * an {@link Elements} instance.
+   *
+   * <p>The iteration order of elements of the returned map will be the order in which the {@link
+   * ExecutableElement}s are defined in {@code annotation}'s {@linkplain
+   * AnnotationMirror#getAnnotationType() type}.
+   */
+  @Nonnull
+  public static Map<ExecutableElement, AnnotationValue> getAnnotationValuesWithDefaults( @Nonnull final AnnotationMirror annotation )
+  {
+    final Map<ExecutableElement, AnnotationValue> values = new LinkedHashMap<>();
+    final Map<? extends ExecutableElement, ? extends AnnotationValue> declaredValues = annotation.getElementValues();
+    final List<? extends Element> enclosedElements = annotation.getAnnotationType().asElement().getEnclosedElements();
+    for ( final Element enclosedElement : enclosedElements )
+    {
+      if ( ElementKind.METHOD == enclosedElement.getKind() )
+      {
+        final ExecutableElement method = (ExecutableElement) enclosedElement;
+        // Must iterate and put in this order, to ensure consistency in generated code.
+        if ( declaredValues.containsKey( method ) )
+        {
+          values.put( method, declaredValues.get( method ) );
+        }
+        else
+        {
+          final AnnotationValue defaultValue = method.getDefaultValue();
+          assert null != defaultValue;
+          values.put( method, defaultValue );
+        }
+      }
+    }
+    return values;
   }
 
   @Nullable

@@ -22,3 +22,6 @@ The project is licensed under [Apache License, Version 2.0](LICENSE).
 
 * [Stock Software](http://www.stocksoftware.com.au/) for providing significant support in building and maintaining
   the tools from which this was originally extracted.
+
+* The `com.google.auto:auto-common` library on which proton was originally based. The `auto-common` library provided
+  inspiration and initial variants for some of the code (i.e. `AnnotationsUtil.getAnnotationValuesWithDefaults()`).
