@@ -4,7 +4,7 @@
 
 * Decouple `GeneratorUtil` from `com.google.auto:auto-common`.
 * Change the `GeneratorUtil.getPackageElement(...)` to take an `Element` so can retrieve the package of any element rather than just a`TypeElement`.
-* Decouple `AnnotationsUtil` from `com.google.auto:auto-common`. This involved importing and reimplementing `AnnotationsUtil.getAnnotationValuesWithDefaults()` from `auto-common`. The original `auto-common` 
+* Decouple `AnnotationsUtil` from `com.google.auto:auto-common`. This involved importing and reimplementing `AnnotationsUtil.getAnnotationValuesWithDefaults()` from `auto-common`. The original `auto-common`
 * Expose `AbstractStandardProcessor.reportError(...)` method as protected access so subclasses can invoke.
 * Add `AbstractStandardProcessor.emitTypeSpec(...)` helper method as it appeared in all downstream classes. In the future it will also make it possible for the toolkit to track processing statistics.
 * Decouple `AbstractStandardProcessor` from `com.google.auto:auto-common`.
