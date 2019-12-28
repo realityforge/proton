@@ -2,6 +2,7 @@ package org.realityforge.proton.qa;
 
 import com.google.common.collect.ImmutableList;
 import com.google.testing.compile.Compilation;
+import com.google.testing.compile.CompileTester;
 import com.google.testing.compile.Compiler;
 import com.google.testing.compile.JavaFileObjects;
 import com.google.testing.compile.JavaSourcesSubjectFactory;
@@ -64,7 +65,8 @@ public abstract class AbstractProcessorTest
       {
         if ( emitGeneratedFile( fileObject ) )
         {
-          final Path target = fixtureDir().resolve( "expected/" + fileObject.getName().replace( "/SOURCE_OUTPUT/", "" ) );
+          final Path target =
+            fixtureDir().resolve( "expected/" + fileObject.getName().replace( "/SOURCE_OUTPUT/", "" ) );
           final File dir = target.getParent().toFile();
           if ( !dir.exists() )
           {
@@ -106,13 +108,50 @@ public abstract class AbstractProcessorTest
     final JavaFileObject firstExpected = fixture( outputs.get( 0 ) );
     final JavaFileObject[] restExpected =
       outputs.stream().skip( 1 ).map( this::fixture ).toArray( JavaFileObject[]::new );
-    assert_().about( JavaSourcesSubjectFactory.javaSources() ).
-      that( inputs ).
-      withCompilerOptions( getOptions() ).
-      processedWith( processor(), additionalProcessors() ).
-      compilesWithoutWarnings().
+    assertCompilesWithoutWarnings( inputs ).
       and().
       generatesSources( firstExpected, restExpected );
+  }
+
+  @Nonnull
+  protected final CompileTester assertCompiles( @Nonnull final List<JavaFileObject> inputs )
+  {
+    return assert_().about( JavaSourcesSubjectFactory.javaSources() ).
+      that( inputs ).
+      withCompilerOptions( getOptions() ).
+      processedWith( processor(), additionalProcessors() );
+  }
+
+  @Nonnull
+  protected final CompileTester.SuccessfulCompilationClause assertCompilesWithoutErrors( @Nonnull final String classname )
+  {
+    return assertCompilesWithoutErrors( Collections.singletonList( fixture( toFilename( "input", classname ) ) ) );
+  }
+
+  @Nonnull
+  protected final CompileTester.SuccessfulCompilationClause assertCompilesWithoutErrors( @Nonnull final List<JavaFileObject> inputs )
+  {
+    return assertCompiles( inputs ).compilesWithoutError();
+  }
+
+  @Nonnull
+  protected final CompileTester.CleanCompilationClause assertCompilesWithoutWarnings( @Nonnull final String classname )
+  {
+    return assertCompilesWithoutWarnings( Collections.singletonList( fixture( toFilename( "input", classname ) ) ) );
+  }
+
+  @Nonnull
+  protected final CompileTester.CleanCompilationClause assertCompilesWithoutWarnings( @Nonnull final List<JavaFileObject> inputs )
+  {
+    return assertCompiles( inputs ).compilesWithoutWarnings();
+  }
+
+  protected final void assertCompilesWithSingleWarning( @Nonnull final String classname,
+                                                        @Nonnull final String messageFragment )
+  {
+    assertCompilesWithoutErrors( toFilename( "input", classname ) ).
+      withWarningCount( 1 ).
+      withWarningContaining( messageFragment );
   }
 
   @SuppressWarnings( "unused" )
