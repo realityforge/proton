@@ -86,9 +86,9 @@ public abstract class AbstractStandardProcessor
                  target );
   }
 
-  private void reportError( @Nonnull final RoundEnvironment env,
-                            @Nonnull final String message,
-                            @Nullable final Element element )
+  protected final void reportError( @Nonnull final RoundEnvironment env,
+                                    @Nonnull final String message,
+                                    @Nullable final Element element )
   {
     final String deferErrorsValue = processingEnv.getOptions().get( getOptionPrefix() + ".defer.errors" );
     final boolean deferErrors = null == deferErrorsValue || "true".equals( deferErrorsValue );
