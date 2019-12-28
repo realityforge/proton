@@ -24,11 +24,11 @@ import static org.testng.Assert.*;
 
 public abstract class AbstractProcessorTest
 {
-  protected final void assertSuccessfulCompile( @Nonnull final String inputResource,
+  protected final void assertSuccessfulCompile( @Nonnull final String classname,
                                                 @Nonnull final String... expectedOutputResources )
     throws Exception
   {
-    final JavaFileObject source = fixture( inputResource );
+    final JavaFileObject source = fixture( toFilename( "input", classname ) );
     assertSuccessfulCompile( Collections.singletonList( source ), Arrays.asList( expectedOutputResources ) );
   }
 
@@ -149,7 +149,7 @@ public abstract class AbstractProcessorTest
   protected final void assertCompilesWithSingleWarning( @Nonnull final String classname,
                                                         @Nonnull final String messageFragment )
   {
-    assertCompilesWithoutErrors( toFilename( "input", classname ) ).
+    assertCompilesWithoutErrors( classname ).
       withWarningCount( 1 ).
       withWarningContaining( messageFragment );
   }
