@@ -9,6 +9,7 @@
 * Add `AbstractStandardProcessor.emitTypeSpec(...)` helper method as it appeared in all downstream classes. In the future it will also make it possible for the toolkit to track processing statistics.
 * Decouple `AbstractStandardProcessor` from `com.google.auto:auto-common`.
 * Remove unused dependencies `com.google.auto:auto-common` and `com.google.guava:guava`.
+* Add `ElementsUtil.isWarningNotSuppressed(...)` utility method to compliment `ElementsUtil.isWarningSuppressed(...)` as the first form is that which is usually used in downstream libraries.
 
 ### [v0.06](https://github.com/realityforge/proton/tree/v0.06) (2019-12-25) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.05...v0.06)
 

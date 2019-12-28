@@ -334,7 +334,7 @@ public final class MemberChecks
                                         @Nullable final String alternativeSuppressWarnings )
   {
     if ( method.getModifiers().contains( Modifier.PUBLIC ) &&
-         !ElementsUtil.isWarningSuppressed( method, warning, alternativeSuppressWarnings ) )
+         ElementsUtil.isWarningNotSuppressed( method, warning, alternativeSuppressWarnings ) )
     {
       final String message =
         toSimpleName( annotationName ) + " target should not be public. " +
@@ -350,7 +350,7 @@ public final class MemberChecks
                                            @Nullable final String alternativeSuppressWarnings )
   {
     if ( method.getModifiers().contains( Modifier.PROTECTED ) &&
-         !ElementsUtil.isWarningSuppressed( method, warning, alternativeSuppressWarnings ) )
+         ElementsUtil.isWarningNotSuppressed( method, warning, alternativeSuppressWarnings ) )
     {
       final String message =
         toSimpleName( annotationName ) + " target should not be protected. " +
