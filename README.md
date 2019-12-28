@@ -25,3 +25,4 @@ The project is licensed under [Apache License, Version 2.0](LICENSE).
 
 * The `com.google.auto:auto-common` library on which proton was originally based. The `auto-common` library provided
   inspiration and initial variants for some of the code (i.e. `AnnotationsUtil.getAnnotationValuesWithDefaults()`).
+  Other code (i.e. `SuperficialValidation`) was directly copied and reworked within the context of this library.

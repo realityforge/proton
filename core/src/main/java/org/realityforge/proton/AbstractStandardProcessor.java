@@ -1,7 +1,6 @@
 package org.realityforge.proton;
 
 import com.squareup.javapoet.TypeSpec;
-import com.google.auto.common.SuperficialValidation;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -195,7 +194,7 @@ public abstract class AbstractStandardProcessor
   {
     for ( final TypeElement element : elements )
     {
-      if ( SuperficialValidation.validateElement( element ) )
+      if ( SuperficialValidation.validateElement( processingEnv, element ) )
       {
         elementsToProcess.add( element );
       }
