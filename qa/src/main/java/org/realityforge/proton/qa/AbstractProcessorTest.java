@@ -236,10 +236,16 @@ public abstract class AbstractProcessorTest
   @Nonnull
   protected final Path fixtureDir()
   {
-    final String key = getOptionPrefix() + ".fixture_dir";
+    final String key = getOptionPrefix() + getFixtureKeyPart() + ".fixture_dir";
     final String fixtureDir = System.getProperty( key );
     assertNotNull( fixtureDir, "Expected System.getProperty( \"" + key + "\" ) to return fixture directory" );
     return new File( fixtureDir ).toPath();
+  }
+
+  @Nonnull
+  protected String getFixtureKeyPart()
+  {
+    return "";
   }
 
   @Nonnull
