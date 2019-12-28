@@ -1,5 +1,6 @@
 package org.realityforge.proton;
 
+import com.squareup.javapoet.TypeSpec;
 import com.google.auto.common.SuperficialValidation;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -223,4 +224,10 @@ public abstract class AbstractStandardProcessor
 
   protected abstract void process( @Nonnull final TypeElement element )
     throws IOException, ProcessorException;
+
+  protected final void emitTypeSpec( @Nonnull final String packageName, @Nonnull final TypeSpec typeSpec )
+    throws IOException
+  {
+    GeneratorUtil.emitJavaType( packageName, typeSpec, processingEnv.getFiler() );
+  }
 }
