@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.08](https://github.com/realityforge/proton/tree/v0.08) (2019-12-30) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.07...v0.08)
+
+Changes in this release:
 
 * Add several overloaded methods to `MemberChecks` that assume a `null` value for `alternativeSuppressWarnings`.
 * Add an overloaded method `MemberChecks.mustReturnAnInstanceOf(...)` that accepts a `TypeMirror` for the expected type.
