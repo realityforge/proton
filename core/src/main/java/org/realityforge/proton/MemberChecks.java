@@ -316,6 +316,12 @@ public final class MemberChecks
   }
 
   @Nonnull
+  public static String suppressedBy( @Nonnull final String warning )
+  {
+    return suppressedBy( warning, null );
+  }
+
+  @Nonnull
   public static String suppressedBy( @Nonnull final String warning,
                                      @Nullable final String alternativeSuppressWarnings )
   {
@@ -325,6 +331,14 @@ public final class MemberChecks
              "" :
              " or " + toSimpleName( alternativeSuppressWarnings ) + "( \"" + warning + "\" )" );
 
+  }
+
+  public static void shouldNotBePublic( @Nonnull final ProcessingEnvironment processingEnv,
+                                        @Nonnull final ExecutableElement method,
+                                        @Nonnull final String annotationName,
+                                        @Nonnull final String warning )
+  {
+    shouldNotBePublic( processingEnv, method, annotationName, warning, null );
   }
 
   public static void shouldNotBePublic( @Nonnull final ProcessingEnvironment processingEnv,
@@ -341,6 +355,14 @@ public final class MemberChecks
         suppressedBy( warning, alternativeSuppressWarnings );
       processingEnv.getMessager().printMessage( Diagnostic.Kind.WARNING, message, method );
     }
+  }
+
+  public static void shouldNotBeProtected( @Nonnull final ProcessingEnvironment processingEnv,
+                                           @Nonnull final ExecutableElement method,
+                                           @Nonnull final String annotationName,
+                                           @Nonnull final String warning )
+  {
+    shouldNotBeProtected( processingEnv, method, annotationName, warning, null );
   }
 
   public static void shouldNotBeProtected( @Nonnull final ProcessingEnvironment processingEnv,
@@ -374,6 +396,22 @@ public final class MemberChecks
       final String message = must( annotationClassname, "return an instance of " + expected );
       throw new ProcessorException( message, method );
     }
+  }
+
+  public static void shouldBeInternalMethod( @Nonnull final ProcessingEnvironment processingEnv,
+                                             @Nonnull final TypeElement typeElement,
+                                             @Nonnull final ExecutableElement method,
+                                             @Nonnull final String annotationClassname,
+                                             @Nonnull final String publicWarning,
+                                             @Nonnull final String protectedWarning )
+  {
+    shouldBeInternalMethod( processingEnv,
+                            typeElement,
+                            method,
+                            annotationClassname,
+                            publicWarning,
+                            protectedWarning,
+                            null );
   }
 
   public static void shouldBeInternalMethod( @Nonnull final ProcessingEnvironment processingEnv,
