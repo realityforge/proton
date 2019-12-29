@@ -31,11 +31,21 @@ public final class ElementsUtil
   {
   }
 
+  public static boolean isWarningNotSuppressed( @Nonnull final Element element, @Nonnull final String warning )
+  {
+    return !isWarningSuppressed( element, warning );
+  }
+
   public static boolean isWarningNotSuppressed( @Nonnull final Element element,
                                                 @Nonnull final String warning,
                                                 @Nullable final String alternativeSuppressWarnings )
   {
     return !isWarningSuppressed( element, warning, alternativeSuppressWarnings );
+  }
+
+  public static boolean isWarningSuppressed( @Nonnull final Element element, @Nonnull final String warning )
+  {
+    return isWarningSuppressed( element, warning, null );
   }
 
   @SuppressWarnings( "unchecked" )
