@@ -388,12 +388,18 @@ public final class MemberChecks
   {
     final TypeElement typeElement = processingEnv.getElementUtils().getTypeElement( expectedTypename );
     assert null != typeElement;
-    final TypeMirror expected = typeElement.asType();
+    mustReturnAnInstanceOf( processingEnv, method, annotationClassname, typeElement.asType() );
+  }
 
+  public static void mustReturnAnInstanceOf( @Nonnull final ProcessingEnvironment processingEnv,
+                                             @Nonnull final ExecutableElement method,
+                                             @Nonnull final String annotationClassname,
+                                             @Nonnull final TypeMirror expectedType )
+  {
     final TypeMirror actual = method.getReturnType();
-    if ( !processingEnv.getTypeUtils().isSameType( actual, expected ) )
+    if ( !processingEnv.getTypeUtils().isSameType( actual, expectedType ) )
     {
-      final String message = must( annotationClassname, "return an instance of " + expected );
+      final String message = must( annotationClassname, "return an instance of " + expectedType );
       throw new ProcessorException( message, method );
     }
   }
