@@ -24,6 +24,12 @@ import javax.tools.Diagnostic;
 public abstract class AbstractStandardProcessor
   extends AbstractProcessor
 {
+  public interface Action
+  {
+    void process( @Nonnull TypeElement element )
+      throws Exception;
+  }
+
   @Nonnull
   private Set<TypeElement> _deferred = new HashSet<>();
   private int _invalidTypeCount;
@@ -32,10 +38,19 @@ public abstract class AbstractStandardProcessor
   public boolean process( @Nonnull final Set<? extends TypeElement> annotations, @Nonnull final RoundEnvironment env )
   {
     final Collection<TypeElement> elements = getTypeElementsToProcess( env );
+    processTypeElements( env, elements, this::process );
+    errorIfProcessingOverAndInvalidTypesDetected( env );
+    return true;
+  }
+
+  protected final void processTypeElements( @Nonnull final RoundEnvironment env,
+                                            @Nonnull final Collection<TypeElement> elements,
+                                            @Nonnull final Action action )
+  {
     if ( shouldDeferUnresolved() )
     {
       final Collection<TypeElement> elementsToProcess = deriveElementsToProcess( elements );
-      processElements( env, elementsToProcess );
+      doProcessTypeElements( env, elementsToProcess, action );
       if ( env.getRootElements().isEmpty() && !_deferred.isEmpty() )
       {
         _deferred.forEach( e -> processingErrorMessage( env, e ) );
@@ -44,10 +59,8 @@ public abstract class AbstractStandardProcessor
     }
     else
     {
-      processElements( env, new ArrayList<>( elements ) );
+      doProcessTypeElements( env, new ArrayList<>( elements ), action );
     }
-    errorIfProcessingOverAndInvalidTypesDetected( env );
-    return true;
   }
 
   protected final void errorIfProcessingOverAndInvalidTypesDetected( @Nonnull final RoundEnvironment env )
@@ -108,13 +121,15 @@ public abstract class AbstractStandardProcessor
     }
   }
 
-  private void processElements( @Nonnull final RoundEnvironment env, @Nonnull final Collection<TypeElement> elements )
+  private void doProcessTypeElements( @Nonnull final RoundEnvironment env,
+                                      @Nonnull final Collection<TypeElement> elements,
+                                      @Nonnull final Action action )
   {
     for ( final TypeElement element : elements )
     {
       try
       {
-        process( element );
+        action.process( element );
       }
       catch ( final IOException ioe )
       {
