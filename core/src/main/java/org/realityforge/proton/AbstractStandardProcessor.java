@@ -47,18 +47,24 @@ public abstract class AbstractStandardProcessor
     {
       processElements( env, new ArrayList<>( elements ) );
     }
+    errorIfProcessingOverAndInvalidTypesDetected( env );
+    return true;
+  }
+
+  protected final void errorIfProcessingOverAndInvalidTypesDetected( @Nonnull final RoundEnvironment env )
+  {
     if ( env.processingOver() )
     {
       if ( 0 != _invalidTypeCount )
       {
         processingEnv
           .getMessager()
-          .printMessage( Diagnostic.Kind.ERROR, getClass().getSimpleName() + " failed to process " + _invalidTypeCount +
-                                                " types. See earlier warnings for further details." );
+          .printMessage( Diagnostic.Kind.ERROR,
+                         getClass().getSimpleName() + " failed to process " + _invalidTypeCount +
+                         " types. See earlier warnings for further details." );
       }
       _invalidTypeCount = 0;
     }
-    return true;
   }
 
   protected boolean shouldDeferUnresolved()
