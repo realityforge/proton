@@ -17,7 +17,6 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
@@ -124,7 +123,7 @@ public abstract class AbstractStandardProcessor
       catch ( final ProcessorException e )
       {
         final Element errorLocation = e.getElement();
-        final Element outerElement = getOuterElement( errorLocation );
+        final Element outerElement = ElementsUtil.getTopLevelElement( errorLocation );
         if ( !env.getRootElements().contains( outerElement ) )
         {
           final String location;
@@ -209,22 +208,6 @@ public abstract class AbstractStandardProcessor
         _deferred.add( element );
       }
     }
-  }
-
-  /**
-   * Return the outer enclosing element.
-   * This is either the top-level class, interface, enum, etc within a package.
-   * This helps identify the top level compilation units.
-   */
-  @Nonnull
-  private Element getOuterElement( @Nonnull final Element element )
-  {
-    Element result = element;
-    while ( !( result.getEnclosingElement() instanceof PackageElement ) )
-    {
-      result = result.getEnclosingElement();
-    }
-    return result;
   }
 
   protected abstract void process( @Nonnull final TypeElement element )

@@ -16,6 +16,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
@@ -298,5 +299,21 @@ public final class ElementsUtil
     {
       return typeName;
     }
+  }
+
+  /**
+   * Return the outer enclosing element.
+   * This is either the top-level class, interface, enum, etc within a package.
+   * This helps identify the top level compilation units.
+   */
+  @Nonnull
+  public static Element getTopLevelElement( @Nonnull final Element element )
+  {
+    Element result = element;
+    while ( !( result.getEnclosingElement() instanceof PackageElement ) )
+    {
+      result = result.getEnclosingElement();
+    }
+    return result;
   }
 }
