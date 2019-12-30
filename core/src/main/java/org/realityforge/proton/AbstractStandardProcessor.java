@@ -34,14 +34,6 @@ public abstract class AbstractStandardProcessor
   private Set<TypeElement> _deferred = new HashSet<>();
   private int _invalidTypeCount;
 
-  @Override
-  public boolean process( @Nonnull final Set<? extends TypeElement> annotations, @Nonnull final RoundEnvironment env )
-  {
-    processTypeElements( env, getTypeElementsToProcess( env ), this::process );
-    errorIfProcessingOverAndInvalidTypesDetected( env );
-    return true;
-  }
-
   protected final void processTypeElements( @Nonnull final RoundEnvironment env,
                                             @Nonnull final Collection<TypeElement> elements,
                                             @Nonnull final Action action )
@@ -84,9 +76,6 @@ public abstract class AbstractStandardProcessor
     final String deferUnresolvedValue = options.get( getOptionPrefix() + ".defer.unresolved" );
     return null == deferUnresolvedValue || "true".equals( deferUnresolvedValue );
   }
-
-  @Nonnull
-  protected abstract Collection<TypeElement> getTypeElementsToProcess( @Nonnull RoundEnvironment env );
 
   @Nonnull
   protected abstract String getIssueTrackerURL();
@@ -223,9 +212,6 @@ public abstract class AbstractStandardProcessor
       }
     }
   }
-
-  protected abstract void process( @Nonnull final TypeElement element )
-    throws IOException, ProcessorException;
 
   protected final void emitTypeSpec( @Nonnull final String packageName, @Nonnull final TypeSpec typeSpec )
     throws IOException
