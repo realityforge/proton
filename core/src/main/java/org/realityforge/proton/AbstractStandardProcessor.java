@@ -37,8 +37,7 @@ public abstract class AbstractStandardProcessor
   @Override
   public boolean process( @Nonnull final Set<? extends TypeElement> annotations, @Nonnull final RoundEnvironment env )
   {
-    final Collection<TypeElement> elements = getTypeElementsToProcess( env );
-    processTypeElements( env, elements, this::process );
+    processTypeElements( env, getTypeElementsToProcess( env ), this::process );
     errorIfProcessingOverAndInvalidTypesDetected( env );
     return true;
   }
