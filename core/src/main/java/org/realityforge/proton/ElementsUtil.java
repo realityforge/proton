@@ -157,7 +157,7 @@ public final class ElementsUtil
     }
     for ( final Element member : element.getEnclosedElements() )
     {
-      if ( member.getKind() == ElementKind.FIELD )
+      if ( ElementKind.FIELD == member.getKind() )
       {
         fields.put( member.getSimpleName().toString(), (VariableElement) member );
       }
@@ -193,7 +193,7 @@ public final class ElementsUtil
     }
     for ( final Element member : element.getEnclosedElements() )
     {
-      if ( member.getKind() == ElementKind.METHOD )
+      if ( ElementKind.METHOD == member.getKind() )
       {
         final ExecutableElement method = (ExecutableElement) member;
         processMethod( elementUtils, typeUtils, scope, methods, method );
@@ -266,7 +266,7 @@ public final class ElementsUtil
   public static List<ExecutableElement> getConstructors( @Nonnull final TypeElement element )
   {
     return element.getEnclosedElements().stream().
-      filter( m -> m.getKind() == ElementKind.CONSTRUCTOR ).
+      filter( m -> ElementKind.CONSTRUCTOR == m.getKind() ).
       map( m -> (ExecutableElement) m ).
       collect( Collectors.toList() );
   }
