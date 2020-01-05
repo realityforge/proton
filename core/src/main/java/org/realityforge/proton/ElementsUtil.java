@@ -316,4 +316,24 @@ public final class ElementsUtil
     }
     return result;
   }
+
+  public static boolean isEnclosedInNonStaticClass( @Nonnull final TypeElement element )
+  {
+    final Element parent = element.getEnclosingElement();
+    if ( parent instanceof TypeElement )
+    {
+      if ( element.getModifiers().contains( Modifier.STATIC ) )
+      {
+        return isEnclosedInNonStaticClass( (TypeElement) parent );
+      }
+      else
+      {
+        return true;
+      }
+    }
+    else
+    {
+      return false;
+    }
+  }
 }
