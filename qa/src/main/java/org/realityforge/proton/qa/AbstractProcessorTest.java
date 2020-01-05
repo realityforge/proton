@@ -1,21 +1,23 @@
 package org.realityforge.proton.qa;
 
-import com.google.common.collect.ImmutableList;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.CompileTester;
 import com.google.testing.compile.Compiler;
 import com.google.testing.compile.JavaFileObjects;
 import com.google.testing.compile.JavaSourcesSubjectFactory;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.processing.Processor;
 import javax.tools.JavaFileObject;
@@ -60,38 +62,7 @@ public abstract class AbstractProcessorTest
         field.set( compilation, Compilation.Status.SUCCESS );
       }
 
-      final ImmutableList<JavaFileObject> fileObjects = compilation.generatedSourceFiles();
-      for ( final JavaFileObject fileObject : fileObjects )
-      {
-        if ( emitGeneratedFile( fileObject ) )
-        {
-          final Path target =
-            fixtureDir().resolve( "expected/" + fileObject.getName().replace( "/SOURCE_OUTPUT/", "" ) );
-          final File dir = target.getParent().toFile();
-          if ( !dir.exists() )
-          {
-            assertTrue( dir.mkdirs() );
-          }
-          if ( Files.exists( target ) )
-          {
-            final byte[] existing = Files.readAllBytes( target );
-            final InputStream generated = fileObject.openInputStream();
-            final byte[] data = new byte[ generated.available() ];
-            assertEquals( generated.read( data ), data.length );
-            if ( Arrays.equals( existing, data ) )
-            {
-              /*
-               * If the data on the filesystem is identical to data generated then do not write
-               * to filesystem. The writing can be slow and it can also trigger the IDE or other
-               * tools to recompile code which is problematic.
-               */
-              continue;
-            }
-            Files.delete( target );
-          }
-          Files.copy( fileObject.openInputStream(), target );
-        }
-      }
+      outputGeneratedFiles( compilation );
 
       if ( Compilation.Status.SUCCESS != status )
       {
@@ -105,12 +76,78 @@ public abstract class AbstractProcessorTest
         compilation.generatedSourceFiles();
       }
     }
-    final JavaFileObject firstExpected = fixture( outputs.get( 0 ) );
-    final JavaFileObject[] restExpected =
-      outputs.stream().skip( 1 ).map( this::fixture ).toArray( JavaFileObject[]::new );
-    assertCompilesWithoutWarnings( inputs ).
-      and().
-      generatesSources( firstExpected, restExpected );
+    final List<String> sourceFiles =
+      outputs.stream().filter( o -> o.endsWith( ".java" ) ).collect( Collectors.toList() );
+    final List<String> otherFiles =
+      outputs.stream().filter( o -> !o.endsWith( ".java" ) ).collect( Collectors.toList() );
+    final CompileTester.CleanCompilationClause clause = assertCompilesWithoutWarnings( inputs );
+    if ( !sourceFiles.isEmpty() )
+    {
+      final JavaFileObject firstExpected = fixture( sourceFiles.get( 0 ) );
+      final JavaFileObject[] restExpected =
+        sourceFiles.stream().skip( 1 ).map( this::fixture ).toArray( JavaFileObject[]::new );
+      clause.
+        and().
+        generatesSources( firstExpected, restExpected );
+    }
+    if ( !otherFiles.isEmpty() )
+    {
+      final JavaFileObject firstExpected = fixture( otherFiles.get( 0 ) );
+      final JavaFileObject[] restExpected =
+        otherFiles.stream().skip( 1 ).map( this::fixture ).toArray( JavaFileObject[]::new );
+      clause.
+        and().
+        generatesFiles( firstExpected, restExpected );
+    }
+  }
+
+  private void outputGeneratedFiles( @Nonnull final Compilation compilation )
+    throws IOException
+  {
+    for ( final JavaFileObject fileObject : compilation.generatedFiles() )
+    {
+      if ( emitGeneratedFile( fileObject ) )
+      {
+        final String filename = fileObject.getName().replace( "/SOURCE_OUTPUT/", "" ).replace( "/CLASS_OUTPUT/", "" );
+        outputGeneratedFile( fileObject, fixtureDir().resolve( "expected/" + filename ) );
+      }
+    }
+  }
+
+  /**
+   * Output the generated file to target file, skipping step if target matches generated file.
+   *
+   * @param fileObject the generated file.
+   * @param target     the target filename
+   * @throws IOException if an IO error occurs.
+   */
+  private void outputGeneratedFile( @Nonnull final JavaFileObject fileObject, @Nonnull final Path target )
+    throws IOException
+  {
+    final File dir = target.getParent().toFile();
+    if ( !dir.exists() )
+    {
+      assertTrue( dir.mkdirs() );
+    }
+    /*
+     * If the data on the filesystem is identical to data generated then do not write
+     * to filesystem. The writing can be slow and it can also trigger the IDE or other
+     * tools to recompile code which is problematic.
+     */
+    if ( !Files.exists( target ) || !doesTargetFileMatchGenerated( fileObject, target ) )
+    {
+      Files.copy( fileObject.openInputStream(), target, StandardCopyOption.REPLACE_EXISTING );
+    }
+  }
+
+  private boolean doesTargetFileMatchGenerated( @Nonnull final JavaFileObject fileObject, @Nonnull final Path target )
+    throws IOException
+  {
+    final byte[] existing = Files.readAllBytes( target );
+    final InputStream generated = fileObject.openInputStream();
+    final byte[] data = new byte[ generated.available() ];
+    assertEquals( generated.read( data ), data.length );
+    return Arrays.equals( existing, data );
   }
 
   @Nonnull
@@ -154,10 +191,9 @@ public abstract class AbstractProcessorTest
       withWarningContaining( messageFragment );
   }
 
-  @SuppressWarnings( "unused" )
   protected boolean emitGeneratedFile( @Nonnull final JavaFileObject target )
   {
-    return true;
+    return JavaFileObject.Kind.CLASS != target.getKind();
   }
 
   @Nonnull
