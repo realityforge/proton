@@ -180,15 +180,32 @@ public abstract class AbstractProcessorTest
   @Nonnull
   protected final String toFilename( @Nonnull final String dir, @Nonnull final String classname )
   {
+    return toFilename( dir, classname, "", ".java" );
+  }
+
+  @Nonnull
+  protected final String toFilename( @Nonnull final String dir,
+                                     @Nonnull final String classname,
+                                     @Nonnull final String prefix,
+                                     @Nonnull final String postfix )
+  {
     final String[] elements = classname.contains( "." ) ? classname.split( "\\." ) : new String[]{ classname };
     final StringBuilder input = new StringBuilder();
     input.append( dir );
-    for ( final String element : elements )
+    for ( int i = 0; i < elements.length; i++ )
     {
+      final boolean lastElement = i == elements.length - 1;
       input.append( '/' );
-      input.append( element );
+      if ( lastElement )
+      {
+        input.append( prefix );
+      }
+      input.append( elements[ i ] );
+      if ( lastElement )
+      {
+        input.append( postfix );
+      }
     }
-    input.append( ".java" );
     return input.toString();
   }
 
