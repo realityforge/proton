@@ -16,6 +16,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.NestingKind;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -317,23 +318,8 @@ public final class ElementsUtil
     return result;
   }
 
-  public static boolean isEnclosedInNonStaticClass( @Nonnull final TypeElement element )
+  public static boolean isNonStaticNestedClass( @Nonnull final TypeElement element )
   {
-    final Element parent = element.getEnclosingElement();
-    if ( parent instanceof TypeElement )
-    {
-      if ( element.getModifiers().contains( Modifier.STATIC ) )
-      {
-        return isEnclosedInNonStaticClass( (TypeElement) parent );
-      }
-      else
-      {
-        return true;
-      }
-    }
-    else
-    {
-      return false;
-    }
+    return NestingKind.TOP_LEVEL != element.getNestingKind() && !element.getModifiers().contains( Modifier.STATIC );
   }
 }

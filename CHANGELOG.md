@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Replace `ElementsUtil.isEnclosedInNonStaticClass(TypeElement)` with easier to understand `ElementsUtil.isNonStaticNestedClass(TypeElement)` method.
+
 ### [v0.10](https://github.com/realityforge/proton/tree/v0.10) (2020-01-05) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.09...v0.10)
 
 Changes in this release:
