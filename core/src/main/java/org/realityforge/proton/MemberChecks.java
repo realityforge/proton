@@ -221,6 +221,16 @@ public final class MemberChecks
     }
   }
 
+  public static void mustNotHaveAnyTypeParameters( @Nonnull final String annotationName,
+                                                   @Nonnull final ExecutableElement method )
+    throws ProcessorException
+  {
+    if ( !method.getTypeParameters().isEmpty() )
+    {
+      throw new ProcessorException( mustNot( annotationName, "have any type parameters" ), method );
+    }
+  }
+
   public static void mustNotReturnAnyValue( @Nonnull final String annotationName,
                                             @Nonnull final ExecutableElement method )
     throws ProcessorException

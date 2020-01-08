@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Add `MemberChecks.mustNotHaveAnyTypeParameters(...)` helper method.
+
 ### [v0.11](https://github.com/realityforge/proton/tree/v0.11) (2020-01-05) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.10...v0.11)
 
 Changes in this release:
