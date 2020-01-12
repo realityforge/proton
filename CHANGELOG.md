@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.13](https://github.com/realityforge/proton/tree/v0.13) (2020-01-12) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.12...v0.13)
+
+Changes in this release:
 
 * Add `SuperficialValidation.validateType(...)` and `SuperficialValidation.validateTypes(...)` helper methods.
 
