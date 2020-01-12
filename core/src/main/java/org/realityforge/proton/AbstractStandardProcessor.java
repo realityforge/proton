@@ -24,6 +24,7 @@ import javax.tools.Diagnostic;
 public abstract class AbstractStandardProcessor
   extends AbstractProcessor
 {
+  @FunctionalInterface
   public interface Action
   {
     void process( @Nonnull TypeElement element )
