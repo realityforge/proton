@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Expose `AbstractStandardProcessor.deferElement(...)` so that annotation processors can schedule elements for processing in the next processing round.
+* Expose `AbstractStandardProcessor.performAction(...)` so that subclasses can perform the same error recovery actions as the base class.
 
 ### [v0.13](https://github.com/realityforge/proton/tree/v0.13) (2020-01-12) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.12...v0.13)
 

@@ -116,70 +116,77 @@ public abstract class AbstractStandardProcessor
   {
     for ( final TypeElement element : elements )
     {
-      try
+      performAction( env, action, element );
+    }
+  }
+
+  protected final void performAction( @Nonnull final RoundEnvironment env,
+                                      @Nonnull final Action action,
+                                      @Nonnull final TypeElement element )
+  {
+    try
+    {
+      action.process( element );
+    }
+    catch ( final IOException ioe )
+    {
+      reportError( env, ioe.getMessage(), element );
+    }
+    catch ( final ProcessorException e )
+    {
+      final Element errorLocation = e.getElement();
+      final Element outerElement = ElementsUtil.getTopLevelElement( errorLocation );
+      if ( !env.getRootElements().contains( outerElement ) )
       {
-        action.process( element );
-      }
-      catch ( final IOException ioe )
-      {
-        reportError( env, ioe.getMessage(), element );
-      }
-      catch ( final ProcessorException e )
-      {
-        final Element errorLocation = e.getElement();
-        final Element outerElement = ElementsUtil.getTopLevelElement( errorLocation );
-        if ( !env.getRootElements().contains( outerElement ) )
+        final String location;
+        if ( errorLocation instanceof ExecutableElement )
         {
-          final String location;
-          if ( errorLocation instanceof ExecutableElement )
-          {
-            final ExecutableElement executableElement = (ExecutableElement) errorLocation;
-            final TypeElement typeElement = (TypeElement) executableElement.getEnclosingElement();
-            location = typeElement.getQualifiedName() + "." + executableElement.getSimpleName();
-          }
-          else if ( errorLocation instanceof VariableElement )
-          {
-            final VariableElement variableElement = (VariableElement) errorLocation;
-            final TypeElement typeElement = (TypeElement) variableElement.getEnclosingElement();
-            location = typeElement.getQualifiedName() + "." + variableElement.getSimpleName();
-          }
-          else
-          {
-            assert errorLocation instanceof TypeElement;
-            final TypeElement typeElement = (TypeElement) errorLocation;
-            location = typeElement.getQualifiedName().toString();
-          }
-
-          final StringWriter sw = new StringWriter();
-          processingEnv.getElementUtils().printElements( sw, errorLocation );
-          sw.flush();
-
-          final String message =
-            "An error was generated processing the element " + element.getSimpleName() +
-            " but the error was triggered by code not currently being compiled but inherited or " +
-            "implemented by the element and may not be highlighted by your tooling or IDE. The " +
-            "error occurred at " + location + " and may look like:\n" + sw.toString();
-
-          reportError( env, e.getMessage(), element );
-          reportError( env, message, null );
+          final ExecutableElement executableElement = (ExecutableElement) errorLocation;
+          final TypeElement typeElement = (TypeElement) executableElement.getEnclosingElement();
+          location = typeElement.getQualifiedName() + "." + executableElement.getSimpleName();
         }
-        reportError( env, e.getMessage(), e.getElement() );
-      }
-      catch ( final Throwable e )
-      {
+        else if ( errorLocation instanceof VariableElement )
+        {
+          final VariableElement variableElement = (VariableElement) errorLocation;
+          final TypeElement typeElement = (TypeElement) variableElement.getEnclosingElement();
+          location = typeElement.getQualifiedName() + "." + variableElement.getSimpleName();
+        }
+        else
+        {
+          assert errorLocation instanceof TypeElement;
+          final TypeElement typeElement = (TypeElement) errorLocation;
+          location = typeElement.getQualifiedName().toString();
+        }
+
         final StringWriter sw = new StringWriter();
-        e.printStackTrace( new PrintWriter( sw ) );
+        processingEnv.getElementUtils().printElements( sw, errorLocation );
         sw.flush();
 
         final String message =
-          "Unexpected error running the " + getClass().getName() + " processor. This has " +
-          "resulted in a failure to process the code and has left the compiler in an invalid " +
-          "state. Please report the failure to the developers so that it can be fixed.\n" +
-          " Report the error at: " + getIssueTrackerURL() + "\n" +
-          "\n\n" +
-          sw.toString();
-        reportError( env, message, element );
+          "An error was generated processing the element " + element.getSimpleName() +
+          " but the error was triggered by code not currently being compiled but inherited or " +
+          "implemented by the element and may not be highlighted by your tooling or IDE. The " +
+          "error occurred at " + location + " and may look like:\n" + sw.toString();
+
+        reportError( env, e.getMessage(), element );
+        reportError( env, message, null );
       }
+      reportError( env, e.getMessage(), e.getElement() );
+    }
+    catch ( final Throwable e )
+    {
+      final StringWriter sw = new StringWriter();
+      e.printStackTrace( new PrintWriter( sw ) );
+      sw.flush();
+
+      final String message =
+        "Unexpected error running the " + getClass().getName() + " processor. This has " +
+        "resulted in a failure to process the code and has left the compiler in an invalid " +
+        "state. Please report the failure to the developers so that it can be fixed.\n" +
+        " Report the error at: " + getIssueTrackerURL() + "\n" +
+        "\n\n" +
+        sw.toString();
+      reportError( env, message, element );
     }
   }
 
