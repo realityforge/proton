@@ -60,6 +60,18 @@ public final class SuperficialValidation
     return new ValidatorVisitors( processingEnv ).validateElement( element );
   }
 
+  public static boolean validateTypes( @Nonnull final ProcessingEnvironment processingEnv,
+                                       @Nonnull final Iterable<? extends TypeMirror> types )
+  {
+    return new ValidatorVisitors( processingEnv ).validateTypes( types );
+  }
+
+  public static boolean validateType( @Nonnull final ProcessingEnvironment processingEnv,
+                                      @Nonnull final TypeMirror type )
+  {
+    return new ValidatorVisitors( processingEnv ).validateType( type );
+  }
+
   private static final class ValidatorVisitors
   {
     @Nonnull
