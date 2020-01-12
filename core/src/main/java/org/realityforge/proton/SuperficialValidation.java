@@ -48,6 +48,10 @@ import javax.lang.model.util.SimpleTypeVisitor6;
  */
 public final class SuperficialValidation
 {
+  private SuperficialValidation()
+  {
+  }
+
   public static boolean validateElements( @Nonnull final ProcessingEnvironment processingEnv,
                                           @Nonnull final Iterable<? extends Element> elements )
   {
