@@ -208,9 +208,14 @@ public abstract class AbstractStandardProcessor
       }
       else
       {
-        _deferred.add( element );
+        deferElement( element );
       }
     }
+  }
+
+  protected final void deferElement( @Nonnull final TypeElement element )
+  {
+    _deferred.add( element );
   }
 
   protected final void emitTypeSpec( @Nonnull final String packageName, @Nonnull final TypeSpec typeSpec )
