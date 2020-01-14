@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.15](https://github.com/realityforge/proton/tree/v0.15) (2020-01-15) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.14...v0.15)
+
+Changes in this release:
 
 * Add `AbstractProcessorTest.inputs(String... classnames)` for building up a set of input fixtures.
 * Add `AbstractProcessorTest.assertSuccessfulCompile(...)` method variant that accepts a predicate for selecting which files to save to the filesystem.
