@@ -17,7 +17,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.processing.Processor;
 import javax.tools.JavaFileObject;
@@ -35,6 +37,14 @@ public abstract class AbstractProcessorTest
 
   protected final void assertSuccessfulCompile( @Nonnull final List<JavaFileObject> inputs,
                                                 @Nonnull final List<String> outputs )
+    throws Exception
+  {
+    assertSuccessfulCompile( inputs, outputs, this::emitGeneratedFile );
+  }
+
+  protected final void assertSuccessfulCompile( @Nonnull final List<JavaFileObject> inputs,
+                                                @Nonnull final List<String> outputs,
+                                                @Nonnull final Predicate<JavaFileObject> filter )
     throws Exception
   {
     if ( outputFiles() )
@@ -61,7 +71,7 @@ public abstract class AbstractProcessorTest
         field.set( compilation, Compilation.Status.SUCCESS );
       }
 
-      outputGeneratedFiles( compilation );
+      outputGeneratedFiles( compilation, filter );
 
       if ( Compilation.Status.SUCCESS != status )
       {
@@ -100,12 +110,13 @@ public abstract class AbstractProcessorTest
     }
   }
 
-  private void outputGeneratedFiles( @Nonnull final Compilation compilation )
+  private void outputGeneratedFiles( @Nonnull final Compilation compilation,
+                                     @Nonnull final Predicate<JavaFileObject> filter )
     throws IOException
   {
     for ( final JavaFileObject fileObject : compilation.generatedFiles() )
     {
-      if ( emitGeneratedFile( fileObject ) )
+      if ( filter.test( fileObject ) )
       {
         final String filename = fileObject.getName().replace( "/SOURCE_OUTPUT/", "" ).replace( "/CLASS_OUTPUT/", "" );
         outputGeneratedFile( fileObject, fixtureDir().resolve( "expected/" + filename ) );

@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Add `AbstractProcessorTest.inputs(String... classnames)` for building up a set of input fixtures.
+* Add `AbstractProcessorTest.assertSuccessfulCompile(...)` method variant that accepts a predicate for selecting which files to save to the filesystem.
 
 ### [v0.14](https://github.com/realityforge/proton/tree/v0.14) (2020-01-13) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.13...v0.14)
 
