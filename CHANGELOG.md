@@ -1,5 +1,7 @@
 # Change Log
 
+### Unreleased
+
 ### [v0.15](https://github.com/realityforge/proton/tree/v0.15) (2020-01-15) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.14...v0.15)
 
 Changes in this release:
