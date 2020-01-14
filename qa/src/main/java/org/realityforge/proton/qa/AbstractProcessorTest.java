@@ -30,8 +30,7 @@ public abstract class AbstractProcessorTest
                                                 @Nonnull final String... expectedOutputResources )
     throws Exception
   {
-    final JavaFileObject source = fixture( toFilename( "input", classname ) );
-    assertSuccessfulCompile( Collections.singletonList( source ), Arrays.asList( expectedOutputResources ) );
+    assertSuccessfulCompile( inputs( classname ), Arrays.asList( expectedOutputResources ) );
   }
 
   protected final void assertSuccessfulCompile( @Nonnull final List<JavaFileObject> inputs,
@@ -162,7 +161,15 @@ public abstract class AbstractProcessorTest
   @Nonnull
   protected final CompileTester.SuccessfulCompilationClause assertCompilesWithoutErrors( @Nonnull final String classname )
   {
-    return assertCompilesWithoutErrors( Collections.singletonList( fixture( toFilename( "input", classname ) ) ) );
+    return assertCompilesWithoutErrors( inputs( classname ) );
+  }
+
+  @Nonnull
+  protected final List<JavaFileObject> inputs( @Nonnull final String... classnames )
+  {
+    return Stream.of( classnames )
+      .map( classname -> fixture( toFilename( "input", classname ) ) )
+      .collect( Collectors.toList() );
   }
 
   @Nonnull
@@ -174,7 +181,7 @@ public abstract class AbstractProcessorTest
   @Nonnull
   protected final CompileTester.CleanCompilationClause assertCompilesWithoutWarnings( @Nonnull final String classname )
   {
-    return assertCompilesWithoutWarnings( Collections.singletonList( fixture( toFilename( "input", classname ) ) ) );
+    return assertCompilesWithoutWarnings( inputs( classname ) );
   }
 
   @Nonnull
