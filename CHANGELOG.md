@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.16](https://github.com/realityforge/proton/tree/v0.16) (2020-01-15) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.15...v0.16)
+
+Changes in this release:
 
 * Extract `JsonUtil` and `ResourceUtil` from downstream libraries. Basic utilities for emitting files and resources from an annotation processor.
 
