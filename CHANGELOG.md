@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Upgrade the `com.squareup` artifact to version `1.12.0`.
+
 ### [v0.16](https://github.com/realityforge/proton/tree/v0.16) (2020-01-15) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.15...v0.16)
 
 Changes in this release:
