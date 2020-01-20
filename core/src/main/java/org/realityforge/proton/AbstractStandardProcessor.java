@@ -130,7 +130,13 @@ public abstract class AbstractStandardProcessor
     }
     catch ( final IOException ioe )
     {
-      reportError( env, ioe.getMessage(), element );
+      final String message =
+        "IO error running the " + getClass().getName() + " processor. This has " +
+        "resulted in a failure to process the code and has left the compiler in an invalid " +
+        "state.\n" +
+        "\n\n" +
+        printStackTrace( ioe );
+      reportError( env, message, element );
     }
     catch ( final ProcessorException e )
     {
