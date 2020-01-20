@@ -154,8 +154,23 @@ public abstract class AbstractStandardProcessor
         else if ( errorLocation instanceof VariableElement )
         {
           final VariableElement variableElement = (VariableElement) errorLocation;
-          final TypeElement typeElement = (TypeElement) variableElement.getEnclosingElement();
-          location = typeElement.getQualifiedName() + "." + variableElement.getSimpleName();
+          final Element enclosingElement = variableElement.getEnclosingElement();
+          if( enclosingElement instanceof TypeElement )
+          {
+            final TypeElement typeElement = (TypeElement) enclosingElement;
+            location = typeElement.getQualifiedName() + "." + variableElement.getSimpleName();
+          }
+          else
+          {
+            final ExecutableElement executableElement = (ExecutableElement) enclosingElement;
+            final TypeElement typeElement = (TypeElement) executableElement.getEnclosingElement();
+            location = typeElement.getQualifiedName() +
+                       "." +
+                       executableElement.getSimpleName() +
+                       "(..." +
+                       variableElement.getSimpleName() +
+                       "...)";
+          }
         }
         else
         {
