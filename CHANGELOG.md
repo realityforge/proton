@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.18](https://github.com/realityforge/proton/tree/v0.18) (2020-01-20) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.17...v0.18)
+
+Changes in this release:
 
 * Upgrade the `com.google.truth` artifact to version `0.44`.
 * Upgrade the `com.google.testing.compile` artifact to version `0.18`.
