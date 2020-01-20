@@ -25,9 +25,9 @@ public abstract class AbstractStandardProcessor
   extends AbstractProcessor
 {
   @FunctionalInterface
-  public interface Action
+  public interface Action<E extends Element>
   {
-    void process( @Nonnull TypeElement element )
+    void process( @Nonnull E element )
       throws Exception;
   }
 
@@ -37,7 +37,7 @@ public abstract class AbstractStandardProcessor
 
   protected final void processTypeElements( @Nonnull final RoundEnvironment env,
                                             @Nonnull final Collection<TypeElement> elements,
-                                            @Nonnull final Action action )
+                                            @Nonnull final Action<TypeElement> action )
   {
     if ( shouldDeferUnresolved() )
     {
@@ -112,7 +112,7 @@ public abstract class AbstractStandardProcessor
 
   private void doProcessTypeElements( @Nonnull final RoundEnvironment env,
                                       @Nonnull final Collection<TypeElement> elements,
-                                      @Nonnull final Action action )
+                                      @Nonnull final Action<TypeElement> action )
   {
     for ( final TypeElement element : elements )
     {
@@ -120,9 +120,9 @@ public abstract class AbstractStandardProcessor
     }
   }
 
-  protected final void performAction( @Nonnull final RoundEnvironment env,
-                                      @Nonnull final Action action,
-                                      @Nonnull final TypeElement element )
+  protected final <E extends Element> void performAction( @Nonnull final RoundEnvironment env,
+                                                          @Nonnull final Action<E> action,
+                                                          @Nonnull final E element )
   {
     try
     {
@@ -155,7 +155,7 @@ public abstract class AbstractStandardProcessor
         {
           final VariableElement variableElement = (VariableElement) errorLocation;
           final Element enclosingElement = variableElement.getEnclosingElement();
-          if( enclosingElement instanceof TypeElement )
+          if ( enclosingElement instanceof TypeElement )
           {
             final TypeElement typeElement = (TypeElement) enclosingElement;
             location = typeElement.getQualifiedName() + "." + variableElement.getSimpleName();

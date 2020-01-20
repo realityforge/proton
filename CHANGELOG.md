@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Refactor `AbstractStandardProcessor.performAction` to use generics to support processing arbitrary `Element` subtypes.
+
 ### [v0.19](https://github.com/realityforge/proton/tree/v0.19) (2020-01-21) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.18...v0.19)
 
 Changes in this release:
