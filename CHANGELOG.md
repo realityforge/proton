@@ -5,6 +5,7 @@
 * Upgrade the `com.google.truth` artifact to version `0.44`.
 * Upgrade the `com.google.testing.compile` artifact to version `0.18`.
 * Upgrade the `com.squareup:javapoet` artifact to version `1.12.0`.
+* Import the `IOUtil` util class from downstream projects.
 
 ### [v0.17](https://github.com/realityforge/proton/tree/v0.17) (2020-01-20) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.16...v0.17)
 
