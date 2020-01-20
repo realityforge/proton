@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.17](https://github.com/realityforge/proton/tree/v0.17) (2020-01-20) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.16...v0.17)
+
+Changes in this release:
 
 * Emit a stack trace when an `IOException` occurs. Previously the code would just emit the message component of the IO error which made tracking down the root cause difficult. The code also crashed if there was no message supplied to the `IOException`.
 
