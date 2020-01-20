@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Upgrade the `com.google.truth` artifact to version `0.44`.
 * Upgrade the `com.google.testing.compile` artifact to version `0.18`.
 * Upgrade the `com.squareup:javapoet` artifact to version `1.12.0`.
 
