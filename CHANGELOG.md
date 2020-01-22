@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.23](https://github.com/realityforge/proton/tree/v0.23) (2020-01-23) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.22...v0.23)
+
+Changes in this release:
 
 * Refactor `AbstractProcessorTest.outputFile()` and invoke it from existing test infrastructure.
 
