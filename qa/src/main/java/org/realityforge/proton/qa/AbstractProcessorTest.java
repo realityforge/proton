@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
@@ -71,7 +72,7 @@ public abstract class AbstractProcessorTest
         field.set( compilation, Compilation.Status.SUCCESS );
       }
 
-      outputGeneratedFiles( compilation, filter );
+      outputFiles( compilation.generatedFiles(), fixtureDir(), filter );
 
       if ( Compilation.Status.SUCCESS != status )
       {
@@ -110,15 +111,16 @@ public abstract class AbstractProcessorTest
     }
   }
 
-  private void outputGeneratedFiles( @Nonnull final Compilation compilation,
-                                     @Nonnull final Predicate<JavaFileObject> filter )
+  protected final void outputFiles( @Nonnull final Collection<JavaFileObject> fileObjects,
+                                    @Nonnull final Path targetDir,
+                                    @Nonnull final Predicate<JavaFileObject> filter )
     throws IOException
   {
-    for ( final JavaFileObject fileObject : compilation.generatedFiles() )
+    for ( final JavaFileObject fileObject : fileObjects )
     {
       if ( filter.test( fileObject ) )
       {
-        outputFile( fileObject, fixtureDir() );
+        outputFile( fileObject, targetDir );
       }
     }
   }
