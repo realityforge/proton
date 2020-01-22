@@ -72,7 +72,7 @@ public abstract class AbstractProcessorTest
         field.set( compilation, Compilation.Status.SUCCESS );
       }
 
-      outputFiles( compilation.generatedFiles(), fixtureDir(), filter );
+      outputFiles( compilation.generatedFiles(), fixtureDir().resolve( "expected" ), filter );
 
       if ( Compilation.Status.SUCCESS != status )
       {
@@ -139,24 +139,6 @@ public abstract class AbstractProcessorTest
     final String filename =
       fileObject.getName().replace( "/SOURCE_OUTPUT/", "" ).replace( "/CLASS_OUTPUT/", "" );
     final Path target = targetDir.resolve( filename );
-    final File dir = target.getParent().toFile();
-    if ( !dir.exists() )
-    {
-      assertTrue( dir.mkdirs() );
-    }
-    Files.copy( fileObject.openInputStream(), target );
-  }
-
-  /**
-   * Output the generated file to target file, skipping step if target matches generated file.
-   *
-   * @param fileObject the generated file.
-   * @param target     the target filename
-   * @throws IOException if an IO error occurs.
-   */
-  private void outputGeneratedFile( @Nonnull final JavaFileObject fileObject, @Nonnull final Path target )
-    throws IOException
-  {
     final File dir = target.getParent().toFile();
     if ( !dir.exists() )
     {
