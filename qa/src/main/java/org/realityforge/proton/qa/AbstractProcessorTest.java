@@ -118,10 +118,31 @@ public abstract class AbstractProcessorTest
     {
       if ( filter.test( fileObject ) )
       {
-        final String filename = fileObject.getName().replace( "/SOURCE_OUTPUT/", "" ).replace( "/CLASS_OUTPUT/", "" );
-        outputGeneratedFile( fileObject, fixtureDir().resolve( "expected/" + filename ) );
+        outputFile( fileObject, fixtureDir() );
       }
     }
+  }
+
+  /**
+   * Output the specified JavaFileObject to target direct.
+   * The path relative to SOURCE_OUTPUT and CLASS_OUTPUT is included when emitting the file.
+   *
+   * @param fileObject the object to emit.
+   * @param targetDir  the target directory
+   * @throws IOException if an error occurs writing the file or creating the directory.
+   */
+  protected final void outputFile( @Nonnull final JavaFileObject fileObject, @Nonnull final Path targetDir )
+    throws IOException
+  {
+    final String filename =
+      fileObject.getName().replace( "/SOURCE_OUTPUT/", "" ).replace( "/CLASS_OUTPUT/", "" );
+    final Path target = targetDir.resolve( filename );
+    final File dir = target.getParent().toFile();
+    if ( !dir.exists() )
+    {
+      assertTrue( dir.mkdirs() );
+    }
+    Files.copy( fileObject.openInputStream(), target );
   }
 
   /**
