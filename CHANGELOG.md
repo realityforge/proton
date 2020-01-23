@@ -4,6 +4,7 @@
 
 * Extract `AbstractProcessorTest.processors()` to simplify getting complete set of processors in downstream projects.
 * Extract `AbstractProcessorTest.compiler()` to simplify setup of compiler.
+* In the `AbstractStandardProcessor` class, stop emitting duplicate error messages if the error is about an `Element` that was not part of the current compilation round.
 
 ### [v0.25](https://github.com/realityforge/proton/tree/v0.25) (2020-01-23) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.24...v0.25)
 

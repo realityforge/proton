@@ -189,8 +189,7 @@ public abstract class AbstractStandardProcessor
           "implemented by the element and may not be highlighted by your tooling or IDE. The " +
           "error occurred at " + location + " and may look like:\n" + sw.toString();
 
-        reportError( env, e.getMessage(), element );
-        reportError( env, message, null );
+        reportError( env, message, element );
       }
       reportError( env, e.getMessage(), e.getElement() );
     }
