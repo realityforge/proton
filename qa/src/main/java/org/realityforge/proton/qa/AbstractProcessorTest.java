@@ -106,14 +106,7 @@ public abstract class AbstractProcessorTest
 
       if ( Compilation.Status.SUCCESS != status )
       {
-        // Restore old status
-        final Field field = compilation.getClass().getDeclaredField( "status" );
-        field.setAccessible( true );
-        field.set( compilation, status );
-
-        // This next line will generate an error and fail the test
-        //noinspection ResultOfMethodCallIgnored
-        compilation.generatedSourceFiles();
+        fail( describeFailureDiagnostics( compilation ) );
       }
     }
     final List<String> sourceFiles =
@@ -157,7 +150,6 @@ public abstract class AbstractProcessorTest
       .withProcessors( processors() )
       .withOptions( getOptions() );
   }
-
 
   /**
    * Verify the supplied Compilation was successful.
