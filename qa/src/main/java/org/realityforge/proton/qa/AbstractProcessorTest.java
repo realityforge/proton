@@ -29,6 +29,37 @@ import static org.testng.Assert.*;
 
 public abstract class AbstractProcessorTest
 {
+  protected boolean emitGeneratedFile( @Nonnull final JavaFileObject target )
+  {
+    return JavaFileObject.Kind.CLASS != target.getKind();
+  }
+
+  @Nonnull
+  protected abstract Processor processor();
+
+  @Nonnull
+  protected List<String> getOptions()
+  {
+    return Arrays.asList( "-Xlint:all,-processing",
+                          "-implicit:none",
+                          "-A" + getOptionPrefix() + ".defer.errors=false" );
+  }
+
+  @Nonnull
+  protected Processor[] additionalProcessors()
+  {
+    return new Processor[ 0 ];
+  }
+
+  @Nonnull
+  protected String getFixtureKeyPart()
+  {
+    return "";
+  }
+
+  @Nonnull
+  protected abstract String getOptionPrefix();
+
   protected final void assertSuccessfulCompile( @Nonnull final String classname,
                                                 @Nonnull final String... expectedOutputResources )
     throws Exception
@@ -214,22 +245,6 @@ public abstract class AbstractProcessorTest
       withWarningContaining( messageFragment );
   }
 
-  protected boolean emitGeneratedFile( @Nonnull final JavaFileObject target )
-  {
-    return JavaFileObject.Kind.CLASS != target.getKind();
-  }
-
-  @Nonnull
-  protected abstract Processor processor();
-
-  @Nonnull
-  protected List<String> getOptions()
-  {
-    return Arrays.asList( "-Xlint:all,-processing",
-                          "-implicit:none",
-                          "-A" + getOptionPrefix() + ".defer.errors=false" );
-  }
-
   protected final void assertFailedCompile( @Nonnull final String classname,
                                             @Nonnull final String errorMessageFragment )
   {
@@ -286,12 +301,6 @@ public abstract class AbstractProcessorTest
   }
 
   @Nonnull
-  protected Processor[] additionalProcessors()
-  {
-    return new Processor[ 0 ];
-  }
-
-  @Nonnull
   protected final JavaFileObject fixture( @Nonnull final String filename )
   {
     final Path path = fixtureDir().resolve( filename );
@@ -317,15 +326,6 @@ public abstract class AbstractProcessorTest
     assertNotNull( fixtureDir, "Expected System.getProperty( \"" + key + "\" ) to return fixture directory" );
     return new File( fixtureDir ).toPath();
   }
-
-  @Nonnull
-  protected String getFixtureKeyPart()
-  {
-    return "";
-  }
-
-  @Nonnull
-  protected abstract String getOptionPrefix();
 
   protected final boolean outputFiles()
   {
