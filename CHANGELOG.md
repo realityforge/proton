@@ -5,6 +5,7 @@
 * Extract `AbstractProcessorTest.processors()` to simplify getting complete set of processors in downstream projects.
 * Extract `AbstractProcessorTest.compiler()` to simplify setup of compiler.
 * In the `AbstractStandardProcessor` class, stop emitting duplicate error messages if the error is about an `Element` that was not part of the current compilation round.
+* Add a new annotation processor parameter `myprefix.verbose_out_of_round.errors` that controls whether `Element` that were not compiled in the current round that cause errors will produce verbose error messages to make it easier for IDE users to locate the source of the errors.
 
 ### [v0.25](https://github.com/realityforge/proton/tree/v0.25) (2020-01-23) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.24...v0.25)
 
