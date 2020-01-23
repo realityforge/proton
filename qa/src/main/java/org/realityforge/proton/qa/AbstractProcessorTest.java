@@ -143,6 +143,13 @@ public abstract class AbstractProcessorTest
   }
 
   protected final void outputFiles( @Nonnull final Collection<JavaFileObject> fileObjects,
+                                    @Nonnull final Path targetDir )
+    throws IOException
+  {
+    outputFiles( fileObjects, targetDir, f -> true );
+  }
+
+  protected final void outputFiles( @Nonnull final Collection<JavaFileObject> fileObjects,
                                     @Nonnull final Path targetDir,
                                     @Nonnull final Predicate<JavaFileObject> filter )
     throws IOException

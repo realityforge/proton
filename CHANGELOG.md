@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Add `AbstractProcessorTest.outputFiles(...)` overloaded method that omits the filter under the assumption that all files are emitted to the target directory. This is useful when building up multi-stage compiles and all output should be written to the target directory so that it can be picked up by a subsequent compile stage
+
 ### [v0.23](https://github.com/realityforge/proton/tree/v0.23) (2020-01-23) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.22...v0.23)
 
 Changes in this release:
