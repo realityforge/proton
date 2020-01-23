@@ -1,5 +1,6 @@
 package org.realityforge.proton.qa;
 
+import com.google.common.collect.ImmutableList;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.CompileTester;
 import com.google.testing.compile.Compiler;
@@ -10,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -17,12 +20,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.processing.Processor;
+import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import static com.google.common.truth.Truth.*;
 import static org.testng.Assert.*;
@@ -140,6 +146,72 @@ public abstract class AbstractProcessorTest
         and().
         generatesFiles( firstExpected, restExpected );
     }
+  }
+
+  /**
+   * Verify the supplied Compilation was successful.
+   *
+   * @param compilation the compilation to verify.
+   */
+  protected final void assertCompilationSuccessful( @Nonnull final Compilation compilation )
+  {
+    assertEquals( compilation.status(),
+                  Compilation.Status.SUCCESS,
+                  compilation.toString() + " - " + describeFailureDiagnostics( compilation ) );
+  }
+
+  /**
+   * Returns a description of the why the compilation failed.
+   */
+  @Nonnull
+  protected final String describeFailureDiagnostics( @Nonnull final Compilation compilation )
+  {
+    final ImmutableList<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.diagnostics();
+    if ( diagnostics.isEmpty() )
+    {
+      return "Compilation produced no diagnostics.\n";
+    }
+    final StringBuilder message = new StringBuilder( "Compilation produced the following diagnostics:\n" );
+    diagnostics.forEach( diagnostic -> message.append( diagnostic ).append( '\n' ) );
+    return message.toString();
+  }
+
+  /**
+   * Build a classpath including the paths specified as well as the current classpath.
+   * The current classpath is discovered by inspecting the current classloader, assuming it is a URLClassLoader
+   * and walking back to the system classloader adding paths as required.
+   *
+   * @param paths the additional user supplied paths to add to classpath.
+   * @return an list of directories that define the created classpath.
+   */
+  @Nonnull
+  protected final ImmutableList<File> buildClasspath( @Nonnull final File... paths )
+  {
+    final Set<File> elements = new LinkedHashSet<>( Arrays.asList( paths ) );
+    ClassLoader classloader = getClass().getClassLoader();
+    while ( true )
+    {
+      if ( classloader == ClassLoader.getSystemClassLoader() )
+      {
+        final String[] baseClassPathElements =
+          System.getProperty( "java.class.path" ).split( System.getProperty( "path.separator" ) );
+        for ( final String element : baseClassPathElements )
+        {
+          elements.add( new File( element ) );
+        }
+        break;
+      }
+      assert classloader instanceof URLClassLoader;
+      // We only know how to extract elements from URLClassloaders.
+      for ( final URL url : ( (URLClassLoader) classloader ).getURLs() )
+      {
+        assert url.getProtocol().equals( "file" );
+        elements.add( new File( url.getPath() ) );
+      }
+      classloader = classloader.getParent();
+    }
+
+    return elements.stream().collect( ImmutableList.toImmutableList() );
   }
 
   protected final void outputFiles( @Nonnull final Collection<JavaFileObject> fileObjects,
