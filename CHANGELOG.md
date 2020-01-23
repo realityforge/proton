@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.25](https://github.com/realityforge/proton/tree/v0.25) (2020-01-23) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.24...v0.25)
+
+Changes in this release:
 
 * Add `AbstractProcessorTest.buildClasspath(File...)`, `AbstractProcessorTest.describeFailureDiagnostics(Compilation)` and `AbstractProcessorTest.assertCompilationSuccessful(Compilation)` to make it easier for downstream tests to support multi-stage compilations while still generating useful errors when failures occur.
 
