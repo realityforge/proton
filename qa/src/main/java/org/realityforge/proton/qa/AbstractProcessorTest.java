@@ -87,9 +87,7 @@ public abstract class AbstractProcessorTest
   {
     if ( outputFiles() )
     {
-      final List<Processor> processors = new ArrayList<>();
-      processors.add( processor() );
-      processors.addAll( Arrays.asList( additionalProcessors() ) );
+      final List<Processor> processors = processors();
       final Compilation compilation =
         Compiler.javac()
           .withProcessors( processors )
@@ -146,6 +144,15 @@ public abstract class AbstractProcessorTest
         and().
         generatesFiles( firstExpected, restExpected );
     }
+  }
+
+  @Nonnull
+  protected final List<Processor> processors()
+  {
+    final List<Processor> processors = new ArrayList<>();
+    processors.add( processor() );
+    processors.addAll( Arrays.asList( additionalProcessors() ) );
+    return processors;
   }
 
   /**
@@ -281,7 +288,7 @@ public abstract class AbstractProcessorTest
     return assert_().about( JavaSourcesSubjectFactory.javaSources() ).
       that( inputs ).
       withCompilerOptions( getOptions() ).
-      processedWith( processor(), additionalProcessors() );
+      processedWith( processors() );
   }
 
   @Nonnull
@@ -374,7 +381,7 @@ public abstract class AbstractProcessorTest
     assert_().about( JavaSourcesSubjectFactory.javaSources() ).
       that( inputs ).
       withCompilerOptions( getOptions() ).
-      processedWith( processor(), additionalProcessors() ).
+      processedWith( processors() ).
       failsToCompile().
       withErrorContaining( errorMessageFragment );
   }
