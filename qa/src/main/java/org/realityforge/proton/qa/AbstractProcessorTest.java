@@ -87,12 +87,7 @@ public abstract class AbstractProcessorTest
   {
     if ( outputFiles() )
     {
-      final List<Processor> processors = processors();
-      final Compilation compilation =
-        Compiler.javac()
-          .withProcessors( processors )
-          .withOptions( getOptions() )
-          .compile( inputs );
+      final Compilation compilation = compiler().compile( inputs );
 
       final Compilation.Status status = compilation.status();
       if ( Compilation.Status.SUCCESS != status )
@@ -154,6 +149,15 @@ public abstract class AbstractProcessorTest
     processors.addAll( Arrays.asList( additionalProcessors() ) );
     return processors;
   }
+
+  @Nonnull
+  protected final Compiler compiler()
+  {
+    return Compiler.javac()
+      .withProcessors( processors() )
+      .withOptions( getOptions() );
+  }
+
 
   /**
    * Verify the supplied Compilation was successful.
