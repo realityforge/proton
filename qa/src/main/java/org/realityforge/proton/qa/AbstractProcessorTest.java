@@ -29,10 +29,8 @@ import static org.testng.Assert.*;
 
 public abstract class AbstractProcessorTest
 {
-  protected boolean emitGeneratedFile( @Nonnull final JavaFileObject target )
-  {
-    return JavaFileObject.Kind.CLASS != target.getKind();
-  }
+  @Nonnull
+  protected abstract String getOptionPrefix();
 
   @Nonnull
   protected abstract Processor processor();
@@ -57,8 +55,10 @@ public abstract class AbstractProcessorTest
     return "";
   }
 
-  @Nonnull
-  protected abstract String getOptionPrefix();
+  protected boolean emitGeneratedFile( @Nonnull final JavaFileObject target )
+  {
+    return JavaFileObject.Kind.CLASS != target.getKind();
+  }
 
   protected final void assertSuccessfulCompile( @Nonnull final String classname,
                                                 @Nonnull final String... expectedOutputResources )
