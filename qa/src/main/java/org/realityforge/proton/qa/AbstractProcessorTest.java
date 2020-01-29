@@ -164,6 +164,18 @@ public abstract class AbstractProcessorTest
   }
 
   /**
+   * Verify the supplied Compilation was a failure.
+   *
+   * @param compilation the compilation to verify.
+   */
+  protected final void assertCompilationUnsuccessful( @Nonnull final Compilation compilation )
+  {
+    assertEquals( compilation.status(),
+                  Compilation.Status.FAILURE,
+                  compilation.toString() + " - " + describeFailureDiagnostics( compilation ) );
+  }
+
+  /**
    * Returns a description of the why the compilation failed.
    */
   @Nonnull

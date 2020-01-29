@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Add `AbstractProcessorTest.input(...)` helper method.
+* Add `AbstractProcessorTest.assertCompilationUnsuccessful(...)` helper method.
 
 ### [v0.29](https://github.com/realityforge/proton/tree/v0.29) (2020-01-29) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.28...v0.29)
 
