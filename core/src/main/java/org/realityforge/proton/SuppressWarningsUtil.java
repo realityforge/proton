@@ -224,10 +224,7 @@ public final class SuppressWarningsUtil
     }
     else if ( TypeKind.DECLARED == kind )
     {
-      final TypeElement element = (TypeElement) processingEnv.getTypeUtils().asElement( type );
-      if ( element.getAnnotationMirrors()
-        .stream()
-        .anyMatch( a -> a.getAnnotationType().toString().equals( Deprecated.class.getName() ) ) )
+      if ( isElementDeprecated( processingEnv, type ) )
       {
         return true;
       }
@@ -259,6 +256,15 @@ public final class SuppressWarningsUtil
     {
       return false;
     }
+  }
+
+  private static boolean isElementDeprecated( @Nonnull final ProcessingEnvironment processingEnv,
+                                              @Nonnull final TypeMirror type )
+  {
+    final Element element = processingEnv.getTypeUtils().asElement( type );
+    return null != element && element.getAnnotationMirrors()
+      .stream()
+      .anyMatch( a -> a.getAnnotationType().toString().equals( Deprecated.class.getName() ) );
   }
 
   private static boolean hasRawTypes( @Nonnull final ProcessingEnvironment processingEnv,
