@@ -17,7 +17,6 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.NestingKind;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
@@ -278,7 +277,7 @@ public final class ElementsUtil
   {
     return getInterfaces( typeElement ).stream()
       .flatMap( i -> i.getEnclosedElements().stream() )
-      .filter( e1 -> e1 instanceof ExecutableElement )
+      .filter( e -> ElementKind.METHOD == e.getKind() )
       .map( e1 -> (ExecutableElement) e1 )
       .collect(
         Collectors.toList() ).stream()
@@ -311,7 +310,7 @@ public final class ElementsUtil
   public static Element getTopLevelElement( @Nonnull final Element element )
   {
     Element result = element;
-    while ( !( result.getEnclosingElement() instanceof PackageElement ) )
+    while ( ElementKind.PACKAGE != result.getEnclosingElement().getKind() )
     {
       result = result.getEnclosingElement();
     }

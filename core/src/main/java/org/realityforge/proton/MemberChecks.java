@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
@@ -203,7 +204,7 @@ public final class MemberChecks
       {
         throw new ProcessorException( mustNot( annotationName,
                                                "be package access if the " +
-                                               ( other instanceof ExecutableElement ? "method" : "field" ) +
+                                               ( ElementKind.METHOD == other.getKind() ? "method" : "field" ) +
                                                " is in a different package from the type annotated with the " +
                                                toSimpleName( scopeAnnotationName ) + " annotation" ),
                                       other );

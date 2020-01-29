@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Further compatibility fixes by using `TypeMirror.getKind()` rather than `instanceof SomeType`.
+
 ### [v0.27](https://github.com/realityforge/proton/tree/v0.27) (2020-01-29) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.26...v0.27)
 
 Changes in this release:
