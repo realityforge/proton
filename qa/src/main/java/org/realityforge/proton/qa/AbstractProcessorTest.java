@@ -296,9 +296,13 @@ public abstract class AbstractProcessorTest
   @Nonnull
   protected final List<JavaFileObject> inputs( @Nonnull final String... classnames )
   {
-    return Stream.of( classnames )
-      .map( classname -> fixture( toFilename( "input", classname ) ) )
-      .collect( Collectors.toList() );
+    return Stream.of( classnames ).map( classname -> input( "input", classname ) ).collect( Collectors.toList() );
+  }
+
+  @Nonnull
+  protected final JavaFileObject input( @Nonnull final String dir, @Nonnull final String classname )
+  {
+    return fixture( toFilename( dir, classname ) );
   }
 
   @Nonnull
