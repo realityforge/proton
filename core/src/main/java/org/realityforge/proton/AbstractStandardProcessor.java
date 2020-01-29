@@ -43,15 +43,20 @@ public abstract class AbstractStandardProcessor
     {
       final Collection<TypeElement> elementsToProcess = deriveElementsToProcess( elements );
       doProcessTypeElements( env, elementsToProcess, action );
-      if ( env.getRootElements().isEmpty() && !_deferred.isEmpty() )
-      {
-        _deferred.forEach( e -> processingErrorMessage( env, e ) );
-        _deferred.clear();
-      }
+      errorIfProcessingOverAndDeferredTypesUnprocessed( env );
     }
     else
     {
       doProcessTypeElements( env, new ArrayList<>( elements ), action );
+    }
+  }
+
+  protected final void errorIfProcessingOverAndDeferredTypesUnprocessed( @Nonnull final RoundEnvironment env )
+  {
+    if ( (env.processingOver() || env.errorRaised()) && !_deferred.isEmpty() )
+    {
+      _deferred.forEach( e -> processingErrorMessage( env, e ) );
+      _deferred.clear();
     }
   }
 
