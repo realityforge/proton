@@ -240,7 +240,7 @@ public final class SuppressWarningsUtil
     else if ( TypeKind.EXECUTABLE == kind )
     {
       final ExecutableType executableType = (ExecutableType) type;
-      return AnnotationsUtil.hasAnnotationOfType( executableType, Deprecated.class.getName() ) ||
+      return isElementDeprecated( processingEnv, executableType ) ||
              hasDeprecatedTypes( processingEnv, executableType.getReturnType() ) ||
              executableType.getTypeVariables()
                .stream()
