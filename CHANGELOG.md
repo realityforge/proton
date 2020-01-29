@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.28](https://github.com/realityforge/proton/tree/v0.28) (2020-01-29) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.27...v0.28)
+
+Changes in this release:
 
 * Further compatibility fixes by using `TypeMirror.getKind()` rather than `instanceof SomeType`.
 * Change the `SuppressWarningsUtil` code so that id a class is a nested class and one of the outer classes are deprecated then the class is considered deprecated.
