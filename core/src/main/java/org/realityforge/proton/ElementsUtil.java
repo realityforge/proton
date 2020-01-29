@@ -278,9 +278,7 @@ public final class ElementsUtil
     return getInterfaces( typeElement ).stream()
       .flatMap( i -> i.getEnclosedElements().stream() )
       .filter( e -> ElementKind.METHOD == e.getKind() )
-      .map( e1 -> (ExecutableElement) e1 )
-      .collect(
-        Collectors.toList() ).stream()
+      .map( e -> (ExecutableElement) e )
       .anyMatch( e -> isSubsignature( typeUtils,
                                       typeElement,
                                       (ExecutableType) typeUtils.asMemberOf( (DeclaredType) typeElement.asType(), e ),
