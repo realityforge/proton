@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Improve compatibility with other javac compilers by using `TypeMirror.getKind()` to get the kind of the `TypeMirror` rather than using `instanceof DeclaredType` etc as some compiler have `TypeMirror` implement interfaces even if they are not of that type.
+
 ### [v0.26](https://github.com/realityforge/proton/tree/v0.26) (2020-01-23) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.25...v0.26)
 
 Changes in this release:

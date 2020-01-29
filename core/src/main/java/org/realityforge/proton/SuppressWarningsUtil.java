@@ -19,6 +19,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 
@@ -210,17 +211,18 @@ public final class SuppressWarningsUtil
   private static boolean hasDeprecatedTypes( @Nonnull final ProcessingEnvironment processingEnv,
                                              @Nonnull final TypeMirror type )
   {
-    if ( type instanceof TypeVariable )
+    final TypeKind kind = type.getKind();
+    if ( TypeKind.TYPEVAR == kind )
     {
       final TypeVariable typeVariable = (TypeVariable) type;
       return hasDeprecatedTypes( processingEnv, typeVariable.getLowerBound() ) ||
              hasDeprecatedTypes( processingEnv, typeVariable.getUpperBound() );
     }
-    else if ( type instanceof ArrayType )
+    else if ( TypeKind.ARRAY == kind )
     {
       return hasDeprecatedTypes( processingEnv, ( (ArrayType) type ).getComponentType() );
     }
-    else if ( type instanceof DeclaredType )
+    else if ( TypeKind.DECLARED == kind )
     {
       final TypeElement element = (TypeElement) processingEnv.getTypeUtils().asElement( type );
       if ( element.getAnnotationMirrors()
@@ -238,7 +240,7 @@ public final class SuppressWarningsUtil
           .anyMatch( t -> hasDeprecatedTypes( processingEnv, t ) );
       }
     }
-    else if ( type instanceof ExecutableType )
+    else if ( TypeKind.EXECUTABLE == kind )
     {
       final ExecutableType executableType = (ExecutableType) type;
       return AnnotationsUtil.hasAnnotationOfType( executableType, Deprecated.class.getName() ) ||
@@ -262,17 +264,18 @@ public final class SuppressWarningsUtil
   private static boolean hasRawTypes( @Nonnull final ProcessingEnvironment processingEnv,
                                       @Nonnull final TypeMirror type )
   {
-    if ( type instanceof TypeVariable )
+    final TypeKind kind = type.getKind();
+    if ( TypeKind.TYPEVAR == kind )
     {
       final TypeVariable typeVariable = (TypeVariable) type;
       return hasRawTypes( processingEnv, typeVariable.getLowerBound() ) ||
              hasRawTypes( processingEnv, typeVariable.getUpperBound() );
     }
-    else if ( type instanceof ArrayType )
+    else if ( TypeKind.ARRAY == kind )
     {
       return hasRawTypes( processingEnv, ( (ArrayType) type ).getComponentType() );
     }
-    else if ( type instanceof DeclaredType )
+    else if ( TypeKind.DECLARED == kind )
     {
       final DeclaredType declaredType = (DeclaredType) type;
       final int typeArgumentCount = declaredType.getTypeArguments().size();
@@ -289,7 +292,7 @@ public final class SuppressWarningsUtil
           .anyMatch( t -> hasRawTypes( processingEnv, t ) );
       }
     }
-    else if ( type instanceof ExecutableType )
+    else if ( TypeKind.EXECUTABLE == kind )
     {
       final ExecutableType executableType = (ExecutableType) type;
       return hasRawTypes( processingEnv, executableType.getReturnType() ) ||
