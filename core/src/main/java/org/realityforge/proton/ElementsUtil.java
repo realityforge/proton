@@ -327,4 +327,17 @@ public final class ElementsUtil
       .stream()
       .anyMatch( a -> a.getAnnotationType().toString().equals( Deprecated.class.getName() ) );
   }
+
+  public static boolean isEffectivelyPublic( @Nonnull final TypeElement element )
+  {
+    if ( !element.getModifiers().contains( Modifier.PUBLIC ) )
+    {
+      return false;
+    }
+    else
+    {
+      final Element enclosing = element.getEnclosingElement();
+      return ElementKind.PACKAGE == enclosing.getKind() || isEffectivelyPublic( (TypeElement) enclosing );
+    }
+  }
 }
