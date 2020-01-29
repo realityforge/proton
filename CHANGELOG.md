@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Add `ElementsUtil.isElementDeprecated(Element)` helper method.
+
 ### [v0.28](https://github.com/realityforge/proton/tree/v0.28) (2020-01-29) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.27...v0.28)
 
 Changes in this release:

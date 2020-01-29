@@ -319,4 +319,12 @@ public final class ElementsUtil
   {
     return NestingKind.TOP_LEVEL != element.getNestingKind() && !element.getModifiers().contains( Modifier.STATIC );
   }
+
+  public static boolean isElementDeprecated( @Nonnull final Element element )
+  {
+    return element
+      .getAnnotationMirrors()
+      .stream()
+      .anyMatch( a -> a.getAnnotationType().toString().equals( Deprecated.class.getName() ) );
+  }
 }

@@ -275,7 +275,7 @@ public final class SuppressWarningsUtil
 
   private static boolean isElementDeprecated( @Nonnull final Element element )
   {
-    if ( element.getAnnotationMirrors().stream().anyMatch( SuppressWarningsUtil::isDeprecated ) )
+    if ( ElementsUtil.isElementDeprecated( element ) )
     {
       return true;
     }
@@ -288,11 +288,6 @@ public final class SuppressWarningsUtil
     {
       return false;
     }
-  }
-
-  private static boolean isDeprecated( @Nonnull final AnnotationMirror a )
-  {
-    return a.getAnnotationType().toString().equals( Deprecated.class.getName() );
   }
 
   private static boolean hasRawTypes( @Nonnull final ProcessingEnvironment processingEnv,
