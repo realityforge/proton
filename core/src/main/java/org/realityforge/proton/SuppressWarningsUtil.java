@@ -186,8 +186,13 @@ public final class SuppressWarningsUtil
                                                                 @Nonnull final Collection<String> additionalSuppressions,
                                                                 @Nonnull final Collection<TypeMirror> types )
   {
-    final boolean hasRawTypes = types.stream().anyMatch( t -> hasRawTypes( processingEnv, t ) );
+    // short cut traversing types by checking whether additionalSuppressions match
+    final boolean hasRawTypes =
+      additionalSuppressions.contains( "rawtypes" ) ||
+      types.stream().anyMatch( t -> hasRawTypes( processingEnv, t ) );
+
     final boolean hasDeprecatedTypes =
+      additionalSuppressions.contains( "deprecation" ) ||
       types.stream().anyMatch( t -> hasDeprecatedTypes( processingEnv, t ) );
 
     if ( hasRawTypes || hasDeprecatedTypes || !additionalSuppressions.isEmpty() )
