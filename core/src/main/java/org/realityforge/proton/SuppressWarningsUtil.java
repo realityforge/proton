@@ -15,7 +15,9 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
@@ -268,9 +270,29 @@ public final class SuppressWarningsUtil
                                               @Nonnull final TypeMirror type )
   {
     final Element element = processingEnv.getTypeUtils().asElement( type );
-    return null != element && element.getAnnotationMirrors()
-      .stream()
-      .anyMatch( a -> a.getAnnotationType().toString().equals( Deprecated.class.getName() ) );
+    return null != element && isElementDeprecated( element );
+  }
+
+  private static boolean isElementDeprecated( @Nonnull final Element element )
+  {
+    if ( element.getAnnotationMirrors().stream().anyMatch( SuppressWarningsUtil::isDeprecated ) )
+    {
+      return true;
+    }
+    else if ( ( element.getKind().isClass() || element.getKind().isInterface() ) &&
+              ElementKind.PACKAGE != element.getEnclosingElement().getKind() )
+    {
+      return isElementDeprecated( element.getEnclosingElement() );
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  private static boolean isDeprecated( @Nonnull final AnnotationMirror a )
+  {
+    return a.getAnnotationType().toString().equals( Deprecated.class.getName() );
   }
 
   private static boolean hasRawTypes( @Nonnull final ProcessingEnvironment processingEnv,
