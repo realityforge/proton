@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.27](https://github.com/realityforge/proton/tree/v0.27) (2020-01-29) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.26...v0.27)
+
+Changes in this release:
 
 * Improve compatibility with other javac compilers by using `TypeMirror.getKind()` to get the kind of the `TypeMirror` rather than using `instanceof DeclaredType` etc as some compiler have `TypeMirror` implement interfaces even if they are not of that type.
 * Fix a bug where deprecated methods may not be detected and may not have appropriate suppressions added in `SuppressWarningsUtil`
