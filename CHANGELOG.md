@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Upgrade the `com.google.truth` artifact to version `0.45`.
 * Upgrade the `com.google.testing.compile` artifact to version `0.18-rf`.
 
 ### [v0.30](https://github.com/realityforge/proton/tree/v0.30) (2020-01-29) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.29...v0.30)
