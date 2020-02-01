@@ -15,6 +15,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -53,7 +55,7 @@ public abstract class AbstractStandardProcessor
 
   protected final void errorIfProcessingOverAndDeferredTypesUnprocessed( @Nonnull final RoundEnvironment env )
   {
-    if ( (env.processingOver() || env.errorRaised()) && !_deferred.isEmpty() )
+    if ( ( env.processingOver() || env.errorRaised() ) && !_deferred.isEmpty() )
     {
       _deferred.forEach( e -> processingErrorMessage( env, e ) );
       _deferred.clear();
@@ -102,16 +104,31 @@ public abstract class AbstractStandardProcessor
                                     @Nonnull final String message,
                                     @Nullable final Element element )
   {
+    reportError( env, message, element, null, null );
+  }
+
+  protected final void reportError( @Nonnull final RoundEnvironment env,
+                                    @Nonnull final String message,
+                                    @Nullable final Element element,
+                                    @Nullable final AnnotationMirror annotation,
+                                    @Nullable final AnnotationValue annotationValue )
+  {
     final String deferErrorsValue = processingEnv.getOptions().get( getOptionPrefix() + ".defer.errors" );
     final boolean deferErrors = null == deferErrorsValue || "true".equals( deferErrorsValue );
     _invalidTypeCount++;
-    if ( !deferErrors || env.errorRaised() || env.processingOver() )
+    final Diagnostic.Kind kind =
+      !deferErrors || env.errorRaised() || env.processingOver() ? Diagnostic.Kind.ERROR : Diagnostic.Kind.WARNING;
+    if ( null != annotationValue )
     {
-      processingEnv.getMessager().printMessage( Diagnostic.Kind.ERROR, message, element );
+      processingEnv.getMessager().printMessage( kind, message, element, annotation, annotationValue );
+    }
+    else if ( null != annotation )
+    {
+      processingEnv.getMessager().printMessage( kind, message, element, annotation );
     }
     else
     {
-      processingEnv.getMessager().printMessage( Diagnostic.Kind.WARNING, message, element );
+      processingEnv.getMessager().printMessage( kind, message, element );
     }
   }
 
@@ -201,7 +218,7 @@ public abstract class AbstractStandardProcessor
           reportError( env, message, element );
         }
       }
-      reportError( env, e.getMessage(), e.getElement() );
+      reportError( env, e.getMessage(), e.getElement(), e.getAnnotation(), e.getAnnotationValue() );
     }
     catch ( final Throwable e )
     {
