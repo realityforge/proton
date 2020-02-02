@@ -103,8 +103,8 @@ public final class AnnotationsUtil
   }
 
   @Nullable
-  private static AnnotationValue findAnnotationValue( @Nonnull final AnnotationMirror annotation,
-                                                      @Nonnull final String parameterName )
+  public static AnnotationValue findAnnotationValue( @Nonnull final AnnotationMirror annotation,
+                                                     @Nonnull final String parameterName )
   {
     final Map<ExecutableElement, AnnotationValue> values = getAnnotationValuesWithDefaults( annotation );
     final ExecutableElement annotationKey = values.keySet().stream().
