@@ -160,14 +160,29 @@ public final class AnnotationsUtil
     return values.get( annotationKey );
   }
 
-  @SuppressWarnings( "unchecked" )
+  @Deprecated
   @Nonnull
   public static <T> T getAnnotationValue( @Nonnull final AnnotationMirror annotation,
                                           @Nonnull final String parameterName )
   {
+    return getAnnotationValueValue( annotation, parameterName );
+  }
+
+  @Nonnull
+  public static AnnotationValue _getAnnotationValue( @Nonnull final AnnotationMirror annotation,
+                                                     @Nonnull final String parameterName )
+  {
     final AnnotationValue value = findAnnotationValue( annotation, parameterName );
     assert null != value;
-    return (T) value.getValue();
+    return value;
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Nonnull
+  public static <T> T getAnnotationValueValue( @Nonnull final AnnotationMirror annotation,
+                                               @Nonnull final String parameterName )
+  {
+    return (T) _getAnnotationValue( annotation, parameterName ).getValue();
   }
 
   @Nonnull

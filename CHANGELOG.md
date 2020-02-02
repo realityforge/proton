@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Make `AnnotationsUtil.findAnnotationValue()` public.
+* Deprecate `AnnotationsUtil.getAnnotationValue(...)` in favour of `AnnotationsUtil.getAnnotationValueValue(...)` as a future version of the library will add a `AnnotationsUtil.getAnnotationValue(...)` that returns an `AnnotationValue`.
 
 ### [v0.31](https://github.com/realityforge/proton/tree/v0.31) (2020-02-01) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.30...v0.31)
 
