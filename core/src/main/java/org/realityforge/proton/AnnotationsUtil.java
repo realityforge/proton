@@ -98,8 +98,8 @@ public final class AnnotationsUtil
                                                      @Nonnull final String annotationClassName,
                                                      @Nonnull final String parameterName )
   {
-    final AnnotationMirror mirror = findAnnotationByType( annotated, annotationClassName );
-    return null == mirror ? null : findAnnotationValue( mirror, parameterName );
+    final AnnotationMirror annotation = findAnnotationByType( annotated, annotationClassName );
+    return null == annotation ? null : findAnnotationValue( annotation, parameterName );
   }
 
   @Nullable
@@ -174,9 +174,9 @@ public final class AnnotationsUtil
   public static AnnotationMirror getAnnotationByType( @Nonnull final AnnotatedConstruct annotated,
                                                       @Nonnull final String annotationClassName )
   {
-    AnnotationMirror mirror = findAnnotationByType( annotated, annotationClassName );
-    assert null != mirror;
-    return mirror;
+    final AnnotationMirror annotation = findAnnotationByType( annotated, annotationClassName );
+    assert null != annotation;
+    return annotation;
   }
 
   @Nullable
