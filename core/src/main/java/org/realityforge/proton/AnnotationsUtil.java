@@ -53,9 +53,7 @@ public final class AnnotationsUtil
                                                                     @Nonnull final String annotationClassName,
                                                                     @Nonnull final String parameterName )
   {
-    final AnnotationValue annotationValue =
-      getAnnotationValue( annotated, annotationClassName, parameterName );
-    return ( (List<AnnotationValue>) annotationValue.getValue() )
+    return ( (List<AnnotationValue>) getAnnotationValue( annotated, annotationClassName, parameterName ).getValue() )
       .stream()
       .map( v -> (TypeMirror) v.getValue() ).collect( Collectors.toList() );
   }
