@@ -66,11 +66,10 @@ public final class AnnotationsUtil
                                                                       @Nonnull final String annotationClassName,
                                                                       @Nonnull final String parameterName )
   {
-    return AnnotationsUtil.getTypeMirrorsAnnotationParameter( annotated,
-                                                              annotationClassName,
-                                                              parameterName ).stream().
-      map( typeMirror -> (TypeElement) processingEnv.getTypeUtils().asElement( typeMirror ) ).
-      collect( Collectors.toList() );
+    return getTypeMirrorsAnnotationParameter( annotated, annotationClassName, parameterName )
+      .stream()
+      .map( typeMirror -> (TypeElement) processingEnv.getTypeUtils().asElement( typeMirror ) )
+      .collect( Collectors.toList() );
   }
 
   @Nonnull
