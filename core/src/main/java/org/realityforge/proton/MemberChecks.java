@@ -321,6 +321,18 @@ public final class MemberChecks
   }
 
   @Nonnull
+  public static String should( @Nonnull final String annotationName, @Nonnull final String message )
+  {
+    return toSimpleName( annotationName ) + " target should " + message;
+  }
+
+  @Nonnull
+  public static String shouldNot( @Nonnull final String annotationName, @Nonnull final String message )
+  {
+    return should( annotationName, "not " + message );
+  }
+
+  @Nonnull
   public static String toSimpleName( @Nonnull final String annotationName )
   {
     return "@" + annotationName.replaceAll( ".*\\.", "" );
