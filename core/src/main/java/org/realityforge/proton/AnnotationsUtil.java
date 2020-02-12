@@ -24,6 +24,9 @@ import javax.lang.model.util.Elements;
 @SuppressWarnings( { "SameParameterValue", "WeakerAccess", "unused", "RedundantSuppression" } )
 public final class AnnotationsUtil
 {
+  public static final String NULLABLE_CLASSNAME = "javax.annotation.Nullable";
+  public static final String NONNULL_CLASSNAME = "javax.annotation.Nonnull";
+
   private AnnotationsUtil()
   {
   }
@@ -240,11 +243,11 @@ public final class AnnotationsUtil
 
   public static boolean hasNonnullAnnotation( @Nonnull final Element element )
   {
-    return hasAnnotationOfType( element, GeneratorUtil.NONNULL_ANNOTATION_CLASSNAME );
+    return hasAnnotationOfType( element, NONNULL_CLASSNAME );
   }
 
   public static boolean hasNullableAnnotation( @Nonnull final Element element )
   {
-    return hasAnnotationOfType( element, GeneratorUtil.NONNULL_ANNOTATION_CLASSNAME );
+    return hasAnnotationOfType( element, NONNULL_CLASSNAME );
   }
 }

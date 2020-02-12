@@ -41,12 +41,10 @@ public final class GeneratorUtil
 {
   public static final ClassName NONNULL_CLASSNAME = ClassName.get( "javax.annotation", "Nonnull" );
   public static final ClassName NULLABLE_CLASSNAME = ClassName.get( "javax.annotation", "Nullable" );
-  public static final String NULLABLE_ANNOTATION_CLASSNAME = "javax.annotation.Nullable";
-  public static final String NONNULL_ANNOTATION_CLASSNAME = "javax.annotation.Nonnull";
   @Nonnull
   public static final List<String> ANNOTATION_WHITELIST =
-    Collections.unmodifiableList( Arrays.asList( NONNULL_ANNOTATION_CLASSNAME,
-                                                 NULLABLE_ANNOTATION_CLASSNAME,
+    Collections.unmodifiableList( Arrays.asList( AnnotationsUtil.NONNULL_CLASSNAME,
+                                                 AnnotationsUtil.NULLABLE_CLASSNAME,
                                                  Deprecated.class.getName() ) );
 
   private GeneratorUtil()
