@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.36](https://github.com/realityforge/proton/tree/v0.36) (2020-02-13) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.35...v0.36)
+
+Changes in this release:
 
 * Change the way that that `AbstractStandardProcessor` handles deferring of unresolved types. Previously the code assumed that the annotation processors would only have a single call to `AbstractStandardProcessor.processTypeElements()` within each annotation processor which meant that there was only one callback that was ever invoked so that deferred types could be added if they have been resolved since the last processor round. However toolkits such as Sting that process multiple different categories of top-level `TypeElement` instances would have get have resolved types from incorrect categories processed in incorrect callbacks. This is a breaking change that will result in rework of downstream libraries.
 * Remove the deprecated `AnnotationUtils.getAnnotationValue()` method and rename the `AnnotationUtils._getAnnotationValue()` to `AnnotationUtils.getAnnotationValue()`. This backwards incompatible change was made in this version so all incompatible changes are made in a single release.
