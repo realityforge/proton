@@ -374,8 +374,7 @@ public final class MemberChecks
          ElementsUtil.isWarningNotSuppressed( method, warning, alternativeSuppressWarnings ) )
     {
       final String message =
-        toSimpleName( annotationName ) + " target should not be public. " +
-        suppressedBy( warning, alternativeSuppressWarnings );
+        shouldNot( annotationName, "be public. " + suppressedBy( warning, alternativeSuppressWarnings ) );
       processingEnv.getMessager().printMessage( Diagnostic.Kind.WARNING, message, method );
     }
   }
@@ -398,8 +397,7 @@ public final class MemberChecks
          ElementsUtil.isWarningNotSuppressed( method, warning, alternativeSuppressWarnings ) )
     {
       final String message =
-        toSimpleName( annotationName ) + " target should not be protected. " +
-        suppressedBy( warning, alternativeSuppressWarnings );
+        shouldNot( annotationName, "be protected. " + suppressedBy( warning, alternativeSuppressWarnings ) );
       processingEnv.getMessager().printMessage( Diagnostic.Kind.WARNING, message, method );
     }
   }
