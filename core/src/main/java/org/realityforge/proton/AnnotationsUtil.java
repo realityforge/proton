@@ -157,17 +157,9 @@ public final class AnnotationsUtil
     return values.get( annotationKey );
   }
 
-  @Deprecated
   @Nonnull
-  public static <T> T getAnnotationValue( @Nonnull final AnnotationMirror annotation,
-                                          @Nonnull final String parameterName )
-  {
-    return getAnnotationValueValue( annotation, parameterName );
-  }
-
-  @Nonnull
-  public static AnnotationValue _getAnnotationValue( @Nonnull final AnnotationMirror annotation,
-                                                     @Nonnull final String parameterName )
+  public static AnnotationValue getAnnotationValue( @Nonnull final AnnotationMirror annotation,
+                                                    @Nonnull final String parameterName )
   {
     final AnnotationValue value = findAnnotationValue( annotation, parameterName );
     assert null != value;
@@ -179,7 +171,7 @@ public final class AnnotationsUtil
   public static <T> T getAnnotationValueValue( @Nonnull final AnnotationMirror annotation,
                                                @Nonnull final String parameterName )
   {
-    return (T) _getAnnotationValue( annotation, parameterName ).getValue();
+    return (T) getAnnotationValue( annotation, parameterName ).getValue();
   }
 
   @Nonnull
