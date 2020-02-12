@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Fix incorrect annotation name in the `AnnotationsUtil.hasNullableAnnotation(...)` helper method.
+
 ### [v0.36](https://github.com/realityforge/proton/tree/v0.36) (2020-02-13) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.35...v0.36)
 
 Changes in this release:

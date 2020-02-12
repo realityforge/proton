@@ -250,6 +250,6 @@ public final class AnnotationsUtil
 
   public static boolean hasNullableAnnotation( @Nonnull final Element element )
   {
-    return hasAnnotationOfType( element, NONNULL_CLASSNAME );
+    return hasAnnotationOfType( element, NULLABLE_CLASSNAME );
   }
 }
