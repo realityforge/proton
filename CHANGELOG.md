@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Expose `GeneratorUtil.ANNOTATION_WHITELIST` as a public field.
+
 ### [v0.33](https://github.com/realityforge/proton/tree/v0.33) (2020-02-10) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.32...v0.33)
 
 Changes in this release:
