@@ -21,7 +21,6 @@ define 'proton' do
   define 'core' do
     compile.with :javax_annotation,
                  :javax_json,
-                 :autocommon,
                  :javapoet,
                  :guava
 
