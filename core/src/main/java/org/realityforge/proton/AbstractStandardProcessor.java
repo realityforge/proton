@@ -6,11 +6,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.processing.AbstractProcessor;
@@ -33,19 +31,18 @@ public abstract class AbstractStandardProcessor
       throws Exception;
   }
 
-  @Nonnull
-  private Set<TypeElement> _deferred = new HashSet<>();
   private int _invalidTypeCount;
 
   protected final void processTypeElements( @Nonnull final RoundEnvironment env,
+                                            @Nonnull final DeferredElementSet deferredSet,
                                             @Nonnull final Collection<TypeElement> elements,
                                             @Nonnull final Action<TypeElement> action )
   {
     if ( shouldDeferUnresolved() )
     {
-      final Collection<TypeElement> elementsToProcess = deriveElementsToProcess( elements );
+      final Collection<TypeElement> elementsToProcess = deriveElementsToProcess( deferredSet, elements );
       doProcessTypeElements( env, elementsToProcess, action );
-      errorIfProcessingOverAndDeferredTypesUnprocessed( env );
+      errorIfProcessingOverAndDeferredTypesUnprocessed( env, deferredSet );
     }
     else
     {
@@ -53,12 +50,14 @@ public abstract class AbstractStandardProcessor
     }
   }
 
-  protected final void errorIfProcessingOverAndDeferredTypesUnprocessed( @Nonnull final RoundEnvironment env )
+  protected final void errorIfProcessingOverAndDeferredTypesUnprocessed( @Nonnull final RoundEnvironment env,
+                                                                         @Nonnull final DeferredElementSet deferredSet )
   {
-    if ( ( env.processingOver() || env.errorRaised() ) && !_deferred.isEmpty() )
+    final Set<TypeElement> deferred = deferredSet.getDeferred();
+    if ( ( env.processingOver() || env.errorRaised() ) && !deferred.isEmpty() )
     {
-      _deferred.forEach( e -> processingErrorMessage( env, e ) );
-      _deferred.clear();
+      deferred.forEach( e -> processingErrorMessage( env, e ) );
+      deferredSet.clear();
     }
   }
 
@@ -243,21 +242,18 @@ public abstract class AbstractStandardProcessor
   }
 
   @Nonnull
-  private Collection<TypeElement> deriveElementsToProcess( @Nonnull final Collection<TypeElement> elements )
+  private Collection<TypeElement> deriveElementsToProcess( @Nonnull final DeferredElementSet deferredSet,
+                                                           @Nonnull final Collection<TypeElement> elements )
   {
-    final List<TypeElement> deferred = _deferred
-      .stream()
-      .map( e -> processingEnv.getElementUtils().getTypeElement( e.getQualifiedName() ) )
-      .collect( Collectors.toList() );
-    _deferred = new HashSet<>();
-
+    final List<TypeElement> deferred = deferredSet.extractDeferred( processingEnv );
     final List<TypeElement> elementsToProcess = new ArrayList<>();
-    collectElementsToProcess( elements, elementsToProcess );
-    collectElementsToProcess( deferred, elementsToProcess );
+    collectElementsToProcess( elements, deferredSet, elementsToProcess );
+    collectElementsToProcess( deferred, deferredSet, elementsToProcess );
     return elementsToProcess;
   }
 
   private void collectElementsToProcess( @Nonnull final Collection<TypeElement> elements,
+                                         @Nonnull final DeferredElementSet deferredSet,
                                          @Nonnull final List<TypeElement> elementsToProcess )
   {
     for ( final TypeElement element : elements )
@@ -268,14 +264,9 @@ public abstract class AbstractStandardProcessor
       }
       else
       {
-        deferElement( element );
+        deferredSet.deferElement( element );
       }
     }
-  }
-
-  protected final void deferElement( @Nonnull final TypeElement element )
-  {
-    _deferred.add( element );
   }
 
   protected final void emitTypeSpec( @Nonnull final String packageName, @Nonnull final TypeSpec typeSpec )
