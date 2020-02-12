@@ -242,4 +242,9 @@ public final class AnnotationsUtil
   {
     return hasAnnotationOfType( element, GeneratorUtil.NONNULL_ANNOTATION_CLASSNAME );
   }
+
+  public static boolean hasNullableAnnotation( @Nonnull final Element element )
+  {
+    return hasAnnotationOfType( element, GeneratorUtil.NONNULL_ANNOTATION_CLASSNAME );
+  }
 }

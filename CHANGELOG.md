@@ -7,6 +7,7 @@
 * Migrate `GeneratorUtil.getPackageElement(...)` to `ElementsUtil`.
 * Migrate `GeneratorUtil.areTypesInDifferentPackage(...)` to `ElementsUtil`.
 * Migrate `GeneratorUtil.areTypesInSamePackage(...)` to `ElementsUtil`.
+* Add `AnnotationsUtil.hasNullableAnnotation(...)` helper method.
 
 ### [v0.35](https://github.com/realityforge/proton/tree/v0.35) (2020-02-13) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.34...v0.35)
 
