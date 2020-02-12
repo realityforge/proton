@@ -24,7 +24,9 @@ import javax.lang.model.util.Elements;
 @SuppressWarnings( { "SameParameterValue", "WeakerAccess", "unused", "RedundantSuppression" } )
 public final class AnnotationsUtil
 {
+  @Nonnull
   public static final String NULLABLE_CLASSNAME = "javax.annotation.Nullable";
+  @Nonnull
   public static final String NONNULL_CLASSNAME = "javax.annotation.Nonnull";
 
   private AnnotationsUtil()
