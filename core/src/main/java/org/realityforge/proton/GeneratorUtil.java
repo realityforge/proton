@@ -387,5 +387,4 @@ public final class GeneratorUtil
     }
     return method;
   }
-
 }
