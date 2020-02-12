@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,6 +20,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.NestingKind;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
@@ -364,5 +366,30 @@ public final class ElementsUtil
   {
     final long flags = ( (Symbol) element ).flags();
     return 0 == ( flags & Flags.SYNTHETIC ) && 0 == ( flags & Flags.GENERATEDCONSTR );
+  }
+
+  @Nonnull
+  public static PackageElement getPackageElement( @Nonnull final Element outerElement )
+  {
+    Element element = outerElement;
+    while ( ElementKind.PACKAGE != element.getKind() )
+    {
+      element = element.getEnclosingElement();
+    }
+    return (PackageElement) element;
+  }
+
+  public static boolean areTypesInDifferentPackage( @Nonnull final TypeElement typeElement1,
+                                                    @Nonnull final TypeElement typeElement2 )
+  {
+    return !areTypesInSamePackage( typeElement1, typeElement2 );
+  }
+
+  public static boolean areTypesInSamePackage( @Nonnull final TypeElement typeElement1,
+                                               @Nonnull final TypeElement typeElement2 )
+  {
+    final PackageElement packageElement1 = getPackageElement( typeElement1 );
+    final PackageElement packageElement2 = getPackageElement( typeElement2 );
+    return Objects.equals( packageElement1.getQualifiedName(), packageElement2.getQualifiedName() );
   }
 }

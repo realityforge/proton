@@ -200,7 +200,7 @@ public final class MemberChecks
 
     if ( isPackageAccess )
     {
-      if ( GeneratorUtil.areTypesInDifferentPackage( element, (TypeElement) other.getEnclosingElement() ) )
+      if ( ElementsUtil.areTypesInDifferentPackage( element, (TypeElement) other.getEnclosingElement() ) )
       {
         throw new ProcessorException( mustNot( annotationName,
                                                "be package access if the " +
