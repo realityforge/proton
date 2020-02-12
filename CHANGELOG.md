@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Add `ElementsUtil.isSynthetic(Element)` and `ElementsUtil.isNotSynthetic(Element)` helper methods. 
+
 ### [v0.34](https://github.com/realityforge/proton/tree/v0.34) (2020-02-12) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.33...v0.34)
 
 Changes in this release:

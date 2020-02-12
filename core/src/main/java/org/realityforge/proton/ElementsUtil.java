@@ -2,6 +2,8 @@ package org.realityforge.proton;
 
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
+import com.sun.tools.javac.code.Flags;
+import com.sun.tools.javac.code.Symbol;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -339,5 +341,28 @@ public final class ElementsUtil
       final Element enclosing = element.getEnclosingElement();
       return ElementKind.PACKAGE == enclosing.getKind() || isEffectivelyPublic( (TypeElement) enclosing );
     }
+  }
+
+  /**
+   * Returns true if the given element is synthetic.
+   *
+   * @param element to check
+   * @return true if and only if the given element is synthetic, false otherwise
+   */
+  public static boolean isSynthetic( @Nonnull final Element element )
+  {
+    return !isNotSynthetic( element );
+  }
+
+  /**
+   * Returns false if the given element is synthetic.
+   *
+   * @param element to check
+   * @return false if and only if the given element is synthetic, true otherwise
+   */
+  public static boolean isNotSynthetic( @Nonnull final Element element )
+  {
+    final long flags = ( (Symbol) element ).flags();
+    return 0 == ( flags & Flags.SYNTHETIC ) && 0 == ( flags & Flags.GENERATEDCONSTR );
   }
 }
