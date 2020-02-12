@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.35](https://github.com/realityforge/proton/tree/v0.35) (2020-02-13) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.34...v0.35)
+
+Changes in this release:
 
 * Add `ElementsUtil.isSynthetic(Element)` and `ElementsUtil.isNotSynthetic(Element)` helper methods.
 
