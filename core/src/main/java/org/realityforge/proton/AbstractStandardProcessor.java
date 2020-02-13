@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,10 +34,31 @@ public abstract class AbstractStandardProcessor
 
   private int _invalidTypeCount;
 
-  protected final void processTypeElements( @Nonnull final RoundEnvironment env,
-                                            @Nonnull final DeferredElementSet deferredSet,
-                                            @Nonnull final Collection<TypeElement> elements,
+  @SuppressWarnings( "unchecked" )
+  protected final void processTypeElements( @Nonnull final Set<? extends TypeElement> annotations,
+                                            @Nonnull final RoundEnvironment env,
+                                            @Nonnull final String annotationClassname,
+                                            @Nonnull final DeferredElementSet deferredTypes,
                                             @Nonnull final Action<TypeElement> action )
+  {
+    final TypeElement annotationType = annotations.stream()
+      .filter( a -> a.getQualifiedName().toString().equals( annotationClassname ) )
+      .findAny()
+      .orElse( null );
+    if ( !deferredTypes.getDeferred().isEmpty() || null != annotationType )
+    {
+      final Collection<TypeElement> newElementsToProcess =
+        null == annotationType ?
+        Collections.emptyList() :
+        (Collection<TypeElement>) env.getElementsAnnotatedWith( annotationType );
+      processTypeElements( env, deferredTypes, newElementsToProcess, action );
+    }
+  }
+
+  private void processTypeElements( @Nonnull final RoundEnvironment env,
+                                    @Nonnull final DeferredElementSet deferredSet,
+                                    @Nonnull final Collection<TypeElement> elements,
+                                    @Nonnull final Action<TypeElement> action )
   {
     if ( shouldDeferUnresolved() )
     {
