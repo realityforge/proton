@@ -296,4 +296,10 @@ public abstract class AbstractStandardProcessor
   {
     GeneratorUtil.emitJavaType( packageName, typeSpec, processingEnv.getFiler() );
   }
+
+  protected final boolean readBooleanOption( @Nonnull final String relativeKey, final boolean defaultValue )
+  {
+    final String optionValue = processingEnv.getOptions().get( getOptionPrefix() + "." + relativeKey );
+    return null == optionValue ? defaultValue : "true".equals( optionValue );
+  }
 }
