@@ -179,6 +179,7 @@ public abstract class AbstractStandardProcessor
                                                           @Nonnull final Action<E> action,
                                                           @Nonnull final E element )
   {
+    debug( () -> "Performing processing action on element " + element );
     try
     {
       action.process( element );
