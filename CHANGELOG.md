@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.38](https://github.com/realityforge/proton/tree/v0.38) (2020-02-13) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.37...v0.38)
+
+Changes in this release:
 
 * Refactor `AbstractStandardProcessor.processTypeElements()` to work when the annotation processor is responsible for processing multiple different top-level types.
 * Add helper method `AbstractStandardProcessor.readBooleanOption(...)` that simplifies reading boolean annotation options.
