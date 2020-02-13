@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.processing.AbstractProcessor;
@@ -28,6 +29,7 @@ public abstract class AbstractStandardProcessor
   private boolean _verboseOutOfRoundErrors;
   private boolean _deferErrors;
   private boolean _deferUnresolved;
+  private boolean _debug;
 
   @FunctionalInterface
   public interface Action<E extends Element>
@@ -45,6 +47,7 @@ public abstract class AbstractStandardProcessor
     _verboseOutOfRoundErrors = readBooleanOption( "verbose_out_of_round.errors", true );
     _deferErrors = readBooleanOption( "defer.errors", true );
     _deferUnresolved = readBooleanOption( "defer.unresolved", true );
+    _debug = readBooleanOption( "debug", false );
   }
 
   @SuppressWarnings( "unchecked" )
@@ -277,7 +280,17 @@ public abstract class AbstractStandardProcessor
     final List<TypeElement> deferred = deferredSet.extractDeferred( processingEnv );
     final List<TypeElement> elementsToProcess = new ArrayList<>();
     collectElementsToProcess( elements, deferredSet, elementsToProcess );
+    final int scheduledFromThisRound = elementsToProcess.size();
+    final int deferredFromThisRound = deferredSet.getDeferred().size();
+    debug( () -> scheduledFromThisRound + " elements from this round scheduled for processing, " +
+                 deferredFromThisRound + " elements from this round deferred for processing in a later round" );
     collectElementsToProcess( deferred, deferredSet, elementsToProcess );
+    final int scheduledFromPreviousRounds = elementsToProcess.size() - scheduledFromThisRound;
+    final int deferredFromPreviousRounds = deferredSet.getDeferred().size() - deferredFromThisRound;
+    debug( () -> scheduledFromPreviousRounds + " elements from previous rounds scheduled for processing, " +
+                 deferredFromPreviousRounds + " elements from previous rounds deferred for processing " +
+                 "in a later round" );
+
     return elementsToProcess;
   }
 
@@ -289,12 +302,24 @@ public abstract class AbstractStandardProcessor
     {
       if ( SuperficialValidation.validateElement( processingEnv, element ) )
       {
+        debug( () -> "Scheduling element " + element + " for processing" );
         elementsToProcess.add( element );
       }
       else
       {
+        debug( () -> "Deferring element " +
+                     element +
+                     " for processing in a later round as it failed superficial validation" );
         deferredSet.deferElement( element );
       }
+    }
+  }
+
+  protected final void debug( @Nonnull final Supplier<String> messageSupplier )
+  {
+    if ( _debug )
+    {
+      processingEnv.getMessager().printMessage( Diagnostic.Kind.NOTE, messageSupplier.get() );
     }
   }
 
