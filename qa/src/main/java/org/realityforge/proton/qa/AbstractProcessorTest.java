@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -396,6 +397,19 @@ public abstract class AbstractProcessorTest
       processedWith( processors() ).
       failsToCompile().
       withErrorContaining( errorMessageFragment );
+  }
+
+  protected final void assertDiagnosticPresent( @Nonnull final Compilation compilation, @Nonnull final String message )
+  {
+    for ( final Diagnostic<? extends JavaFileObject> diagnostic : compilation.diagnostics() )
+    {
+      if ( diagnostic.getMessage( Locale.getDefault() ).contains( message ) )
+      {
+        return;
+      }
+    }
+    fail( "Failed but missing expected message:\n" + message +
+          "\nActual diagnostics:\n" + describeFailureDiagnostics( compilation ) );
   }
 
   @Nonnull

@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Add some additional debugging when actually performing an action on an `TypeElement`.
+* Add `AbstractProcessorTest.assertDiagnosticPresent` method to help when performing explicit staged compiled during testing.
 
 ### [v0.38](https://github.com/realityforge/proton/tree/v0.38) (2020-02-13) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.37...v0.38)
 
