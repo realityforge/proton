@@ -4,6 +4,7 @@
 
 * Refactor `AbstractStandardProcessor.processTypeElements()` to work when the annotation processor is responsible for processing multiple different top-level types.
 * Add helper method `AbstractStandardProcessor.readBooleanOption(...)` that simplifies reading boolean annotation options.
+* Cache resolution of annotation properties in `AbstractStandardProcessor.init(...)`.
 
 ### [v0.37](https://github.com/realityforge/proton/tree/v0.37) (2020-02-13) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.36...v0.37)
 

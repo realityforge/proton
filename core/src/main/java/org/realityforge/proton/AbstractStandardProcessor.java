@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
@@ -25,6 +26,10 @@ import javax.tools.Diagnostic;
 public abstract class AbstractStandardProcessor
   extends AbstractProcessor
 {
+  private boolean _verboseOutOfRoundErrors;
+  private boolean _deferErrors;
+  private boolean _deferUnresolved;
+
   @FunctionalInterface
   public interface Action<E extends Element>
   {
@@ -33,6 +38,15 @@ public abstract class AbstractStandardProcessor
   }
 
   private int _invalidTypeCount;
+
+  @Override
+  public synchronized void init( final ProcessingEnvironment processingEnv )
+  {
+    super.init( processingEnv );
+    _verboseOutOfRoundErrors = readBooleanOption( "verbose_out_of_round.errors", true );
+    _deferErrors = readBooleanOption( "defer.errors", true );
+    _deferUnresolved = readBooleanOption( "defer.unresolved", true );
+  }
 
   @SuppressWarnings( "unchecked" )
   protected final void processTypeElements( @Nonnull final Set<? extends TypeElement> annotations,
@@ -101,9 +115,7 @@ public abstract class AbstractStandardProcessor
 
   protected boolean shouldDeferUnresolved()
   {
-    final Map<String, String> options = processingEnv.getOptions();
-    final String deferUnresolvedValue = options.get( getOptionPrefix() + ".defer.unresolved" );
-    return null == deferUnresolvedValue || "true".equals( deferUnresolvedValue );
+    return _deferUnresolved;
   }
 
   @Nonnull
@@ -134,11 +146,9 @@ public abstract class AbstractStandardProcessor
                                     @Nullable final AnnotationMirror annotation,
                                     @Nullable final AnnotationValue annotationValue )
   {
-    final String deferErrorsValue = processingEnv.getOptions().get( getOptionPrefix() + ".defer.errors" );
-    final boolean deferErrors = null == deferErrorsValue || "true".equals( deferErrorsValue );
     _invalidTypeCount++;
     final Diagnostic.Kind kind =
-      !deferErrors || env.errorRaised() || env.processingOver() ? Diagnostic.Kind.ERROR : Diagnostic.Kind.WARNING;
+      !_deferErrors || env.errorRaised() || env.processingOver() ? Diagnostic.Kind.ERROR : Diagnostic.Kind.WARNING;
     if ( null != annotationValue )
     {
       processingEnv.getMessager().printMessage( kind, message, element, annotation, annotationValue );
@@ -184,9 +194,7 @@ public abstract class AbstractStandardProcessor
     catch ( final ProcessorException e )
     {
       final Element errorLocation = e.getElement();
-      final String verboseOutOfRoundErrors =
-        processingEnv.getOptions().get( getOptionPrefix() + ".verbose_out_of_round.errors" );
-      if ( null == verboseOutOfRoundErrors || "true".equals( verboseOutOfRoundErrors ) )
+      if ( _verboseOutOfRoundErrors )
       {
         final Element outerElement = ElementsUtil.getTopLevelElement( errorLocation );
         if ( !env.getRootElements().contains( outerElement ) )
