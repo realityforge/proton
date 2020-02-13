@@ -85,8 +85,8 @@ public abstract class AbstractStandardProcessor
     }
   }
 
-  protected final void errorIfProcessingOverAndDeferredTypesUnprocessed( @Nonnull final RoundEnvironment env,
-                                                                         @Nonnull final DeferredElementSet deferredSet )
+  private void errorIfProcessingOverAndDeferredTypesUnprocessed( @Nonnull final RoundEnvironment env,
+                                                                 @Nonnull final DeferredElementSet deferredSet )
   {
     final Set<TypeElement> deferred = deferredSet.getDeferred();
     if ( ( env.processingOver() || env.errorRaised() ) && !deferred.isEmpty() )
