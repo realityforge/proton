@@ -6,7 +6,7 @@
 * Add helper method `AbstractStandardProcessor.readBooleanOption(...)` that simplifies reading boolean annotation options.
 * Cache resolution of annotation properties in `AbstractStandardProcessor.init(...)`.
 * Mark `AbstractStandardProcessor.errorIfProcessingOverAndDeferredTypesUnprocessed(...)` as private as should never be invoked by subclasses.
-* Add support for a `debug` annotation option that prints out debug messages based on whether types are processed in a round. Add a method  `AbstractStandardProcessor.debug(...)` that can be used by downstream libraries to emit debug messages.
+* Add support for a `debug` annotation option that prints out debug messages based on whether types are processed in a round. Add a method `AbstractStandardProcessor.debug(...)` that can be used by downstream libraries to emit debug messages.
 
 ### [v0.37](https://github.com/realityforge/proton/tree/v0.37) (2020-02-13) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.36...v0.37)
 
