@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Import `TypesUtil` class that contain helper methods that work solely on types.
+
 ### [v0.39](https://github.com/realityforge/proton/tree/v0.39) (2020-02-13) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.38...v0.39)
 
 Changes in this release:
