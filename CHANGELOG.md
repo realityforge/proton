@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.41](https://github.com/realityforge/proton/tree/v0.41) (2020-03-04) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.40...v0.41)
+
+Changes in this release:
 
 * Add `AbstractProcessorTest.newSynthesizingProcessor(...)` helper methods that create an annotation processor that will "generate" source in a particular processor round. The generation actually just consists of reading a fixture from the filesystem and passing it to the compiler. This utility is useful when testing annotation processors that defer processing until later rounds based on whether the types that they are acting on are fully resolved or have unknown elements present.
 
