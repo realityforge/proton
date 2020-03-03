@@ -13,6 +13,7 @@ import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -334,6 +335,25 @@ public abstract class AbstractProcessorTest
   protected final CompileTester.CleanCompilationClause assertCompilesWithoutWarnings( @Nonnull final List<JavaFileObject> inputs )
   {
     return assertCompiles( inputs ).compilesWithoutWarnings();
+  }
+
+  @Nonnull
+  protected final Processor newSynthesizingProcessor( @Nonnull final String classname, final int targetRound )
+    throws IOException
+  {
+    return newSynthesizingProcessor( "input", classname, targetRound );
+  }
+
+  @Nonnull
+  protected final Processor newSynthesizingProcessor( @Nonnull final String dir,
+                                                      @Nonnull final String classname,
+                                                      final int targetRound )
+    throws IOException
+  {
+    final String filename = toFilename( dir, classname );
+    final Path path = fixtureDir().resolve( filename );
+    final String source = new String( Files.readAllBytes( path ), StandardCharsets.UTF_8 );
+    return new SynthesizingProcessor( classname, source, targetRound );
   }
 
   protected final void assertCompilesWithSingleWarning( @Nonnull final String classname,
