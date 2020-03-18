@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.43](https://github.com/realityforge/proton/tree/v0.43) (2020-03-19) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.42...v0.43)
+
+Changes in this release:
 
 * Add the method `assertDiagnostic(...)` that accepts a compilation, a diagnostic and a message contents to the `AbstractProcessorTest` class. Also added `assertErrorDiagnostic(...)` and `assertWarningDiagnostic(...)` helper methods to make testing the most common diagnostic error messages easy. Deprecated the existing `assertDiagnosticPresent(...)` method as it's functionality has been subsumed by the new methods.
 
