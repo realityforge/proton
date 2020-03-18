@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.42](https://github.com/realityforge/proton/tree/v0.42) (2020-03-18) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.41...v0.42)
+
+Changes in this release:
 
 * Extract the `AbstractStandardProcessor.getNewTypeElementsToProcess()` utility method.
 
