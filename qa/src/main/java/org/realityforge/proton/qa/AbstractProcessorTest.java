@@ -419,6 +419,10 @@ public abstract class AbstractProcessorTest
       withErrorContaining( errorMessageFragment );
   }
 
+  /**
+   * @deprecated Use assertDiagnostic instead.
+   */
+  @Deprecated
   protected final void assertDiagnosticPresent( @Nonnull final Compilation compilation, @Nonnull final String message )
   {
     for ( final Diagnostic<? extends JavaFileObject> diagnostic : compilation.diagnostics() )
@@ -428,7 +432,34 @@ public abstract class AbstractProcessorTest
         return;
       }
     }
-    fail( "Failed but missing expected message:\n" + message +
+    fail( "Failed to find diagnostic containing message:\n" + message +
+          "\nActual diagnostics:\n" + describeFailureDiagnostics( compilation ) );
+  }
+
+  protected final void assertErrorDiagnostic( @Nonnull final Compilation compilation,
+                                              @Nonnull final String message )
+  {
+    assertDiagnostic( compilation, Diagnostic.Kind.ERROR, message );
+  }
+
+  protected final void assertWarningDiagnostic( @Nonnull final Compilation compilation,
+                                                @Nonnull final String message )
+  {
+    assertDiagnostic( compilation, Diagnostic.Kind.WARNING, message );
+  }
+
+  protected final void assertDiagnostic( @Nonnull final Compilation compilation,
+                                         @Nonnull final Diagnostic.Kind kind,
+                                         @Nonnull final String message )
+  {
+    for ( final Diagnostic<? extends JavaFileObject> diagnostic : compilation.diagnostics() )
+    {
+      if ( diagnostic.getKind() == kind && diagnostic.getMessage( Locale.getDefault() ).contains( message ) )
+      {
+        return;
+      }
+    }
+    fail( "Failed to find diagnostic of kind " + kind + " containing message:\n" + message +
           "\nActual diagnostics:\n" + describeFailureDiagnostics( compilation ) );
   }
 
