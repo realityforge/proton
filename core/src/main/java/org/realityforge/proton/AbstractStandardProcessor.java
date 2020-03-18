@@ -50,25 +50,38 @@ public abstract class AbstractStandardProcessor
     _debug = readBooleanOption( "debug", false );
   }
 
-  @SuppressWarnings( "unchecked" )
   protected final void processTypeElements( @Nonnull final Set<? extends TypeElement> annotations,
                                             @Nonnull final RoundEnvironment env,
                                             @Nonnull final String annotationClassname,
                                             @Nonnull final DeferredElementSet deferredTypes,
                                             @Nonnull final Action<TypeElement> action )
   {
-    final TypeElement annotationType = annotations.stream()
-      .filter( a -> a.getQualifiedName().toString().equals( annotationClassname ) )
-      .findAny()
-      .orElse( null );
-    if ( !deferredTypes.getDeferred().isEmpty() || null != annotationType )
+    final Collection<TypeElement> newElementsToProcess =
+      getNewTypeElementsToProcess( annotations, env, annotationClassname );
+    if ( !deferredTypes.getDeferred().isEmpty() || !newElementsToProcess.isEmpty() )
     {
-      final Collection<TypeElement> newElementsToProcess =
-        null == annotationType ?
-        Collections.emptyList() :
-        (Collection<TypeElement>) env.getElementsAnnotatedWith( annotationType );
       processTypeElements( env, deferredTypes, newElementsToProcess, action );
     }
+  }
+
+  /**
+   * Return the types annotated by specified annotation, processed in the current round.
+   *
+   * @param annotations         the annotation types requested to be processed.
+   * @param env                 environment for information about the current and prior round.
+   * @param annotationClassname the annotation classname to search for.
+   * @return the types annotated by specified annotation, processed in the current round.
+   */
+  @SuppressWarnings( "unchecked" )
+  protected final Collection<TypeElement> getNewTypeElementsToProcess( @Nonnull final Set<? extends TypeElement> annotations,
+                                                                       @Nonnull final RoundEnvironment env,
+                                                                       @Nonnull final String annotationClassname )
+  {
+    return annotations.stream()
+      .filter( a -> a.getQualifiedName().toString().equals( annotationClassname ) )
+      .findAny()
+      .map( a -> (Collection<TypeElement>) env.getElementsAnnotatedWith( a ) )
+      .orElse( Collections.emptyList() );
   }
 
   private void processTypeElements( @Nonnull final RoundEnvironment env,
