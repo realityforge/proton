@@ -329,9 +329,14 @@ public abstract class AbstractStandardProcessor
     }
   }
 
+  protected final boolean isDebugEnabled()
+  {
+    return _debug;
+  }
+
   protected final void debug( @Nonnull final Supplier<String> messageSupplier )
   {
-    if ( _debug )
+    if ( isDebugEnabled() )
     {
       processingEnv.getMessager().printMessage( Diagnostic.Kind.NOTE, messageSupplier.get() );
     }
