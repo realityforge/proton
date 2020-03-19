@@ -268,9 +268,10 @@ public abstract class AbstractStandardProcessor
     catch ( final Throwable e )
     {
       final String message =
-        "Unexpected error running the " + getClass().getName() + " processor. This has " +
+        "There was an unexpected error running the " + getClass().getName() + " processor. This has " +
         "resulted in a failure to process the code and has left the compiler in an invalid " +
-        "state. Please report the failure to the developers so that it can be fixed.\n" +
+        "state. If you believe this is an error with the " + getClass().getName() +
+        " processor then please report the failure to the developers so that it can be fixed.\n" +
         " Report the error at: " + getIssueTrackerURL() + "\n" +
         "\n\n" +
         printStackTrace( e );
