@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.44](https://github.com/realityforge/proton/tree/v0.44) (2020-03-19) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.43...v0.44)
+
+Changes in this release:
 
 * Add a utility method `AbstractStandardProcessor.isDebugEnabled()` to expose whether the debug state is enabled.
 
