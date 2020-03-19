@@ -321,9 +321,8 @@ public abstract class AbstractStandardProcessor
       }
       else
       {
-        debug( () -> "Deferring element " +
-                     element +
-                     " for processing in a later round as it failed superficial validation" );
+        debug( () -> "Deferring element " + element + " for processing in a later " +
+                     "round as it failed superficial validation" );
         deferredSet.deferElement( element );
       }
     }
