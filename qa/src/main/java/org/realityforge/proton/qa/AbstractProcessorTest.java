@@ -87,6 +87,44 @@ public abstract class AbstractProcessorTest
                                                 @Nonnull final Predicate<JavaFileObject> filter )
     throws Exception
   {
+    outputFilesIfEnabled( inputs, filter );
+    final List<String> sourceFiles =
+      outputs.stream().filter( o -> o.endsWith( ".java" ) ).collect( Collectors.toList() );
+    final List<String> otherFiles =
+      outputs.stream().filter( o -> !o.endsWith( ".java" ) ).collect( Collectors.toList() );
+    final CompileTester.CleanCompilationClause clause = assertCompilesWithoutWarnings( inputs );
+    if ( !sourceFiles.isEmpty() )
+    {
+      final JavaFileObject firstExpected = fixture( sourceFiles.get( 0 ) );
+      final JavaFileObject[] restExpected =
+        sourceFiles.stream().skip( 1 ).map( this::fixture ).toArray( JavaFileObject[]::new );
+      clause.
+        and().
+        generatesSources( firstExpected, restExpected );
+    }
+    if ( !otherFiles.isEmpty() )
+    {
+      final JavaFileObject firstExpected = fixture( otherFiles.get( 0 ) );
+      final JavaFileObject[] restExpected =
+        otherFiles.stream().skip( 1 ).map( this::fixture ).toArray( JavaFileObject[]::new );
+      clause.
+        and().
+        generatesFiles( firstExpected, restExpected );
+    }
+  }
+
+  /**
+   * Compile the inputs and output files that match filter if {@link #outputFiles()} returns true.
+   * This is primarily used when updating golden files.
+   *
+   * @param inputs the input files.
+   * @param filter the file filter.
+   * @throws Exception if an error occurs.
+   */
+  protected final void outputFilesIfEnabled( @Nonnull final List<JavaFileObject> inputs,
+                                             @Nonnull final Predicate<JavaFileObject> filter )
+    throws Exception
+  {
     if ( outputFiles() )
     {
       final Compilation compilation = compiler().compile( inputs );
@@ -110,29 +148,6 @@ public abstract class AbstractProcessorTest
       {
         fail( describeFailureDiagnostics( compilation ) );
       }
-    }
-    final List<String> sourceFiles =
-      outputs.stream().filter( o -> o.endsWith( ".java" ) ).collect( Collectors.toList() );
-    final List<String> otherFiles =
-      outputs.stream().filter( o -> !o.endsWith( ".java" ) ).collect( Collectors.toList() );
-    final CompileTester.CleanCompilationClause clause = assertCompilesWithoutWarnings( inputs );
-    if ( !sourceFiles.isEmpty() )
-    {
-      final JavaFileObject firstExpected = fixture( sourceFiles.get( 0 ) );
-      final JavaFileObject[] restExpected =
-        sourceFiles.stream().skip( 1 ).map( this::fixture ).toArray( JavaFileObject[]::new );
-      clause.
-        and().
-        generatesSources( firstExpected, restExpected );
-    }
-    if ( !otherFiles.isEmpty() )
-    {
-      final JavaFileObject firstExpected = fixture( otherFiles.get( 0 ) );
-      final JavaFileObject[] restExpected =
-        otherFiles.stream().skip( 1 ).map( this::fixture ).toArray( JavaFileObject[]::new );
-      clause.
-        and().
-        generatesFiles( firstExpected, restExpected );
     }
   }
 
