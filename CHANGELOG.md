@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Make `MemberChecks.doesMethodNotOverrideInterfaceMethod(...)` public access.
+
 ### [v0.45](https://github.com/realityforge/proton/tree/v0.45) (2020-04-07) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.44...v0.45)
 
 Changes in this release:

@@ -467,9 +467,9 @@ public final class MemberChecks
     }
   }
 
-  private static boolean doesMethodNotOverrideInterfaceMethod( @Nonnull final ProcessingEnvironment processingEnv,
-                                                               @Nonnull final TypeElement typeElement,
-                                                               @Nonnull final ExecutableElement method )
+  public static boolean doesMethodNotOverrideInterfaceMethod( @Nonnull final ProcessingEnvironment processingEnv,
+                                                              @Nonnull final TypeElement typeElement,
+                                                              @Nonnull final ExecutableElement method )
   {
     return !ElementsUtil.doesMethodOverrideInterfaceMethod( processingEnv.getTypeUtils(), typeElement, method );
   }
