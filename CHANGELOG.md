@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.46](https://github.com/realityforge/proton/tree/v0.46) (2020-04-07) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.45...v0.46)
+
+Changes in this release:
 
 * Make `MemberChecks.doesMethodNotOverrideInterfaceMethod(...)` public access.
 
