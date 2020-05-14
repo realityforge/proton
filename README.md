@@ -1,6 +1,6 @@
 # Proton
 
-[![Build Status](https://api.travis-ci.com/realityforge/proton.svg?branch=master)](http://travis-ci.org/realityforge/proton)
+[![Build Status](https://api.travis-ci.com/realityforge/proton.svg?branch=master)](http://travis-ci.com/realityforge/proton)
 [<img src="https://img.shields.io/maven-central/v/org.realityforge.proton/proton-core.svg?label=latest%20release"/>](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.realityforge.proton%22)
 
 Proton is a library of utilities that simplify building annotation processors.
