@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
@@ -391,5 +392,39 @@ public final class ElementsUtil
     final PackageElement packageElement1 = getPackageElement( typeElement1 );
     final PackageElement packageElement2 = getPackageElement( typeElement2 );
     return Objects.equals( packageElement1.getQualifiedName(), packageElement2.getQualifiedName() );
+  }
+
+  /**
+   * Return the method that the specified method is overriding if any.
+   *
+   * @param processingEnv the processing environment.
+   * @param typeElement   the enclosing type.
+   * @param method        the method.
+   * @return the method that the specified method overrides, else null.
+   */
+  @Nullable
+  static ExecutableElement getOverriddenMethod( @Nonnull final ProcessingEnvironment processingEnv,
+                                                @Nonnull final TypeElement typeElement,
+                                                @Nonnull final ExecutableElement method )
+  {
+    final TypeMirror superclass = typeElement.getSuperclass();
+    if ( TypeKind.NONE == superclass.getKind() )
+    {
+      return null;
+    }
+    else
+    {
+      final TypeElement parent = (TypeElement) processingEnv.getTypeUtils().asElement( superclass );
+      final List<? extends Element> enclosedElements = parent.getEnclosedElements();
+      for ( final Element enclosedElement : enclosedElements )
+      {
+        if ( ElementKind.METHOD == enclosedElement.getKind() &&
+             processingEnv.getElementUtils().overrides( method, (ExecutableElement) enclosedElement, typeElement ) )
+        {
+          return (ExecutableElement) enclosedElement;
+        }
+      }
+      return getOverriddenMethod( processingEnv, parent, method );
+    }
   }
 }
