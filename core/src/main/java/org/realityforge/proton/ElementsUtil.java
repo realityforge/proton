@@ -403,9 +403,9 @@ public final class ElementsUtil
    * @return the method that the specified method overrides, else null.
    */
   @Nullable
-  static ExecutableElement getOverriddenMethod( @Nonnull final ProcessingEnvironment processingEnv,
-                                                @Nonnull final TypeElement typeElement,
-                                                @Nonnull final ExecutableElement method )
+  public static ExecutableElement getOverriddenMethod( @Nonnull final ProcessingEnvironment processingEnv,
+                                                       @Nonnull final TypeElement typeElement,
+                                                       @Nonnull final ExecutableElement method )
   {
     final TypeMirror superclass = typeElement.getSuperclass();
     if ( TypeKind.NONE == superclass.getKind() )
