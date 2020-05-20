@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.50](https://github.com/realityforge/proton/tree/v0.50) (2020-05-21) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.49...v0.50)
+
+Changes in this release:
 
 * Fix bug where `GeneratorUtil.overrideMethod(...)` was not passing on the `additionalSuppressions` parameter when generating suppressions.
 
