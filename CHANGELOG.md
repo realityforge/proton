@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.49](https://github.com/realityforge/proton/tree/v0.49) (2020-05-21) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.48...v0.49)
+
+Changes in this release:
 
 * Expose `TypesUtil.hasRawTypes()` helper method.
 * Deprecate `ElementsUtil.isElementDeprecated()` helper method and add replacement `ElementsUtil.hasDeprecatedAnnotation()`.
