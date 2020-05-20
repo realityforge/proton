@@ -325,12 +325,38 @@ public final class ElementsUtil
     return NestingKind.TOP_LEVEL != element.getNestingKind() && !element.getModifiers().contains( Modifier.STATIC );
   }
 
+  /**
+   * @deprecated Use {@link #hasDeprecatedAnnotation(Element)} instead.
+   */
+  @Deprecated
   public static boolean isElementDeprecated( @Nonnull final Element element )
+  {
+    return hasDeprecatedAnnotation( element );
+  }
+
+  public static boolean hasDeprecatedAnnotation( @Nonnull final Element element )
   {
     return element
       .getAnnotationMirrors()
       .stream()
       .anyMatch( a -> a.getAnnotationType().toString().equals( Deprecated.class.getName() ) );
+  }
+
+  public static boolean isDeprecated( @Nonnull final Element element )
+  {
+    if ( isElementDeprecated( element ) )
+    {
+      return true;
+    }
+    else if ( ( element.getKind().isClass() || element.getKind().isInterface() ) &&
+              ElementKind.PACKAGE != element.getEnclosingElement().getKind() )
+    {
+      return isDeprecated( element.getEnclosingElement() );
+    }
+    else
+    {
+      return false;
+    }
   }
 
   public static boolean isEffectivelyPublic( @Nonnull final TypeElement element )

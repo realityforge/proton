@@ -3,6 +3,9 @@
 ### Unreleased
 
 * Expose `TypesUtil.hasRawTypes()` helper method.
+* Deprecate `ElementsUtil.isElementDeprecated()` helper method and add replacement `ElementsUtil.hasDeprecatedAnnotation()`.
+* Expose `ElementsUtil.isDeprecated()` helper method that determines whether the element is effectively deprecated by either being annotated with `@Deprecated` or being enclosed in a deprecated element.
+* Expose `TypesUtil.isDeprecated(...)` helper method.
 
 ### [v0.48](https://github.com/realityforge/proton/tree/v0.48) (2020-05-19) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.47...v0.48)
 

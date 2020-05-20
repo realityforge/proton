@@ -3,6 +3,7 @@ package org.realityforge.proton;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
@@ -138,5 +139,71 @@ public final class TypesUtil
     {
       return false;
     }
+  }
+
+  /**
+   * Return true if the type or any component of the type is deprecated.
+   * A deprecated component type in an array, a deprecated type parameter of parameterized type
+   * or deprecated parameters/return value in executable types will result in this method returning true.
+   *
+   * @param processingEnv the ProcessingEnvironment.
+   * @param type          the type.
+   * @return true if the type or a compoennt of the type is deprecated.
+   */
+  public static boolean isDeprecated( @Nonnull final ProcessingEnvironment processingEnv,
+                                      @Nonnull final TypeMirror type )
+  {
+    final TypeKind kind = type.getKind();
+    if ( TypeKind.TYPEVAR == kind )
+    {
+      final TypeVariable typeVariable = (TypeVariable) type;
+      return isDeprecated( processingEnv, typeVariable.getLowerBound() ) ||
+             isDeprecated( processingEnv, typeVariable.getUpperBound() );
+    }
+    else if ( TypeKind.ARRAY == kind )
+    {
+      return isDeprecated( processingEnv, ( (ArrayType) type ).getComponentType() );
+    }
+    else if ( TypeKind.DECLARED == kind )
+    {
+      if ( isTypeElementDeprecated( processingEnv, type ) )
+      {
+        return true;
+      }
+      else
+      {
+        final DeclaredType declaredType = (DeclaredType) type;
+        return declaredType
+          .getTypeArguments()
+          .stream()
+          .anyMatch( t -> isDeprecated( processingEnv, t ) );
+      }
+    }
+    else if ( TypeKind.EXECUTABLE == kind )
+    {
+      final ExecutableType executableType = (ExecutableType) type;
+      return isTypeElementDeprecated( processingEnv, executableType ) ||
+             isDeprecated( processingEnv, executableType.getReturnType() ) ||
+             executableType.getTypeVariables()
+               .stream()
+               .anyMatch( t -> isDeprecated( processingEnv, t ) ) ||
+             executableType.getThrownTypes()
+               .stream()
+               .anyMatch( t -> isDeprecated( processingEnv, t ) ) ||
+             executableType.getParameterTypes()
+               .stream()
+               .anyMatch( t -> isDeprecated( processingEnv, t ) );
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  private static boolean isTypeElementDeprecated( @Nonnull final ProcessingEnvironment processingEnv,
+                                                  @Nonnull final TypeMirror type )
+  {
+    final Element element = processingEnv.getTypeUtils().asElement( type );
+    return null != element && ElementsUtil.isDeprecated( element );
   }
 }

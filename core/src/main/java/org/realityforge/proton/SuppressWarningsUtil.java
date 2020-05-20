@@ -15,14 +15,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.type.ArrayType;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.ExecutableType;
-import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.type.TypeVariable;
 
 @SuppressWarnings( "unused" )
 public final class SuppressWarningsUtil
@@ -193,7 +186,7 @@ public final class SuppressWarningsUtil
 
     final boolean hasDeprecatedTypes =
       additionalSuppressions.contains( "deprecation" ) ||
-      types.stream().anyMatch( t -> hasDeprecatedTypes( processingEnv, t ) );
+      types.stream().anyMatch( t -> TypesUtil.isDeprecated( processingEnv, t ) );
 
     if ( hasRawTypes || hasDeprecatedTypes || !additionalSuppressions.isEmpty() )
     {
@@ -211,80 +204,6 @@ public final class SuppressWarningsUtil
     else
     {
       return null;
-    }
-  }
-
-  private static boolean hasDeprecatedTypes( @Nonnull final ProcessingEnvironment processingEnv,
-                                             @Nonnull final TypeMirror type )
-  {
-    final TypeKind kind = type.getKind();
-    if ( TypeKind.TYPEVAR == kind )
-    {
-      final TypeVariable typeVariable = (TypeVariable) type;
-      return hasDeprecatedTypes( processingEnv, typeVariable.getLowerBound() ) ||
-             hasDeprecatedTypes( processingEnv, typeVariable.getUpperBound() );
-    }
-    else if ( TypeKind.ARRAY == kind )
-    {
-      return hasDeprecatedTypes( processingEnv, ( (ArrayType) type ).getComponentType() );
-    }
-    else if ( TypeKind.DECLARED == kind )
-    {
-      if ( isElementDeprecated( processingEnv, type ) )
-      {
-        return true;
-      }
-      else
-      {
-        final DeclaredType declaredType = (DeclaredType) type;
-        return declaredType
-          .getTypeArguments()
-          .stream()
-          .anyMatch( t -> hasDeprecatedTypes( processingEnv, t ) );
-      }
-    }
-    else if ( TypeKind.EXECUTABLE == kind )
-    {
-      final ExecutableType executableType = (ExecutableType) type;
-      return isElementDeprecated( processingEnv, executableType ) ||
-             hasDeprecatedTypes( processingEnv, executableType.getReturnType() ) ||
-             executableType.getTypeVariables()
-               .stream()
-               .anyMatch( t -> hasDeprecatedTypes( processingEnv, t ) ) ||
-             executableType.getThrownTypes()
-               .stream()
-               .anyMatch( t -> hasDeprecatedTypes( processingEnv, t ) ) ||
-             executableType.getParameterTypes()
-               .stream()
-               .anyMatch( t -> hasDeprecatedTypes( processingEnv, t ) );
-    }
-    else
-    {
-      return false;
-    }
-  }
-
-  private static boolean isElementDeprecated( @Nonnull final ProcessingEnvironment processingEnv,
-                                              @Nonnull final TypeMirror type )
-  {
-    final Element element = processingEnv.getTypeUtils().asElement( type );
-    return null != element && isElementDeprecated( element );
-  }
-
-  private static boolean isElementDeprecated( @Nonnull final Element element )
-  {
-    if ( ElementsUtil.isElementDeprecated( element ) )
-    {
-      return true;
-    }
-    else if ( ( element.getKind().isClass() || element.getKind().isInterface() ) &&
-              ElementKind.PACKAGE != element.getEnclosingElement().getKind() )
-    {
-      return isElementDeprecated( element.getEnclosingElement() );
-    }
-    else
-    {
-      return false;
     }
   }
 }
