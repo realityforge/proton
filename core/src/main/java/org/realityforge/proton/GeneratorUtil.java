@@ -328,7 +328,10 @@ public final class GeneratorUtil
     final MethodSpec.Builder method = MethodSpec.methodBuilder( executableElement.getSimpleName().toString() );
     method.addAnnotation( Override.class );
 
-    SuppressWarningsUtil.addSuppressWarningsIfRequired( processingEnv, method, executableType );
+    SuppressWarningsUtil.addSuppressWarningsIfRequired( processingEnv,
+                                                        method,
+                                                        additionalSuppressions,
+                                                        Collections.singletonList( executableType ) );
     copyAccessModifiers( executableElement, method );
     copyTypeParameters( executableType, method );
     if ( copyNullabilityAnnotations )
