@@ -168,6 +168,24 @@ public final class MemberChecks
     }
   }
 
+  public static void mustBeProtected( @Nonnull final String annotationName, @Nonnull final Element element )
+    throws ProcessorException
+  {
+    if ( !element.getModifiers().contains( Modifier.PROTECTED ) )
+    {
+      throw new ProcessorException( must( annotationName, "be protected" ), element );
+    }
+  }
+
+  public static void mustNotBeProtected( @Nonnull final String annotationName, @Nonnull final Element element )
+    throws ProcessorException
+  {
+    if ( element.getModifiers().contains( Modifier.PROTECTED ) )
+    {
+      throw new ProcessorException( mustNot( annotationName, "be protected" ), element );
+    }
+  }
+
   public static void mustBePrivate( @Nonnull final String annotationName, @Nonnull final Element element )
     throws ProcessorException
   {
