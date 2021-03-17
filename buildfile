@@ -22,6 +22,7 @@ define 'proton' do
     compile.with :javax_annotation,
                  :javax_json,
                  :javapoet,
+                 Buildr::Util.tools_jar,
                  :guava
 
     package(:jar)
