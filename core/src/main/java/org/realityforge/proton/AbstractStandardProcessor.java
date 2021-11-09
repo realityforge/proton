@@ -77,7 +77,8 @@ public abstract class AbstractStandardProcessor
                                                                        @Nonnull final RoundEnvironment env,
                                                                        @Nonnull final String annotationClassname )
   {
-    return annotations.stream()
+    return annotations
+      .stream()
       .filter( a -> a.getQualifiedName().toString().equals( annotationClassname ) )
       .findAny()
       .map( a -> (Collection<TypeElement>) env.getElementsAnnotatedWith( a ) )
