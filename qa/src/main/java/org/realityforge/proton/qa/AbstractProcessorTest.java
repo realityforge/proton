@@ -451,8 +451,7 @@ public abstract class AbstractProcessorTest
           "\nActual diagnostics:\n" + describeFailureDiagnostics( compilation ) );
   }
 
-  protected final void assertErrorDiagnostic( @Nonnull final Compilation compilation,
-                                              @Nonnull final String message )
+  protected final void assertErrorDiagnostic( @Nonnull final Compilation compilation, @Nonnull final String message )
   {
     assertDiagnostic( compilation, Diagnostic.Kind.ERROR, message );
   }
