@@ -194,6 +194,9 @@ public abstract class AbstractProcessorTest
 
   /**
    * Returns a description of the why the compilation failed.
+   *
+   * @param compilation the compilation.
+   * @return a description of diagnostics for compilation.
    */
   @Nonnull
   protected final String describeFailureDiagnostics( @Nonnull final Compilation compilation )
@@ -435,6 +438,10 @@ public abstract class AbstractProcessorTest
   }
 
   /**
+   * Assert a diagnostic message is present for the compilation.
+   *
+   * @param compilation the compilation to check for the diagnostic.
+   * @param message     the diagnostic message.
    * @deprecated Use assertDiagnostic instead.
    */
   @Deprecated
@@ -451,17 +458,36 @@ public abstract class AbstractProcessorTest
           "\nActual diagnostics:\n" + describeFailureDiagnostics( compilation ) );
   }
 
+  /**
+   * Assert an error diagnostic message is present for the compilation.
+   *
+   * @param compilation the compilation to check for the diagnostic.
+   * @param message     the diagnostic message.
+   */
   protected final void assertErrorDiagnostic( @Nonnull final Compilation compilation, @Nonnull final String message )
   {
     assertDiagnostic( compilation, Diagnostic.Kind.ERROR, message );
   }
 
+  /**
+   * Assert a warning diagnostic message is present for the compilation.
+   *
+   * @param compilation the compilation to check for the diagnostic.
+   * @param message     the diagnostic message.
+   */
   protected final void assertWarningDiagnostic( @Nonnull final Compilation compilation,
                                                 @Nonnull final String message )
   {
     assertDiagnostic( compilation, Diagnostic.Kind.WARNING, message );
   }
 
+  /**
+   * Assert a diagnostic message is present for the compilation.
+   *
+   * @param compilation the compilation to check for the diagnostic.
+   * @param kind        the kind of diagnostic.
+   * @param message     the diagnostic message.
+   */
   protected final void assertDiagnostic( @Nonnull final Compilation compilation,
                                          @Nonnull final Diagnostic.Kind kind,
                                          @Nonnull final String message )
