@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.52](https://github.com/realityforge/proton/tree/v0.52) (2021-11-10) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.51...v0.52)
+
+Changes in this release:
 
 * Upgrade the `au.com.stocksoftware.idea.codestyle` artifact to version `1.17`.
 * Upgrade the `com.squareup` artifact to version `1.13.0`.
