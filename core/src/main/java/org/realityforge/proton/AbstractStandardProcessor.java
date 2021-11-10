@@ -50,6 +50,20 @@ public abstract class AbstractStandardProcessor
     _debug = readBooleanOption( "debug", false );
   }
 
+  protected final void debugAnnotationProcessingRootElements( @Nonnull final RoundEnvironment env )
+  {
+    if ( isDebugEnabled() )
+    {
+      for ( final Element element : env.getRootElements() )
+      {
+        if ( element instanceof TypeElement )
+        {
+          debug( () -> "Annotation processing requested for " + ( (TypeElement) element ).getQualifiedName() );
+        }
+      }
+    }
+  }
+
   protected final void processTypeElements( @Nonnull final Set<? extends TypeElement> annotations,
                                             @Nonnull final RoundEnvironment env,
                                             @Nonnull final String annotationClassname,
