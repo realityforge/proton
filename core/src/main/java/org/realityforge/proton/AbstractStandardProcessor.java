@@ -7,9 +7,11 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.processing.AbstractProcessor;
@@ -26,6 +28,13 @@ import javax.tools.Diagnostic;
 public abstract class AbstractStandardProcessor
   extends AbstractProcessor
 {
+  /**
+   * Names of types that have been passed to the processor in the current round or earlier rounds.
+   * The set is used to restrict which types the processor will return in <code>getNewTypeElementsToProcess()</code>.
+   * This is cleared in when processingOver() returns true.
+   */
+  @Nonnull
+  private final Set<String> _rootTypeNames = new HashSet<>();
   private boolean _verboseOutOfRoundErrors;
   private boolean _deferErrors;
   private boolean _deferUnresolved;
@@ -96,7 +105,16 @@ public abstract class AbstractStandardProcessor
       .filter( a -> a.getQualifiedName().toString().equals( annotationClassname ) )
       .findAny()
       .map( a -> (Collection<TypeElement>) env.getElementsAnnotatedWith( a ) )
+      .map( elements -> elements
+        .stream()
+        .filter( e -> isRootType( (TypeElement) ElementsUtil.getTopLevelElement( e ) ) )
+        .collect( Collectors.toList() ) )
       .orElse( Collections.emptyList() );
+  }
+
+  private boolean isRootType( @Nonnull final TypeElement typeElement )
+  {
+    return _rootTypeNames.contains( typeElement.getQualifiedName().toString() );
   }
 
   private void processTypeElements( @Nonnull final RoundEnvironment env,
@@ -140,6 +158,25 @@ public abstract class AbstractStandardProcessor
                          " types. See earlier warnings for further details." );
       }
       _invalidTypeCount = 0;
+    }
+  }
+
+  protected final void collectRootTypeNames( @Nonnull final RoundEnvironment env )
+  {
+    for ( final Element element : env.getRootElements() )
+    {
+      if ( element instanceof TypeElement )
+      {
+        _rootTypeNames.add( ( (TypeElement) element ).getQualifiedName().toString() );
+      }
+    }
+  }
+
+  protected final void clearRootTypeNamesIfProcessingOver( @Nonnull final RoundEnvironment env )
+  {
+    if ( env.processingOver() )
+    {
+      _rootTypeNames.clear();
     }
   }
 

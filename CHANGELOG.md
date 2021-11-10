@@ -5,6 +5,7 @@
 * Upgrade the `au.com.stocksoftware.idea.codestyle` artifact to version `1.17`.
 * Upgrade the `com.squareup` artifact to version `1.13.0`.
 * Add a `AbstractStandardProcessor.debugAnnotationProcessingRootElements(...)` helper method that downstream annotation processors can call to improve debuggability.
+* Change the implementation of `AbstractStandardProcessor.getNewTypeElementsToProcess(...)` so that it only returns types for that have been passed to the annotation processor for processing. This avoids the annotation processor from re-generating classes or descriptors for dependencies and eliminates failures during concurrent, incremental compiles. This does necessitate the downstream annotation processors invoking `collectRootTypeNames(RoundEnvironment)` at the start of the `process()` method and `clearRootTypeNamesIfProcessingOver(RoundEnvironment)` at the end of the `process()` method.
 
 ### [v0.51](https://github.com/realityforge/proton/tree/v0.51) (2020-05-28) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.50...v0.51)
 
