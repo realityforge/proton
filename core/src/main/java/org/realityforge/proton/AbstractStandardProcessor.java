@@ -67,7 +67,7 @@ public abstract class AbstractStandardProcessor
       {
         if ( element instanceof TypeElement )
         {
-          debug( () -> "Annotation processing requested for " + ( (TypeElement) element ).getQualifiedName() );
+          debug( () -> "Annotation processing root element " + ( (TypeElement) element ).getQualifiedName() );
         }
       }
     }
