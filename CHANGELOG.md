@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.53](https://github.com/realityforge/proton/tree/v0.53) (2021-11-26) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.52...v0.53)
+
+Changes in this release:
 
 * Change the debug message in `debugAnnotationProcessingRootElements()` to be less prone to confusion.
 * Change the `processTypeElements(...)` and `performAction(...)` methods to accept a label to use when emitting debug messages.
