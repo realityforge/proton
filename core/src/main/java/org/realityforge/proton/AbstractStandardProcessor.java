@@ -77,13 +77,14 @@ public abstract class AbstractStandardProcessor
                                             @Nonnull final RoundEnvironment env,
                                             @Nonnull final String annotationClassname,
                                             @Nonnull final DeferredElementSet deferredTypes,
+                                            @Nonnull final String label,
                                             @Nonnull final Action<TypeElement> action )
   {
     final Collection<TypeElement> newElementsToProcess =
       getNewTypeElementsToProcess( annotations, env, annotationClassname );
     if ( !deferredTypes.getDeferred().isEmpty() || !newElementsToProcess.isEmpty() )
     {
-      processTypeElements( env, deferredTypes, newElementsToProcess, action );
+      processTypeElements( env, deferredTypes, newElementsToProcess, label, action );
     }
   }
 
@@ -120,17 +121,18 @@ public abstract class AbstractStandardProcessor
   private void processTypeElements( @Nonnull final RoundEnvironment env,
                                     @Nonnull final DeferredElementSet deferredSet,
                                     @Nonnull final Collection<TypeElement> elements,
+                                    @Nonnull final String label,
                                     @Nonnull final Action<TypeElement> action )
   {
     if ( shouldDeferUnresolved() )
     {
       final Collection<TypeElement> elementsToProcess = deriveElementsToProcess( deferredSet, elements );
-      doProcessTypeElements( env, elementsToProcess, action );
+      doProcessTypeElements( env, elementsToProcess, label, action );
       errorIfProcessingOverAndDeferredTypesUnprocessed( env, deferredSet );
     }
     else
     {
-      doProcessTypeElements( env, new ArrayList<>( elements ), action );
+      doProcessTypeElements( env, new ArrayList<>( elements ), label, action );
     }
   }
 
@@ -232,19 +234,21 @@ public abstract class AbstractStandardProcessor
 
   private void doProcessTypeElements( @Nonnull final RoundEnvironment env,
                                       @Nonnull final Collection<TypeElement> elements,
+                                      @Nonnull final String label,
                                       @Nonnull final Action<TypeElement> action )
   {
     for ( final TypeElement element : elements )
     {
-      performAction( env, action, element );
+      performAction( env, label, action, element );
     }
   }
 
   protected final <E extends Element> void performAction( @Nonnull final RoundEnvironment env,
+                                                          @Nonnull final String label,
                                                           @Nonnull final Action<E> action,
                                                           @Nonnull final E element )
   {
-    debug( () -> "Performing processing action on element " + element );
+    debug( () -> "Performing '" + label + "' action on element " + element );
     try
     {
       action.process( element );
