@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.54](https://github.com/realityforge/proton/tree/v0.54) (2021-12-16) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.53...v0.54)
+
+Changes in this release:
 
 * Add a `profile` annotation configuration option to enable basic profiling for different stages within the annotation processor. This option must be added to the set of supported annotation processor options in subclasses of `AbstractStandardProcessor`. The API to `AbstractStandardProcessor` also changed so that subclasses must pass a `StopWatch` instance when invoking some API methods.
 
