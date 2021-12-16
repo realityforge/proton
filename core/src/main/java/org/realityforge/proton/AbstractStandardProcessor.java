@@ -50,7 +50,7 @@ public abstract class AbstractStandardProcessor
   private int _invalidTypeCount;
 
   @Override
-  public synchronized void init( final ProcessingEnvironment processingEnv )
+  public synchronized void init( @Nonnull final ProcessingEnvironment processingEnv )
   {
     super.init( processingEnv );
     _verboseOutOfRoundErrors = readBooleanOption( "verbose_out_of_round.errors", true );
