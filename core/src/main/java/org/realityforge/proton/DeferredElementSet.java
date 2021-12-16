@@ -17,7 +17,7 @@ public final class DeferredElementSet
    * The list of TypeElement instances deferred since the last call to extractDeferred.
    */
   @Nonnull
-  private Set<TypeElement> _deferred = new HashSet<>();
+  private final Set<TypeElement> _deferred = new HashSet<>();
 
   /**
    * Extract type elements that were deferred in previous rounds and clear deferred list.
