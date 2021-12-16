@@ -7,6 +7,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -35,10 +37,17 @@ public abstract class AbstractStandardProcessor
    */
   @Nonnull
   private final Set<String> _rootTypeNames = new HashSet<>();
+  @Nonnull
+  private final StopWatch _emitJavaTypeStopWatch = new StopWatch( "Emit Java Type" );
+  @Nonnull
+  private final StopWatch _validateElementStopWatch = new StopWatch( "Validate Element" );
+  @Nonnull
+  private final StopWatch _extractDeferredStopWatch = new StopWatch( "Extract Deferred" );
   private boolean _verboseOutOfRoundErrors;
   private boolean _deferErrors;
   private boolean _deferUnresolved;
   private boolean _debug;
+  private boolean _profile;
 
   @FunctionalInterface
   public interface Action<E extends Element>
@@ -57,6 +66,7 @@ public abstract class AbstractStandardProcessor
     _deferErrors = readBooleanOption( "defer.errors", true );
     _deferUnresolved = readBooleanOption( "defer.unresolved", true );
     _debug = readBooleanOption( "debug", false );
+    _profile = readBooleanOption( "profile", false );
   }
 
   protected final void debugAnnotationProcessingRootElements( @Nonnull final RoundEnvironment env )
@@ -78,13 +88,14 @@ public abstract class AbstractStandardProcessor
                                             @Nonnull final String annotationClassname,
                                             @Nonnull final DeferredElementSet deferredTypes,
                                             @Nonnull final String label,
-                                            @Nonnull final Action<TypeElement> action )
+                                            @Nonnull final Action<TypeElement> action,
+                                            @Nonnull final StopWatch actionStopWatch )
   {
     final Collection<TypeElement> newElementsToProcess =
       getNewTypeElementsToProcess( annotations, env, annotationClassname );
     if ( !deferredTypes.getDeferred().isEmpty() || !newElementsToProcess.isEmpty() )
     {
-      processTypeElements( env, deferredTypes, newElementsToProcess, label, action );
+      processTypeElements( env, deferredTypes, newElementsToProcess, label, action, actionStopWatch );
     }
   }
 
@@ -122,17 +133,18 @@ public abstract class AbstractStandardProcessor
                                     @Nonnull final DeferredElementSet deferredSet,
                                     @Nonnull final Collection<TypeElement> elements,
                                     @Nonnull final String label,
-                                    @Nonnull final Action<TypeElement> action )
+                                    @Nonnull final Action<TypeElement> action,
+                                    @Nonnull final StopWatch actionStopWatch )
   {
     if ( shouldDeferUnresolved() )
     {
       final Collection<TypeElement> elementsToProcess = deriveElementsToProcess( deferredSet, elements );
-      doProcessTypeElements( env, elementsToProcess, label, action );
+      doProcessTypeElements( env, elementsToProcess, label, action, actionStopWatch );
       errorIfProcessingOverAndDeferredTypesUnprocessed( env, deferredSet );
     }
     else
     {
-      doProcessTypeElements( env, new ArrayList<>( elements ), label, action );
+      doProcessTypeElements( env, new ArrayList<>( elements ), label, action, actionStopWatch );
     }
   }
 
@@ -218,40 +230,76 @@ public abstract class AbstractStandardProcessor
     _invalidTypeCount++;
     final Diagnostic.Kind kind =
       !_deferErrors || env.errorRaised() || env.processingOver() ? Diagnostic.Kind.ERROR : Diagnostic.Kind.WARNING;
+    final Messager messager = processingEnv.getMessager();
     if ( null != annotationValue )
     {
-      processingEnv.getMessager().printMessage( kind, message, element, annotation, annotationValue );
+      messager.printMessage( kind, message, element, annotation, annotationValue );
     }
     else if ( null != annotation )
     {
-      processingEnv.getMessager().printMessage( kind, message, element, annotation );
+      messager.printMessage( kind, message, element, annotation );
     }
     else
     {
-      processingEnv.getMessager().printMessage( kind, message, element );
+      messager.printMessage( kind, message, element );
     }
+  }
+
+  protected final void reportProfilerTimings()
+  {
+    if ( isProfileEnabled() )
+    {
+      final Messager messager = processingEnv.getMessager();
+      final Collection<StopWatch> stopWatches = new ArrayList<>();
+      stopWatches.add( _emitJavaTypeStopWatch );
+      stopWatches.add( _extractDeferredStopWatch );
+      stopWatches.add( _validateElementStopWatch );
+      collectStopWatches( stopWatches );
+      messager.printMessage( Diagnostic.Kind.NOTE, getClass().getSimpleName() + " profiler timings" );
+      stopWatches
+        .stream()
+        .sorted( Comparator.comparing( StopWatch::getTotalDuration ).reversed() )
+        .forEach( stopWatch -> {
+          messager.printMessage( Diagnostic.Kind.NOTE,
+                                 String.format( "  %30s: %20d", stopWatch.getName(), stopWatch.getTotalDuration() ) );
+        } );
+    }
+  }
+
+  protected void collectStopWatches( @Nonnull final Collection<StopWatch> stopWatches )
+  {
   }
 
   private void doProcessTypeElements( @Nonnull final RoundEnvironment env,
                                       @Nonnull final Collection<TypeElement> elements,
                                       @Nonnull final String label,
-                                      @Nonnull final Action<TypeElement> action )
+                                      @Nonnull final Action<TypeElement> action,
+                                      @Nonnull final StopWatch actionStopWatch )
   {
     for ( final TypeElement element : elements )
     {
-      performAction( env, label, action, element );
+      performAction( env, label, action, element, actionStopWatch );
     }
   }
 
   protected final <E extends Element> void performAction( @Nonnull final RoundEnvironment env,
                                                           @Nonnull final String label,
                                                           @Nonnull final Action<E> action,
-                                                          @Nonnull final E element )
+                                                          @Nonnull final E element,
+                                                          @Nonnull final StopWatch actionStopWatch )
   {
     debug( () -> "Performing '" + label + "' action on element " + element );
     try
     {
+      if ( _profile )
+      {
+        actionStopWatch.start();
+      }
       action.process( element );
+      if ( _profile )
+      {
+        actionStopWatch.stop();
+      }
     }
     catch ( final IOException ioe )
     {
@@ -348,7 +396,15 @@ public abstract class AbstractStandardProcessor
   private Collection<TypeElement> deriveElementsToProcess( @Nonnull final DeferredElementSet deferredSet,
                                                            @Nonnull final Collection<TypeElement> elements )
   {
+    if ( _profile )
+    {
+      _extractDeferredStopWatch.start();
+    }
     final List<TypeElement> deferred = deferredSet.extractDeferred( processingEnv );
+    if ( _profile )
+    {
+      _extractDeferredStopWatch.stop();
+    }
     final List<TypeElement> elementsToProcess = new ArrayList<>();
     collectElementsToProcess( elements, deferredSet, elementsToProcess );
     final int scheduledFromThisRound = elementsToProcess.size();
@@ -371,7 +427,16 @@ public abstract class AbstractStandardProcessor
   {
     for ( final TypeElement element : elements )
     {
-      if ( SuperficialValidation.validateElement( processingEnv, element ) )
+      if ( _profile )
+      {
+        _validateElementStopWatch.start();
+      }
+      final boolean valid = SuperficialValidation.validateElement( processingEnv, element );
+      if ( _profile )
+      {
+        _validateElementStopWatch.stop();
+      }
+      if ( valid )
       {
         debug( () -> "Scheduling element " + element + " for processing" );
         elementsToProcess.add( element );
@@ -383,6 +448,11 @@ public abstract class AbstractStandardProcessor
         deferredSet.deferElement( element );
       }
     }
+  }
+
+  protected final boolean isProfileEnabled()
+  {
+    return _profile;
   }
 
   protected final boolean isDebugEnabled()
@@ -401,7 +471,15 @@ public abstract class AbstractStandardProcessor
   protected final void emitTypeSpec( @Nonnull final String packageName, @Nonnull final TypeSpec typeSpec )
     throws IOException
   {
+    if ( _profile )
+    {
+      _emitJavaTypeStopWatch.start();
+    }
     GeneratorUtil.emitJavaType( packageName, typeSpec, processingEnv.getFiler() );
+    if ( _profile )
+    {
+      _emitJavaTypeStopWatch.stop();
+    }
   }
 
   protected final boolean readBooleanOption( @Nonnull final String relativeKey, final boolean defaultValue )
