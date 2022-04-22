@@ -23,7 +23,9 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.RecordComponentElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
@@ -36,9 +38,9 @@ import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.WildcardType;
-import javax.lang.model.util.AbstractElementVisitor6;
-import javax.lang.model.util.SimpleAnnotationValueVisitor6;
-import javax.lang.model.util.SimpleTypeVisitor6;
+import javax.lang.model.util.AbstractElementVisitor14;
+import javax.lang.model.util.SimpleAnnotationValueVisitor14;
+import javax.lang.model.util.SimpleTypeVisitor14;
 
 /**
  * A utility class that traverses {@link Element} instances and ensures that all type information
@@ -138,7 +140,7 @@ public final class SuperficialValidation
   }
 
   private static final class IsTypeOf
-    extends SimpleTypeVisitor6<Boolean, Void>
+    extends SimpleTypeVisitor14<Boolean, Void>
   {
     @Nonnull
     private final Class<?> _clazz;
@@ -200,7 +202,7 @@ public final class SuperficialValidation
   }
 
   private static class ValueValidatingVisitor
-    extends SimpleAnnotationValueVisitor6<Boolean, TypeMirror>
+    extends SimpleAnnotationValueVisitor14<Boolean, TypeMirror>
   {
     @Nonnull
     private final ValidatorVisitors _visitors;
@@ -359,7 +361,7 @@ public final class SuperficialValidation
   }
 
   private static class TypeValidatingVisitor
-    extends SimpleTypeVisitor6<Boolean, Void>
+    extends SimpleTypeVisitor14<Boolean, Void>
   {
     @Nonnull
     private final ValidatorVisitors _visitors;
@@ -420,7 +422,7 @@ public final class SuperficialValidation
   }
 
   private static class ElementValidatingVisitor
-    extends AbstractElementVisitor6<Boolean, Void>
+    extends AbstractElementVisitor14<Boolean, Void>
   {
     @Nonnull
     private final ValidatorVisitors _visitors;
@@ -428,6 +430,20 @@ public final class SuperficialValidation
     ElementValidatingVisitor( @Nonnull final ValidatorVisitors visitors )
     {
       _visitors = visitors;
+    }
+
+    @Override
+    public Boolean visitRecordComponent( final RecordComponentElement t, final Void unused )
+    {
+      // just assume that record components are OK
+      return null;
+    }
+
+    @Override
+    public Boolean visitModule( final ModuleElement t, final Void unused )
+    {
+      // just assume that modules are OK
+      return true;
     }
 
     @Override
