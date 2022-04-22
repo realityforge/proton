@@ -1,5 +1,7 @@
 # Change Log
 
+### Unreleased
+
 * Remove `ElementsUtil.isSynthetic(Element)` and `ElementsUtil.isNotSynthetic(Element)` as it used java internals that are not available in later versions of java. Later versions of java should use `elements.getOrigin( element ).isDeclared()` for equivalent functionality.
 * Move to a minimum java version of `17`.
 
