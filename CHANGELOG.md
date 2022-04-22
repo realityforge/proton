@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.55](https://github.com/realityforge/proton/tree/v0.55) (2022-04-22) · [Full Changelog](https://github.com/spritz/spritz/compare/v0.54...v0.55)
+
+Changes in this release:
 
 * Remove `ElementsUtil.isSynthetic(Element)` and `ElementsUtil.isNotSynthetic(Element)` as it used java internals that are not available in later versions of java. Later versions of java should use `elements.getOrigin( element ).isDeclared()` for equivalent functionality.
 * Move to a minimum java version of `17`.
