@@ -26,6 +26,7 @@ define 'proton' do
                  :javapoet,
                  Buildr::Util.tools_jar,
                  :guava
+    doc.options.merge!('Xdoclint:all,-missing' => true)
 
     package(:jar)
     package(:sources)
@@ -41,6 +42,7 @@ define 'proton' do
                  :truth,
                  :junit,
                  :hamcrest_core
+    doc.options.merge!('Xdoclint:all,-missing' => true)
 
     package(:jar)
     package(:sources)
