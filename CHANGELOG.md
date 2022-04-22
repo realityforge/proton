@@ -1,6 +1,7 @@
 # Change Log
 
 * Remove `ElementsUtil.isSynthetic(Element)` and `ElementsUtil.isNotSynthetic(Element)` as it used java internals that are not available in later versions of java. Later versions of java should use `elements.getOrigin( element ).isDeclared()` for equivalent functionality.
+* Move to a minimum java version of `17`.
 
 ### [v0.54](https://github.com/realityforge/proton/tree/v0.54) (2021-12-16) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.53...v0.54)
 
