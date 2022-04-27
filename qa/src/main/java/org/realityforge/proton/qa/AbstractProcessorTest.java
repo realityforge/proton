@@ -1,26 +1,16 @@
 package org.realityforge.proton.qa;
 
-import com.google.common.collect.ImmutableList;
-import com.google.testing.compile.Compilation;
-import com.google.testing.compile.CompileTester;
-import com.google.testing.compile.Compiler;
-import com.google.testing.compile.JavaFileObjects;
-import com.google.testing.compile.JavaSourcesSubjectFactory;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -32,11 +22,36 @@ import javax.annotation.Nonnull;
 import javax.annotation.processing.Processor;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
-import static com.google.common.truth.Truth.*;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.ToolProvider;
+import org.testng.annotations.AfterTest;
 import static org.testng.Assert.*;
 
 public abstract class AbstractProcessorTest
 {
+  @Nonnull
+  private final List<Path> _dirsToDelete = new ArrayList<>();
+
+  @AfterTest
+  public void afterTest()
+  {
+    _dirsToDelete.forEach( this::deleteDir );
+    _dirsToDelete.clear();
+  }
+
+  @SuppressWarnings( { "resource", "ResultOfMethodCallIgnored" } )
+  private void deleteDir( @Nonnull final Path directory )
+  {
+    try
+    {
+      Files.walk( directory ).sorted( Comparator.reverseOrder() ).map( Path::toFile ).forEach( File::delete );
+    }
+    catch ( final IOException e )
+    {
+      throw new IllegalStateException( "Failure to delete directory: " + directory, e );
+    }
+  }
+
   @Nonnull
   protected abstract String getOptionPrefix();
 
@@ -63,9 +78,9 @@ public abstract class AbstractProcessorTest
     return "";
   }
 
-  protected boolean emitGeneratedFile( @Nonnull final JavaFileObject target )
+  protected boolean emitGeneratedFile( @Nonnull final String target )
   {
-    return JavaFileObject.Kind.CLASS != target.getKind();
+    return !target.endsWith( ".class" );
   }
 
   protected final void assertSuccessfulCompile( @Nonnull final String classname,
@@ -83,71 +98,46 @@ public abstract class AbstractProcessorTest
   }
 
   protected final void assertSuccessfulCompile( @Nonnull final List<JavaFileObject> inputs,
-                                                @Nonnull final List<String> outputs,
-                                                @Nonnull final Predicate<JavaFileObject> filter )
+                                                @Nonnull final List<String> expectedOutputs,
+                                                @Nonnull final Predicate<String> filter )
     throws Exception
   {
-    outputFilesIfEnabled( inputs, filter );
-    final List<String> sourceFiles =
-      outputs.stream().filter( o -> o.endsWith( ".java" ) ).collect( Collectors.toList() );
-    final List<String> otherFiles =
-      outputs.stream().filter( o -> !o.endsWith( ".java" ) ).collect( Collectors.toList() );
-    final CompileTester.CleanCompilationClause clause = assertCompilesWithoutWarnings( inputs );
-    if ( !sourceFiles.isEmpty() )
+    final Compilation results =
+      CompileTestUtil.assertCompilesWithoutWarnings( inputs, getOptions(), processors(), Collections.emptyList() );
+
+    _dirsToDelete.add( results.sourceOutput() );
+    _dirsToDelete.add( results.classOutput() );
+
+    final List<String> createdSourceFiles =
+      results.sourceOutputFilenames().stream().filter( filter ).toList();
+    final List<String> createdOutputFiles =
+      results.classOutputFilenames().stream().filter( p -> !p.endsWith( ".class" ) ).filter( filter ).toList();
+
+    outputFilesIfEnabled( results, createdSourceFiles, createdOutputFiles );
+
+    for ( final String expectedOutput : expectedOutputs )
     {
-      final JavaFileObject firstExpected = fixture( sourceFiles.get( 0 ) );
-      final JavaFileObject[] restExpected =
-        sourceFiles.stream().skip( 1 ).map( this::fixture ).toArray( JavaFileObject[]::new );
-      clause.
-        and().
-        generatesSources( firstExpected, restExpected );
-    }
-    if ( !otherFiles.isEmpty() )
-    {
-      final JavaFileObject firstExpected = fixture( otherFiles.get( 0 ) );
-      final JavaFileObject[] restExpected =
-        otherFiles.stream().skip( 1 ).map( this::fixture ).toArray( JavaFileObject[]::new );
-      clause.
-        and().
-        generatesFiles( firstExpected, restExpected );
+      final Path fixture = fixtureDir().resolve( "expected" ).resolve( expectedOutput );
+      assertTrue( Files.exists( fixture ),
+                  "Expected fixture to exist for " + expectedOutput + " but no such fixture present" );
+      final Path output1 = results.sourceOutput().resolve( expectedOutput );
+      final Path output2 = results.classOutput().resolve( expectedOutput );
+      final Path output = Files.exists( output1 ) ? output1 : output2;
+      assertTrue( Files.exists( output ),
+                  "Expected output to exist for " + expectedOutput + " but no such output present" );
+      CompileTestUtil.assertSourceMatchesTarget( fixture, output );
     }
   }
 
-  /**
-   * Compile the inputs and output files that match filter if {@link #outputFiles()} returns true.
-   * This is primarily used when updating golden files.
-   *
-   * @param inputs the input files.
-   * @param filter the file filter.
-   * @throws Exception if an error occurs.
-   */
-  protected final void outputFilesIfEnabled( @Nonnull final List<JavaFileObject> inputs,
-                                             @Nonnull final Predicate<JavaFileObject> filter )
-    throws Exception
+  protected final void outputFilesIfEnabled( final Compilation results,
+                                             final List<String> createdSourceFiles,
+                                             final List<String> createdOutputFiles )
+    throws IOException
   {
     if ( outputFiles() )
     {
-      final Compilation compilation = compiler().compile( inputs );
-
-      final Compilation.Status status = compilation.status();
-      if ( Compilation.Status.SUCCESS != status )
-      {
-        /*
-         * Ugly hackery that marks the compile as successful so we can emit output onto filesystem. This could
-         * result in java code that is not compilable emitted to the filesystem. This makes determining problems
-         * a little easier even if it does make re-running tests from the IDE a little harder.
-         */
-        final Field field = compilation.getClass().getDeclaredField( "status" );
-        field.setAccessible( true );
-        field.set( compilation, Compilation.Status.SUCCESS );
-      }
-
-      outputFiles( compilation.generatedFiles(), fixtureDir().resolve( "expected" ), filter );
-
-      if ( Compilation.Status.SUCCESS != status )
-      {
-        fail( describeFailureDiagnostics( compilation ) );
-      }
+      CompileTestUtil.outputFiles( createdSourceFiles, results.sourceOutput(), fixtureDir().resolve( "expected" ) );
+      CompileTestUtil.outputFiles( createdOutputFiles, results.classOutput(), fixtureDir().resolve( "expected" ) );
     }
   }
 
@@ -160,14 +150,6 @@ public abstract class AbstractProcessorTest
     return processors;
   }
 
-  @Nonnull
-  protected final Compiler compiler()
-  {
-    return Compiler.javac()
-      .withProcessors( processors() )
-      .withOptions( getOptions() );
-  }
-
   /**
    * Verify the supplied Compilation was successful.
    *
@@ -175,9 +157,7 @@ public abstract class AbstractProcessorTest
    */
   protected final void assertCompilationSuccessful( @Nonnull final Compilation compilation )
   {
-    assertEquals( compilation.status(),
-                  Compilation.Status.SUCCESS,
-                  compilation.toString() + " - " + describeFailureDiagnostics( compilation ) );
+    assertTrue( compilation.success(), compilation + " - " + describeFailureDiagnostics( compilation ) );
   }
 
   /**
@@ -187,9 +167,7 @@ public abstract class AbstractProcessorTest
    */
   protected final void assertCompilationUnsuccessful( @Nonnull final Compilation compilation )
   {
-    assertEquals( compilation.status(),
-                  Compilation.Status.FAILURE,
-                  compilation.toString() + " - " + describeFailureDiagnostics( compilation ) );
+    assertFalse( compilation.success(), compilation + " - " + describeFailureDiagnostics( compilation ) );
   }
 
   /**
@@ -201,7 +179,7 @@ public abstract class AbstractProcessorTest
   @Nonnull
   protected final String describeFailureDiagnostics( @Nonnull final Compilation compilation )
   {
-    final ImmutableList<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.diagnostics();
+    final List<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.diagnostics();
     if ( diagnostics.isEmpty() )
     {
       return "Compilation produced no diagnostics.\n";
@@ -220,7 +198,7 @@ public abstract class AbstractProcessorTest
    * @return an list of directories that define the created classpath.
    */
   @Nonnull
-  protected final ImmutableList<File> buildClasspath( @Nonnull final File... paths )
+  protected final List<File> buildClasspath( @Nonnull final File... paths )
   {
     final Set<File> elements = new LinkedHashSet<>( Arrays.asList( paths ) );
     ClassLoader classloader = getClass().getClassLoader();
@@ -246,81 +224,20 @@ public abstract class AbstractProcessorTest
       classloader = classloader.getParent();
     }
 
-    return elements.stream().collect( ImmutableList.toImmutableList() );
-  }
-
-  protected final void outputFiles( @Nonnull final Collection<JavaFileObject> fileObjects,
-                                    @Nonnull final Path targetDir )
-    throws IOException
-  {
-    outputFiles( fileObjects, targetDir, f -> true );
-  }
-
-  protected final void outputFiles( @Nonnull final Collection<JavaFileObject> fileObjects,
-                                    @Nonnull final Path targetDir,
-                                    @Nonnull final Predicate<JavaFileObject> filter )
-    throws IOException
-  {
-    for ( final JavaFileObject fileObject : fileObjects )
-    {
-      if ( filter.test( fileObject ) )
-      {
-        outputFile( fileObject, targetDir );
-      }
-    }
-  }
-
-  /**
-   * Output the specified JavaFileObject to target direct.
-   * The path relative to SOURCE_OUTPUT and CLASS_OUTPUT is included when emitting the file.
-   *
-   * @param fileObject the object to emit.
-   * @param targetDir  the target directory
-   * @throws IOException if an error occurs writing the file or creating the directory.
-   */
-  protected final void outputFile( @Nonnull final JavaFileObject fileObject, @Nonnull final Path targetDir )
-    throws IOException
-  {
-    final String filename =
-      fileObject.getName().replace( "/SOURCE_OUTPUT/", "" ).replace( "/CLASS_OUTPUT/", "" );
-    final Path target = targetDir.resolve( filename );
-    final File dir = target.getParent().toFile();
-    if ( !dir.exists() )
-    {
-      assertTrue( dir.mkdirs() );
-    }
-    /*
-     * If the data on the filesystem is identical to data generated then do not write
-     * to filesystem. The writing can be slow and it can also trigger the IDE or other
-     * tools to recompile code which is problematic.
-     */
-    if ( !Files.exists( target ) || !doesTargetFileMatchGenerated( fileObject, target ) )
-    {
-      Files.copy( fileObject.openInputStream(), target, StandardCopyOption.REPLACE_EXISTING );
-    }
-  }
-
-  private boolean doesTargetFileMatchGenerated( @Nonnull final JavaFileObject fileObject, @Nonnull final Path target )
-    throws IOException
-  {
-    final byte[] existing = Files.readAllBytes( target );
-    final InputStream generated = fileObject.openInputStream();
-    final byte[] data = new byte[ generated.available() ];
-    assertEquals( generated.read( data ), data.length );
-    return Arrays.equals( existing, data );
+    return elements.stream().toList();
   }
 
   @Nonnull
-  protected final CompileTester assertCompiles( @Nonnull final List<JavaFileObject> inputs )
+  protected final Compilation assertCompilesWithoutErrors( @Nonnull final List<JavaFileObject> inputs )
   {
-    return assert_().about( JavaSourcesSubjectFactory.javaSources() ).
-      that( inputs ).
-      withCompilerOptions( getOptions() ).
-      processedWith( processors() );
+    final Compilation compilation = compile( inputs );
+    assertCompilationSuccessful( compilation );
+    assertDiagnosticCount( compilation, Diagnostic.Kind.ERROR, 0 );
+    return compilation;
   }
 
   @Nonnull
-  protected final CompileTester.SuccessfulCompilationClause assertCompilesWithoutErrors( @Nonnull final String classname )
+  protected final Compilation assertCompilesWithoutErrors( @Nonnull final String classname )
   {
     return assertCompilesWithoutErrors( inputs( classname ) );
   }
@@ -328,33 +245,34 @@ public abstract class AbstractProcessorTest
   @Nonnull
   protected final List<JavaFileObject> inputs( @Nonnull final String... classnames )
   {
-    return Stream.of( classnames ).map( classname -> input( "input", classname ) ).collect( Collectors.toList() );
+    return Stream.of( classnames ).map( this::input ).collect( Collectors.toList() );
+  }
+
+  @Nonnull
+  protected final JavaFileObject input( @Nonnull final String classname )
+  {
+    return input( "input", classname );
   }
 
   @Nonnull
   protected final JavaFileObject input( @Nonnull final String dir, @Nonnull final String classname )
   {
-    return fixture( toFilename( dir, classname ) );
+    return fixture( dir + File.separator + toFilename( classname ) );
   }
 
   @Nonnull
-  protected final CompileTester.SuccessfulCompilationClause assertCompilesWithoutErrors( @Nonnull final List<JavaFileObject> inputs )
-  {
-    return assertCompiles( inputs ).compilesWithoutError();
-  }
-
-  @Nonnull
-  protected final CompileTester.CleanCompilationClause assertCompilesWithoutWarnings( @Nonnull final String classname )
+  protected final Compilation assertCompilesWithoutWarnings( @Nonnull final String classname )
   {
     return assertCompilesWithoutWarnings( inputs( classname ) );
   }
 
   @Nonnull
-  protected final CompileTester.CleanCompilationClause assertCompilesWithoutWarnings( @Nonnull final List<JavaFileObject> inputs )
+  protected final Compilation assertCompilesWithoutWarnings( @Nonnull final List<JavaFileObject> inputs )
   {
-    return assertCompiles( inputs ).compilesWithoutWarnings();
+    return CompileTestUtil.assertCompilesWithoutWarnings( inputs, getOptions(), processors(), Collections.emptyList() );
   }
 
+  @SuppressWarnings( "SameParameterValue" )
   @Nonnull
   protected final Processor newSynthesizingProcessor( @Nonnull final String classname, final int targetRound )
     throws IOException
@@ -368,45 +286,62 @@ public abstract class AbstractProcessorTest
                                                       final int targetRound )
     throws IOException
   {
-    final String filename = toFilename( dir, classname );
-    final Path path = fixtureDir().resolve( filename );
-    final String source = new String( Files.readAllBytes( path ), StandardCharsets.UTF_8 );
+    final Path path = fixtureDir().resolve( dir ).resolve( toFilename( classname ) );
+    final String source = Files.readString( path );
     return new SynthesizingProcessor( classname, source, targetRound );
   }
 
   protected final void assertCompilesWithSingleWarning( @Nonnull final String classname,
                                                         @Nonnull final String messageFragment )
   {
-    assertCompilesWithoutErrors( classname ).
-      withWarningCount( 1 ).
-      withWarningContaining( messageFragment );
+    final Compilation compilation = assertCompilesWithoutErrors( classname );
+    assertWarningDiagnostic( compilation, messageFragment );
+    assertDiagnosticCount( compilation, Diagnostic.Kind.WARNING, 1 );
+  }
+
+  @Nonnull
+  protected final List<Diagnostic<? extends JavaFileObject>> assertDiagnosticCount( @Nonnull final Compilation compilation,
+                                                                                    @Nonnull final Diagnostic.Kind kind,
+                                                                                    final int count )
+  {
+    final List<Diagnostic<? extends JavaFileObject>> diagnostics = getDiagnostics( compilation, kind );
+    assertEquals( diagnostics.size(), count );
+    return diagnostics;
+  }
+
+  @Nonnull
+  private List<Diagnostic<? extends JavaFileObject>> getDiagnostics( @Nonnull final Compilation compilation,
+                                                                     @Nonnull final Diagnostic.Kind kind )
+  {
+    return compilation.diagnostics().stream().filter( d -> d.getKind() == kind ).toList();
   }
 
   protected final void assertFailedCompile( @Nonnull final String classname,
                                             @Nonnull final String errorMessageFragment )
   {
-    assertFailedCompileResource( toFilename( "bad_input", classname ), errorMessageFragment );
+    assertFailedCompileResource( "bad_input/" + toFilename( classname ), errorMessageFragment );
   }
 
   @Nonnull
-  protected final String toFilename( @Nonnull final String dir, @Nonnull final String classname )
+  protected final String toFilename( @Nonnull final String classname )
   {
-    return toFilename( dir, classname, "", ".java" );
+    return toFilename( classname, "", ".java" );
   }
 
   @Nonnull
-  protected final String toFilename( @Nonnull final String dir,
-                                     @Nonnull final String classname,
+  protected final String toFilename( @Nonnull final String classname,
                                      @Nonnull final String prefix,
                                      @Nonnull final String postfix )
   {
     final String[] elements = classname.contains( "." ) ? classname.split( "\\." ) : new String[]{ classname };
     final StringBuilder input = new StringBuilder();
-    input.append( dir );
     for ( int i = 0; i < elements.length; i++ )
     {
       final boolean lastElement = i == elements.length - 1;
-      input.append( '/' );
+      if ( 0 != i )
+      {
+        input.append( '/' );
+      }
       if ( lastElement )
       {
         input.append( prefix );
@@ -429,12 +364,9 @@ public abstract class AbstractProcessorTest
   protected final void assertFailedCompileResource( @Nonnull final List<JavaFileObject> inputs,
                                                     @Nonnull final String errorMessageFragment )
   {
-    assert_().about( JavaSourcesSubjectFactory.javaSources() ).
-      that( inputs ).
-      withCompilerOptions( getOptions() ).
-      processedWith( processors() ).
-      failsToCompile().
-      withErrorContaining( errorMessageFragment );
+    final Compilation compilation = compile( inputs );
+    assertFalse( compilation.success() );
+    assertDiagnostic( compilation, Diagnostic.Kind.ERROR, errorMessageFragment );
   }
 
   /**
@@ -445,7 +377,8 @@ public abstract class AbstractProcessorTest
    * @deprecated Use assertDiagnostic instead.
    */
   @Deprecated
-  protected final void assertDiagnosticPresent( @Nonnull final Compilation compilation, @Nonnull final String message )
+  protected final void assertDiagnosticPresent( @Nonnull final Compilation compilation,
+                                                @Nonnull final String message )
   {
     for ( final Diagnostic<? extends JavaFileObject> diagnostic : compilation.diagnostics() )
     {
@@ -511,14 +444,22 @@ public abstract class AbstractProcessorTest
     {
       fail( "Fixture " + path + " does not exist." );
     }
-    try
-    {
-      return JavaFileObjects.forResource( path.toUri().toURL() );
-    }
-    catch ( final MalformedURLException e )
-    {
-      throw new IllegalStateException( e );
-    }
+    final StandardJavaFileManager standardFileManager =
+      ToolProvider.getSystemJavaCompiler().getStandardFileManager( null, null, null );
+    return standardFileManager.getJavaFileObjects( path ).iterator().next();
+  }
+
+  @Nonnull
+  protected final Compilation compile( @Nonnull final List<JavaFileObject> inputs )
+  {
+    return compile( inputs, Collections.emptyList() );
+  }
+
+  @Nonnull
+  protected final Compilation compile( @Nonnull final List<JavaFileObject> inputs,
+                                       @Nonnull final Collection<? extends File> classpath )
+  {
+    return CompileTestUtil.compile( inputs, getOptions(), processors(), classpath );
   }
 
   @Nonnull

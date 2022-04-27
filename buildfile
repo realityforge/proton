@@ -36,11 +36,7 @@ define 'proton' do
   define 'qa' do
     compile.with project('core'),
                  project('core').compile.dependencies,
-                 :testng,
-                 :compile_testing,
-                 :truth,
-                 :junit,
-                 :hamcrest_core
+                 :testng
     doc.options.merge!('Xdoclint:all,-missing' => true)
 
     package(:jar)

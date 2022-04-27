@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Ensure `SynthesizingProcessor` supports source in version `17`.
+* Introduce `CompileTestUtil` and `Compilation` classes in the `qa` module to reimplement functionality present in the `com.google.testing.compile:compile-testing` artifact. Rewrite `AbstractProcessorTest` to use `CompileTestUtil` functionality rather than the equivalent code in the `com.google.testing.compile:compile-testing` artifact. Remove the `com.google.testing.compile:compile-testing` artifact and related dependencies. This resulted in simpler code and made it easier to evolve the project to support the latest version of Java.
 
 ### [v0.55](https://github.com/realityforge/proton/tree/v0.55) (2022-04-22) · [Full Changelog](https://github.com/spritz/spritz/compare/v0.54...v0.55)
 
