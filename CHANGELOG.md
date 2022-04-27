@@ -1,5 +1,7 @@
 # Change Log
 
+### Unreleased
+
 ### [v0.57](https://github.com/realityforge/proton/tree/v0.57) (2022-04-27) · [Full Changelog](https://github.com/spritz/spritz/compare/v0.56...v0.57)
 
 Changes in this release:
