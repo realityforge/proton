@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Ensure `SynthesizingProcessor` supports source in version `17`.
+
 ### [v0.55](https://github.com/realityforge/proton/tree/v0.55) (2022-04-22) · [Full Changelog](https://github.com/spritz/spritz/compare/v0.54...v0.55)
 
 Changes in this release:

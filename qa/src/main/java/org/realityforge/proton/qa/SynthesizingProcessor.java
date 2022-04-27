@@ -15,7 +15,7 @@ import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
 @SupportedAnnotationTypes( "*" )
-@SupportedSourceVersion( SourceVersion.RELEASE_8 )
+@SupportedSourceVersion( SourceVersion.RELEASE_17 )
 final class SynthesizingProcessor
   extends AbstractProcessor
 {
