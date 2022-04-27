@@ -17,9 +17,9 @@ import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.processing.Filer;
+import javax.annotation.processing.Generated;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.AnnotatedConstruct;
-import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -289,21 +289,10 @@ public final class GeneratorUtil
                                              @Nonnull final TypeSpec.Builder builder,
                                              @Nonnull final String classname )
   {
-    final SourceVersion sourceVersion = processingEnv.getSourceVersion();
-    final String annotationName =
-      sourceVersion.compareTo( SourceVersion.RELEASE_8 ) > 0 ?
-      "javax.annotation.processing.Generated" :
-      "javax.annotation.Generated";
-    final TypeElement annotation = processingEnv.getElementUtils().getTypeElement( annotationName );
-    if ( null != annotation )
-    {
-      final AnnotationSpec annotationSpec =
-        AnnotationSpec
-          .builder( ClassName.get( annotation ) )
-          .addMember( "value", "$S", classname )
-          .build();
-      builder.addAnnotation( annotationSpec );
-    }
+    builder.addAnnotation( AnnotationSpec
+                             .builder( ClassName.get( Generated.class ) )
+                             .addMember( "value", "$S", classname )
+                             .build() );
   }
 
   @Nonnull
