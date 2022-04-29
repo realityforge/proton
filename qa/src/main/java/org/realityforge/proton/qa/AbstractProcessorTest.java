@@ -102,31 +102,38 @@ public abstract class AbstractProcessorTest
                                                 @Nonnull final Predicate<String> filter )
     throws Exception
   {
-    final Compilation results =
+    final Compilation compilation =
       CompileTestUtil.assertCompilesWithoutWarnings( inputs, getOptions(), processors(), Collections.emptyList() );
 
-    _dirsToDelete.add( results.sourceOutput() );
-    _dirsToDelete.add( results.classOutput() );
+    _dirsToDelete.add( compilation.sourceOutput() );
+    _dirsToDelete.add( compilation.classOutput() );
 
-    final List<String> createdSourceFiles =
-      results.sourceOutputFilenames().stream().filter( filter ).toList();
-    final List<String> createdOutputFiles =
-      results.classOutputFilenames().stream().filter( p -> !p.endsWith( ".class" ) ).filter( filter ).toList();
-
-    outputFilesIfEnabled( results, createdSourceFiles, createdOutputFiles );
+    outputFilesIfEnabled( compilation, filter );
 
     for ( final String expectedOutput : expectedOutputs )
     {
       final Path fixture = fixtureDir().resolve( "expected" ).resolve( expectedOutput );
       assertTrue( Files.exists( fixture ),
                   "Expected fixture to exist for " + expectedOutput + " but no such fixture present" );
-      final Path output1 = results.sourceOutput().resolve( expectedOutput );
-      final Path output2 = results.classOutput().resolve( expectedOutput );
+      final Path output1 = compilation.sourceOutput().resolve( expectedOutput );
+      final Path output2 = compilation.classOutput().resolve( expectedOutput );
       final Path output = Files.exists( output1 ) ? output1 : output2;
       assertTrue( Files.exists( output ),
                   "Expected output to exist for " + expectedOutput + " but no such output present" );
       CompileTestUtil.assertSourceMatchesTarget( fixture, output );
     }
+  }
+
+  protected final void outputFilesIfEnabled( @Nonnull final Compilation compilation,
+                                             @Nonnull final Predicate<String> filter )
+    throws IOException
+  {
+    final List<String> createdSourceFiles =
+      compilation.sourceOutputFilenames().stream().filter( filter ).toList();
+    final List<String> createdOutputFiles =
+      compilation.classOutputFilenames().stream().filter( p -> !p.endsWith( ".class" ) ).filter( filter ).toList();
+
+    outputFilesIfEnabled( compilation, createdSourceFiles, createdOutputFiles );
   }
 
   protected final void outputFilesIfEnabled( @Nonnull final Compilation results,
