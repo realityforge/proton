@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.58](https://github.com/realityforge/proton/tree/v0.58) (2022-04-29) · [Full Changelog](https://github.com/spritz/spritz/compare/v0.57...v0.58)
+
+Changes in this release:
 
 * Reinstate simplified `AbstractProcessorTest.outputFilesIfEnabled(Compilation, Filter)` method.
 
