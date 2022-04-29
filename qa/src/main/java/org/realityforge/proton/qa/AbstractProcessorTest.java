@@ -129,9 +129,9 @@ public abstract class AbstractProcessorTest
     }
   }
 
-  protected final void outputFilesIfEnabled( final Compilation results,
-                                             final List<String> createdSourceFiles,
-                                             final List<String> createdOutputFiles )
+  protected final void outputFilesIfEnabled( @Nonnull final Compilation results,
+                                             @Nonnull final List<String> createdSourceFiles,
+                                             @Nonnull final List<String> createdOutputFiles )
     throws IOException
   {
     if ( outputFiles() )
