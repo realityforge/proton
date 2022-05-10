@@ -91,7 +91,6 @@ public abstract class AbstractStandardProcessor
                                             @Nonnull final Action<TypeElement> action,
                                             @Nonnull final StopWatch actionStopWatch )
   {
-    final Predicate<TypeElement> isValidPredicate = e -> SuperficialValidation.validateElement( processingEnv, e );
     processTypeElements( annotations,
                          env,
                          annotationClassname,
@@ -99,7 +98,7 @@ public abstract class AbstractStandardProcessor
                          label,
                          action,
                          actionStopWatch,
-                         isValidPredicate );
+                         e -> SuperficialValidation.validateElement( processingEnv, e ) );
   }
 
   protected final void processTypeElements( @Nonnull final Set<? extends TypeElement> annotations,
