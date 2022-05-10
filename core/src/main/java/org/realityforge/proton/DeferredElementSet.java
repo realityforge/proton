@@ -27,10 +27,11 @@ public final class DeferredElementSet
    */
   public List<TypeElement> extractDeferred( @Nonnull final ProcessingEnvironment processingEnv )
   {
-    final List<TypeElement> deferred = _deferred
-      .stream()
-      .map( e -> processingEnv.getElementUtils().getTypeElement( e.getQualifiedName() ) )
-      .collect( Collectors.toList() );
+    final List<TypeElement> deferred =
+      _deferred
+        .stream()
+        .map( e -> processingEnv.getElementUtils().getTypeElement( e.getQualifiedName() ) )
+        .collect( Collectors.toList() );
     clear();
     return deferred;
   }
