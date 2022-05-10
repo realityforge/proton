@@ -120,7 +120,7 @@ public abstract class AbstractStandardProcessor
       .map( elements -> elements
         .stream()
         .filter( e -> isRootType( (TypeElement) ElementsUtil.getTopLevelElement( e ) ) )
-        .collect( Collectors.toList() ) )
+        .toList() )
       .orElse( Collections.emptyList() );
   }
 
