@@ -3,7 +3,6 @@ package org.realityforge.proton;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
@@ -31,7 +30,7 @@ public final class DeferredElementSet
       _deferred
         .stream()
         .map( e -> processingEnv.getElementUtils().getTypeElement( e.getQualifiedName() ) )
-        .collect( Collectors.toList() );
+        .toList();
     clear();
     return deferred;
   }

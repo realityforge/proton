@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.processing.Processor;
@@ -252,7 +251,7 @@ public abstract class AbstractProcessorTest
   @Nonnull
   protected final List<JavaFileObject> inputs( @Nonnull final String... classnames )
   {
-    return Stream.of( classnames ).map( this::input ).collect( Collectors.toList() );
+    return Stream.of( classnames ).map( this::input ).toList();
   }
 
   @Nonnull

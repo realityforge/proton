@@ -5,7 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -43,7 +42,7 @@ public final class AnnotationsUtil
     if ( null != annotationValue )
     {
       return ( (List<AnnotationValue>) annotationValue.getValue() ).stream().
-        map( v -> (AnnotationMirror) v.getValue() ).collect( Collectors.toList() );
+        map( v -> (AnnotationMirror) v.getValue() ).toList();
     }
     else
     {
@@ -60,7 +59,7 @@ public final class AnnotationsUtil
   {
     return ( (List<AnnotationValue>) getAnnotationValue( annotated, annotationClassName, parameterName ).getValue() )
       .stream()
-      .map( v -> (TypeMirror) v.getValue() ).collect( Collectors.toList() );
+      .map( v -> (TypeMirror) v.getValue() ).toList();
   }
 
   @Nonnull
@@ -72,7 +71,7 @@ public final class AnnotationsUtil
     return getTypeMirrorsAnnotationParameter( annotated, annotationClassName, parameterName )
       .stream()
       .map( typeMirror -> (TypeElement) processingEnv.getTypeUtils().asElement( typeMirror ) )
-      .collect( Collectors.toList() );
+      .toList();
   }
 
   @Nonnull

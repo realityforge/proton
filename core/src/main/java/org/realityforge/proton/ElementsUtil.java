@@ -174,7 +174,7 @@ public final class ElementsUtil
   {
     final Map<String, ArrayList<ExecutableElement>> methodMap = new LinkedHashMap<>();
     enumerateMethods( element, elementUtils, typeUtils, element, methodMap );
-    return methodMap.values().stream().flatMap( Collection::stream ).collect( Collectors.toList() );
+    return methodMap.values().stream().flatMap( Collection::stream ).toList();
   }
 
   private static void enumerateMethods( @Nonnull final TypeElement scope,

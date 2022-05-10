@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -34,7 +33,7 @@ public final class SuppressWarningsUtil
   public static AnnotationSpec maybeSuppressWarningsAnnotation( @Nonnull final String... warnings )
   {
     final List<String> actualWarnings =
-      Arrays.stream( warnings ).filter( Objects::nonNull ).sorted().collect( Collectors.toList() );
+      Arrays.stream( warnings ).filter( Objects::nonNull ).sorted().toList();
     if ( actualWarnings.isEmpty() )
     {
       return null;
