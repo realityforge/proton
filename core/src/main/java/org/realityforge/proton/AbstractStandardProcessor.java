@@ -117,10 +117,11 @@ public abstract class AbstractStandardProcessor
       .filter( a -> a.getQualifiedName().toString().equals( annotationClassname ) )
       .findAny()
       .map( a -> (Collection<TypeElement>) env.getElementsAnnotatedWith( a ) )
-      .map( elements -> elements
-        .stream()
-        .filter( e -> isRootType( (TypeElement) ElementsUtil.getTopLevelElement( e ) ) )
-        .toList() )
+      .map( elements ->
+              elements
+                .stream()
+                .filter( e -> isRootType( (TypeElement) ElementsUtil.getTopLevelElement( e ) ) )
+                .toList() )
       .orElse( Collections.emptyList() );
   }
 
