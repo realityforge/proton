@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Support passing `Predicate<TypeElement> isValidPredicate` to `AbstractStandardProcessor.processTypeElements(...)` so can override the mechanisms for determining whether an element is "valid enough" to perform annotation processing on.
+
 ### [v0.58](https://github.com/realityforge/proton/tree/v0.58) (2022-04-29) · [Full Changelog](https://github.com/spritz/spritz/compare/v0.57...v0.58)
 
 Changes in this release:

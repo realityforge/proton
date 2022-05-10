@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -91,11 +92,31 @@ public abstract class AbstractStandardProcessor
                                             @Nonnull final Action<TypeElement> action,
                                             @Nonnull final StopWatch actionStopWatch )
   {
+    final Predicate<TypeElement> isValidPredicate = e -> SuperficialValidation.validateElement( processingEnv, e );
+    processTypeElements( annotations,
+                         env,
+                         annotationClassname,
+                         deferredTypes,
+                         label,
+                         action,
+                         actionStopWatch,
+                         isValidPredicate );
+  }
+
+  protected final void processTypeElements( @Nonnull final Set<? extends TypeElement> annotations,
+                                            @Nonnull final RoundEnvironment env,
+                                            @Nonnull final String annotationClassname,
+                                            @Nonnull final DeferredElementSet deferredTypes,
+                                            @Nonnull final String label,
+                                            @Nonnull final Action<TypeElement> action,
+                                            @Nonnull final StopWatch actionStopWatch,
+                                            @Nonnull final Predicate<TypeElement> isValidPredicate )
+  {
     final Collection<TypeElement> newElementsToProcess =
       getNewTypeElementsToProcess( annotations, env, annotationClassname );
     if ( !deferredTypes.getDeferred().isEmpty() || !newElementsToProcess.isEmpty() )
     {
-      processTypeElements( env, deferredTypes, newElementsToProcess, label, action, actionStopWatch );
+      processTypeElements( env, deferredTypes, newElementsToProcess, label, action, actionStopWatch, isValidPredicate );
     }
   }
 
@@ -135,11 +156,13 @@ public abstract class AbstractStandardProcessor
                                     @Nonnull final Collection<TypeElement> elements,
                                     @Nonnull final String label,
                                     @Nonnull final Action<TypeElement> action,
-                                    @Nonnull final StopWatch actionStopWatch )
+                                    @Nonnull final StopWatch actionStopWatch,
+                                    @Nonnull final Predicate<TypeElement> isValidPredicate )
   {
     if ( shouldDeferUnresolved() )
     {
-      final Collection<TypeElement> elementsToProcess = deriveElementsToProcess( deferredSet, elements );
+      final Collection<TypeElement> elementsToProcess =
+        deriveElementsToProcess( deferredSet, elements, isValidPredicate );
       doProcessTypeElements( env, elementsToProcess, label, action, actionStopWatch );
       errorIfProcessingOverAndDeferredTypesUnprocessed( env, deferredSet );
     }
@@ -395,7 +418,8 @@ public abstract class AbstractStandardProcessor
 
   @Nonnull
   private Collection<TypeElement> deriveElementsToProcess( @Nonnull final DeferredElementSet deferredSet,
-                                                           @Nonnull final Collection<TypeElement> elements )
+                                                           @Nonnull final Collection<TypeElement> elements,
+                                                           @Nonnull final Predicate<TypeElement> isValidPredicate )
   {
     if ( _profile )
     {
@@ -407,12 +431,12 @@ public abstract class AbstractStandardProcessor
       _extractDeferredStopWatch.stop();
     }
     final List<TypeElement> elementsToProcess = new ArrayList<>();
-    collectElementsToProcess( elements, deferredSet, elementsToProcess );
+    collectElementsToProcess( elements, deferredSet, elementsToProcess, isValidPredicate );
     final int scheduledFromThisRound = elementsToProcess.size();
     final int deferredFromThisRound = deferredSet.getDeferred().size();
     debug( () -> scheduledFromThisRound + " elements from this round scheduled for processing, " +
                  deferredFromThisRound + " elements from this round deferred for processing in a later round" );
-    collectElementsToProcess( deferred, deferredSet, elementsToProcess );
+    collectElementsToProcess( deferred, deferredSet, elementsToProcess, isValidPredicate );
     final int scheduledFromPreviousRounds = elementsToProcess.size() - scheduledFromThisRound;
     final int deferredFromPreviousRounds = deferredSet.getDeferred().size() - deferredFromThisRound;
     debug( () -> scheduledFromPreviousRounds + " elements from previous rounds scheduled for processing, " +
@@ -424,7 +448,8 @@ public abstract class AbstractStandardProcessor
 
   private void collectElementsToProcess( @Nonnull final Collection<TypeElement> elements,
                                          @Nonnull final DeferredElementSet deferredSet,
-                                         @Nonnull final List<TypeElement> elementsToProcess )
+                                         @Nonnull final List<TypeElement> elementsToProcess,
+                                         @Nonnull final Predicate<TypeElement> isValidPredicate )
   {
     for ( final TypeElement element : elements )
     {
@@ -432,7 +457,7 @@ public abstract class AbstractStandardProcessor
       {
         _validateElementStopWatch.start();
       }
-      final boolean valid = SuperficialValidation.validateElement( processingEnv, element );
+      final boolean valid = isValidPredicate.test( element );
       if ( _profile )
       {
         _validateElementStopWatch.stop();
