@@ -156,7 +156,7 @@ public final class SuppressWarningsUtil
    * Generate a suppress warnings annotation if any of the types passed in are either deprecated or rawtypes.
    *
    * @param processingEnv the processing environment.
-   * @param types the types to analyze to determine if suppressions are required.
+   * @param types         the types to analyze to determine if suppressions are required.
    * @return a suppress annotation if required.
    */
   @Nullable
@@ -170,7 +170,7 @@ public final class SuppressWarningsUtil
    * Generate a suppress warnings annotation if any of the types passed in are either deprecated or rawtypes.
    * The additionalSuppressions parameter will also be added to list of suppressions.
    *
-   * @param processingEnv the processing environment.
+   * @param processingEnv          the processing environment.
    * @param additionalSuppressions the suppressions that must be added to suppression annotation.
    * @param types                  the types to analyze to determine if suppressions are required.
    * @return a suppress annotation if required.

@@ -83,10 +83,10 @@ public final class MemberChecks
    * package at a lifecycle stage. It should not raise errors, return values or accept
    * parameters.
    *
-   * @param targetType the type being processed.
+   * @param targetType          the type being processed.
    * @param scopeAnnotationName the name of the scoping annotation name.
-   * @param annotationName the annotation checking.
-   * @param method the method to check.
+   * @param annotationName      the annotation checking.
+   * @param method              the method to check.
    * @throws ProcessorException if verification fails.
    */
   public static void mustBeLifecycleHook( @Nonnull final TypeElement targetType,
