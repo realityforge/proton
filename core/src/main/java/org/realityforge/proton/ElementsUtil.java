@@ -182,7 +182,7 @@ public final class ElementsUtil
                                                     final boolean collectInterfaceMethodsAtEnd )
   {
     final Map<String, ArrayList<ExecutableElement>> methodMap = new LinkedHashMap<>();
-    enumerateMethods( element, elementUtils, typeUtils, element, methodMap );
+    enumerateMethods( element, elementUtils, typeUtils, element, methodMap, collectInterfaceMethodsAtEnd );
     if ( collectInterfaceMethodsAtEnd )
     {
       // Collect the interfaces at the end. Usually this is done
@@ -195,13 +195,19 @@ public final class ElementsUtil
                                         @Nonnull final Elements elementUtils,
                                         @Nonnull final Types typeUtils,
                                         @Nonnull final TypeElement element,
-                                        @Nonnull final Map<String, ArrayList<ExecutableElement>> methods )
+                                        @Nonnull final Map<String, ArrayList<ExecutableElement>> methods,
+                                        final boolean collectInterfaceMethodsAtEnd )
   {
     final TypeMirror superclass = element.getSuperclass();
     if ( TypeKind.NONE != superclass.getKind() )
     {
       final TypeElement superclassElement = (TypeElement) ( (DeclaredType) superclass ).asElement();
-      enumerateMethods( scope, elementUtils, typeUtils, superclassElement, methods );
+      enumerateMethods( scope, elementUtils, typeUtils, superclassElement, methods, collectInterfaceMethodsAtEnd );
+    }
+    for ( final TypeMirror interfaceType : element.getInterfaces() )
+    {
+      final TypeElement interfaceElement = (TypeElement) ( (DeclaredType) interfaceType ).asElement();
+      enumerateMethods( scope, elementUtils, typeUtils, interfaceElement, methods, false );
     }
     for ( final Element member : element.getEnclosedElements() )
     {
