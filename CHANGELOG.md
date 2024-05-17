@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.62](https://github.com/realityforge/proton/tree/v0.62) (2024-05-17) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.61...v0.62)
+
+Changes in this release:
 
 * Fix bug introduced in `0.61` where interface methods were collected at incorrectly in some circumstances.
 
