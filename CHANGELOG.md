@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Sort assertions in `CompileTestUtil.assertCompilesWithoutWarnings()` so that they generate more useful failure messages by asserting on wwarnings, then errors and then success.
+
 ### [v0.60](https://github.com/realityforge/proton/tree/v0.60) (2024-05-17) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.59...v0.60)
 
 Changes in this release:

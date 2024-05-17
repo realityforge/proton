@@ -125,9 +125,9 @@ public final class CompileTestUtil
                                                            @Nonnull final Collection<? extends File> classpath )
   {
     final Compilation results = compile( inputs, options, processors, classpath );
-    assertTrue( results.success() );
-    assertNoErrors( results.diagnostics() );
     assertNoWarnings( results.diagnostics() );
+    assertNoErrors( results.diagnostics() );
+    assertTrue( results.success() );
     return results;
   }
 
