@@ -204,10 +204,13 @@ public final class ElementsUtil
       final TypeElement superclassElement = (TypeElement) ( (DeclaredType) superclass ).asElement();
       enumerateMethods( scope, elementUtils, typeUtils, superclassElement, methods, collectInterfaceMethodsAtEnd );
     }
-    for ( final TypeMirror interfaceType : element.getInterfaces() )
+    if ( !collectInterfaceMethodsAtEnd )
     {
-      final TypeElement interfaceElement = (TypeElement) ( (DeclaredType) interfaceType ).asElement();
-      enumerateMethods( scope, elementUtils, typeUtils, interfaceElement, methods, false );
+      for ( final TypeMirror interfaceType : element.getInterfaces() )
+      {
+        final TypeElement interfaceElement = (TypeElement) ( (DeclaredType) interfaceType ).asElement();
+        enumerateMethodsFromInterfaces( scope, elementUtils, typeUtils, interfaceElement, methods );
+      }
     }
     for ( final Element member : element.getEnclosedElements() )
     {
