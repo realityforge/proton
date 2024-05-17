@@ -172,8 +172,22 @@ public final class ElementsUtil
                                                     @Nonnull final Elements elementUtils,
                                                     @Nonnull final Types typeUtils )
   {
+    return getMethods( element, elementUtils, typeUtils, false );
+  }
+
+  @Nonnull
+  public static List<ExecutableElement> getMethods( @Nonnull final TypeElement element,
+                                                    @Nonnull final Elements elementUtils,
+                                                    @Nonnull final Types typeUtils,
+                                                    final boolean collectInterfaceMethodsAtEnd )
+  {
     final Map<String, ArrayList<ExecutableElement>> methodMap = new LinkedHashMap<>();
     enumerateMethods( element, elementUtils, typeUtils, element, methodMap );
+    if ( collectInterfaceMethodsAtEnd )
+    {
+      // Collect the interfaces at the end. Usually this is done
+      enumerateMethodsFromInterfaces( element, elementUtils, typeUtils, element, methodMap );
+    }
     return methodMap.values().stream().flatMap( Collection::stream ).toList();
   }
 
@@ -189,17 +203,43 @@ public final class ElementsUtil
       final TypeElement superclassElement = (TypeElement) ( (DeclaredType) superclass ).asElement();
       enumerateMethods( scope, elementUtils, typeUtils, superclassElement, methods );
     }
-    for ( final TypeMirror interfaceType : element.getInterfaces() )
-    {
-      final TypeElement interfaceElement = (TypeElement) ( (DeclaredType) interfaceType ).asElement();
-      enumerateMethods( scope, elementUtils, typeUtils, interfaceElement, methods );
-    }
     for ( final Element member : element.getEnclosedElements() )
     {
       if ( ElementKind.METHOD == member.getKind() )
       {
         final ExecutableElement method = (ExecutableElement) member;
         processMethod( elementUtils, typeUtils, scope, methods, method );
+      }
+    }
+  }
+
+  private static void enumerateMethodsFromInterfaces( @Nonnull final TypeElement scope,
+                                                      @Nonnull final Elements elementUtils,
+                                                      @Nonnull final Types typeUtils,
+                                                      @Nonnull final TypeElement element,
+                                                      @Nonnull final Map<String, ArrayList<ExecutableElement>> methods )
+  {
+    final TypeMirror superclass = element.getSuperclass();
+    if ( TypeKind.NONE != superclass.getKind() )
+    {
+      final TypeElement superclassElement = (TypeElement) ( (DeclaredType) superclass ).asElement();
+      enumerateMethodsFromInterfaces( scope, elementUtils, typeUtils, superclassElement, methods );
+    }
+    for ( final TypeMirror interfaceType : element.getInterfaces() )
+    {
+      final TypeElement interfaceElement = (TypeElement) ( (DeclaredType) interfaceType ).asElement();
+      enumerateMethodsFromInterfaces( scope, elementUtils, typeUtils, interfaceElement, methods );
+    }
+    // Only collect methods from interfaces
+    if ( ElementKind.INTERFACE == element.getKind() )
+    {
+      for ( final Element member : element.getEnclosedElements() )
+      {
+        if ( ElementKind.METHOD == member.getKind() )
+        {
+          final ExecutableElement method = (ExecutableElement) member;
+          processMethod( elementUtils, typeUtils, scope, methods, method );
+        }
       }
     }
   }
