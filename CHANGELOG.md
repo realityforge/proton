@@ -12,7 +12,7 @@ Changes in this release:
 
 Changes in this release:
 
-* Sort assertions in `CompileTestUtil.assertCompilesWithoutWarnings()` so that they generate more useful failure messages by asserting on wwarnings, then errors and then success.
+* Sort assertions in `CompileTestUtil.assertCompilesWithoutWarnings()` so that they generate more useful failure messages by asserting on warnings, then errors and then success.
 * Fix bug introduced in `0.60` where interface methods were not collected at all unless they were collected at the end.
 
 ### [v0.60](https://github.com/realityforge/proton/tree/v0.60) (2024-05-17) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.59...v0.60)
