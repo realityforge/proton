@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.63](https://github.com/realityforge/proton/tree/v0.63) (2024-05-24) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.62...v0.63)
+
+Changes in this release:
 
 * Sort assertions in `CompileTestUtil.assertCompilesWithoutWarnings()` so that they generate more useful failure messages by asserting on errors, then warnings, and then success.
 
