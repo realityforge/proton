@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* When collecting methods, if an abstract method matches an existing abstract method then assume it is a refinement and replace the method in the method list.
+
 ### [v0.63](https://github.com/realityforge/proton/tree/v0.63) (2024-05-24) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.62...v0.63)
 
 Changes in this release:

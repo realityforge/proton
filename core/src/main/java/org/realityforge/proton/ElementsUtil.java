@@ -276,7 +276,7 @@ public final class ElementsUtil
       }
       else if ( isSubsignature( typeUtils, typeElement, methodType, executableElement ) )
       {
-        if ( !isAbstractInterfaceMethod( method ) )
+        if ( !isAbstractInterfaceMethod( method ) || isAbstractInterfaceMethod( executableElement ) )
         {
           elements.set( i, method );
         }
