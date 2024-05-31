@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.64](https://github.com/realityforge/proton/tree/v0.64) (2024-05-31) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.63...v0.64)
+
+Changes in this release:
 
 * When collecting methods, if an abstract method matches an existing abstract method then assume it is a refinement and replace the method in the method list.
 
