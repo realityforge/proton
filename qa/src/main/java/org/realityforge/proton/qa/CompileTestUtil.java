@@ -115,6 +115,7 @@ public final class CompileTestUtil
     }
     catch ( final IOException ioe )
     {
+      //noinspection CallToPrintStackTrace
       ioe.printStackTrace();
       throw new AssertionError( "Unexpected io exception " + ioe, ioe );
     }
