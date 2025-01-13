@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Update the `org.realityforge.javax.annotation` artifact to version `1.1.1`.
+* Change `CompileTestUtil.assertNoWarnings()` to fail an assertion if `MANDATORY_WARNING` diagnostics are present (not just `WARNING` diagnostics).
 
 ### [v0.64](https://github.com/realityforge/proton/tree/v0.64) (2024-05-31) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.63...v0.64)
 

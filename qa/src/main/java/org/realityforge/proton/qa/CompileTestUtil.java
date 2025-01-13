@@ -34,7 +34,9 @@ public final class CompileTestUtil
   public static void assertNoWarnings( @Nonnull final List<Diagnostic<? extends JavaFileObject>> diagnostics )
   {
     final List<Diagnostic<? extends JavaFileObject>> warnings =
-      diagnostics.stream().filter( d -> Diagnostic.Kind.WARNING == d.getKind() ).toList();
+      diagnostics.stream()
+        .filter( d -> Diagnostic.Kind.WARNING == d.getKind() || Diagnostic.Kind.MANDATORY_WARNING == d.getKind() )
+        .toList();
     if ( !warnings.isEmpty() )
     {
       fail( "Unexpected warnings:\n" + asMessage( warnings ) );
