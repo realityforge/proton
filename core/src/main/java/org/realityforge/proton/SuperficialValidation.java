@@ -17,6 +17,7 @@ package org.realityforge.proton;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -147,7 +148,7 @@ public final class SuperficialValidation
 
     IsTypeOf( @Nonnull final Class<?> clazz )
     {
-      _clazz = clazz;
+      _clazz = Objects.requireNonNull( clazz );
     }
 
     @Override
