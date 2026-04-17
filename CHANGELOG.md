@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Move to `com.palantir.javapoet:javapoet:jar:0.14.0` version of `javapoet`.
+
 ### [v0.65](https://github.com/realityforge/proton/tree/v0.65) (2025-01-13) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.64...v0.65)
 
 Changes in this release:

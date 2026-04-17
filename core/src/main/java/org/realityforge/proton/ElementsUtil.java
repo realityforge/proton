@@ -1,7 +1,7 @@
 package org.realityforge.proton;
 
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
+import com.palantir.javapoet.ParameterizedTypeName;
+import com.palantir.javapoet.TypeName;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -343,7 +343,7 @@ public final class ElementsUtil
     final TypeName typeName = TypeName.get( type );
     if ( typeName instanceof ParameterizedTypeName )
     {
-      return ( (ParameterizedTypeName) typeName ).rawType;
+      return ( (ParameterizedTypeName) typeName ).rawType();
     }
     else
     {
@@ -375,6 +375,7 @@ public final class ElementsUtil
   /**
    * @deprecated Use {@link #hasDeprecatedAnnotation(Element)} instead.
    */
+  @SuppressWarnings( "DeprecatedIsStillUsed" )
   @Deprecated
   public static boolean isElementDeprecated( @Nonnull final Element element )
   {

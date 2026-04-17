@@ -1,6 +1,6 @@
 package org.realityforge.proton;
 
-import com.squareup.javapoet.TypeSpec;
+import com.palantir.javapoet.TypeSpec;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
