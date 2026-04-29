@@ -383,14 +383,16 @@ public final class MemberChecks
   public static void shouldNotBePublic( @Nonnull final ProcessingEnvironment processingEnv,
                                         @Nonnull final ExecutableElement method,
                                         @Nonnull final String annotationName,
+                                        @Nonnull final Diagnostic.Kind kind,
                                         @Nonnull final String warning )
   {
-    shouldNotBePublic( processingEnv, method, annotationName, warning, null );
+    shouldNotBePublic( processingEnv, method, annotationName, kind, warning, null );
   }
 
   public static void shouldNotBePublic( @Nonnull final ProcessingEnvironment processingEnv,
                                         @Nonnull final ExecutableElement method,
                                         @Nonnull final String annotationName,
+                                        @Nonnull final Diagnostic.Kind kind,
                                         @Nonnull final String warning,
                                         @Nullable final String alternativeSuppressWarnings )
   {
@@ -399,21 +401,23 @@ public final class MemberChecks
     {
       final String message =
         shouldNot( annotationName, "be public. " + suppressedBy( warning, alternativeSuppressWarnings ) );
-      processingEnv.getMessager().printMessage( Diagnostic.Kind.WARNING, message, method );
+      processingEnv.getMessager().printMessage( kind, message, method );
     }
   }
 
   public static void shouldNotBeProtected( @Nonnull final ProcessingEnvironment processingEnv,
                                            @Nonnull final ExecutableElement method,
                                            @Nonnull final String annotationName,
+                                           @Nonnull final Diagnostic.Kind kind,
                                            @Nonnull final String warning )
   {
-    shouldNotBeProtected( processingEnv, method, annotationName, warning, null );
+    shouldNotBeProtected( processingEnv, method, annotationName, kind, warning, null );
   }
 
   public static void shouldNotBeProtected( @Nonnull final ProcessingEnvironment processingEnv,
                                            @Nonnull final ExecutableElement method,
                                            @Nonnull final String annotationName,
+                                           @Nonnull final Diagnostic.Kind kind,
                                            @Nonnull final String warning,
                                            @Nullable final String alternativeSuppressWarnings )
   {
@@ -422,7 +426,7 @@ public final class MemberChecks
     {
       final String message =
         shouldNot( annotationName, "be protected. " + suppressedBy( warning, alternativeSuppressWarnings ) );
-      processingEnv.getMessager().printMessage( Diagnostic.Kind.WARNING, message, method );
+      processingEnv.getMessager().printMessage( kind, message, method );
     }
   }
 
@@ -453,6 +457,7 @@ public final class MemberChecks
                                              @Nonnull final TypeElement typeElement,
                                              @Nonnull final ExecutableElement method,
                                              @Nonnull final String annotationClassname,
+                                             @Nonnull final Diagnostic.Kind kind,
                                              @Nonnull final String publicWarning,
                                              @Nonnull final String protectedWarning )
   {
@@ -460,6 +465,7 @@ public final class MemberChecks
                             typeElement,
                             method,
                             annotationClassname,
+                            kind,
                             publicWarning,
                             protectedWarning,
                             null );
@@ -469,6 +475,7 @@ public final class MemberChecks
                                              @Nonnull final TypeElement typeElement,
                                              @Nonnull final ExecutableElement method,
                                              @Nonnull final String annotationClassname,
+                                             @Nonnull final Diagnostic.Kind kind,
                                              @Nonnull final String publicWarning,
                                              @Nonnull final String protectedWarning,
                                              @Nullable final String alternativeSuppressWarnings )
@@ -478,6 +485,7 @@ public final class MemberChecks
       shouldNotBePublic( processingEnv,
                          method,
                          annotationClassname,
+                         kind,
                          publicWarning,
                          alternativeSuppressWarnings );
     }
@@ -486,6 +494,7 @@ public final class MemberChecks
       shouldNotBeProtected( processingEnv,
                             method,
                             annotationClassname,
+                            kind,
                             protectedWarning,
                             alternativeSuppressWarnings );
     }

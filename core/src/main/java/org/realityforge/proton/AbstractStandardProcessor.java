@@ -252,7 +252,7 @@ public abstract class AbstractStandardProcessor
   {
     _invalidTypeCount++;
     final Diagnostic.Kind kind =
-      !_deferErrors || env.errorRaised() || env.processingOver() ? Diagnostic.Kind.ERROR : Diagnostic.Kind.WARNING;
+      !_deferErrors || env.errorRaised() || env.processingOver() ? Diagnostic.Kind.ERROR : warningKind();
     final Messager messager = processingEnv.getMessager();
     if ( null != annotationValue )
     {

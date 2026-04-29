@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Breaking: Change `MemberChecks` to accept a `Diagnostic.Kind` rather than hardcoding to `WARNING`.
+
 ### [v0.68](https://github.com/realityforge/proton/tree/v0.68) (2026-04-29) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.67...v0.68)
 
 Changes in this release:
