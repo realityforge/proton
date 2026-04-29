@@ -343,19 +343,16 @@ public abstract class AbstractStandardProcessor
         if ( !env.getRootElements().contains( outerElement ) )
         {
           final String location;
-          if ( errorLocation instanceof ExecutableElement )
+          if ( errorLocation instanceof final ExecutableElement executableElement )
           {
-            final ExecutableElement executableElement = (ExecutableElement) errorLocation;
             final TypeElement typeElement = (TypeElement) executableElement.getEnclosingElement();
             location = typeElement.getQualifiedName() + "." + executableElement.getSimpleName();
           }
-          else if ( errorLocation instanceof VariableElement )
+          else if ( errorLocation instanceof final VariableElement variableElement )
           {
-            final VariableElement variableElement = (VariableElement) errorLocation;
             final Element enclosingElement = variableElement.getEnclosingElement();
-            if ( enclosingElement instanceof TypeElement )
+            if ( enclosingElement instanceof final TypeElement typeElement )
             {
-              final TypeElement typeElement = (TypeElement) enclosingElement;
               location = typeElement.getQualifiedName() + "." + variableElement.getSimpleName();
             }
             else
