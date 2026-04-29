@@ -305,6 +305,22 @@ public abstract class AbstractProcessorTest
     assertDiagnosticCount( compilation, Diagnostic.Kind.WARNING, 1 );
   }
 
+  protected final void assertCompilesWithSingleWarningThatCanBeUpgradedToError( @Nonnull final String classname,
+                                                                                @Nonnull final String messageFragment )
+  {
+    assertCompilesWithSingleWarning( classname, messageFragment );
+
+    final List<String> options = new ArrayList<>( getOptions() );
+    options.add( "-A" + getOptionPrefix() + ".warnings_as_errors=true" );
+    final Compilation compilation =
+      CompileTestUtil.compile( Collections.singletonList( input( "input", classname ) ),
+                               options,
+                               processors(),
+                               Collections.emptyList() );
+    assertFalse( compilation.success() );
+    assertErrorDiagnostic( compilation, messageFragment );
+  }
+
   @Nonnull
   protected final List<Diagnostic<? extends JavaFileObject>> assertDiagnosticCount( @Nonnull final Compilation compilation,
                                                                                     @Nonnull final Diagnostic.Kind kind,
