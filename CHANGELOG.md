@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.67](https://github.com/realityforge/proton/tree/v0.67) (2026-04-29) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.66...v0.67)
+
+Changes in this release:
 
 * Add a `warnings_as_errors` annotation processor option to enable warnings as errors. Downstream annotation processors should use the warning helper methods to ensure this option is used.
 
