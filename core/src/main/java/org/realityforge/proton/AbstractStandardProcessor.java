@@ -48,6 +48,7 @@ public abstract class AbstractStandardProcessor
   private boolean _deferUnresolved;
   private boolean _debug;
   private boolean _profile;
+  private boolean _warningsAsErrors;
 
   @FunctionalInterface
   public interface Action<E extends Element>
@@ -67,6 +68,7 @@ public abstract class AbstractStandardProcessor
     _deferUnresolved = readBooleanOption( "defer.unresolved", true );
     _debug = readBooleanOption( "debug", false );
     _profile = readBooleanOption( "profile", false );
+    _warningsAsErrors = readBooleanOption( "warnings_as_errors", false );
   }
 
   protected final void debugAnnotationProcessingRootElements( @Nonnull final RoundEnvironment env )
@@ -477,6 +479,37 @@ public abstract class AbstractStandardProcessor
   protected final boolean isProfileEnabled()
   {
     return _profile;
+  }
+
+  protected final void warning( @Nonnull final CharSequence message, @Nullable final Element element )
+  {
+    processingEnv.getMessager().printMessage( warningKind(), message, element );
+  }
+
+  protected final void warning( @Nonnull final CharSequence message,
+                                @Nullable final Element element,
+                                @Nullable final AnnotationMirror annotationMirror )
+  {
+    processingEnv.getMessager().printMessage( warningKind(), message, element, annotationMirror );
+  }
+
+  protected final void warning( @Nonnull final CharSequence message,
+                                @Nullable final Element element,
+                                @Nullable final AnnotationMirror annotationMirror,
+                                @Nullable final AnnotationValue annotationValue )
+  {
+    processingEnv.getMessager().printMessage( warningKind(), message, element, annotationMirror, annotationValue );
+  }
+
+  @Nonnull
+  protected final Diagnostic.Kind warningKind()
+  {
+    return isWarningsAsErrorsEnabled() ? Diagnostic.Kind.ERROR : Diagnostic.Kind.WARNING;
+  }
+
+  protected final boolean isWarningsAsErrorsEnabled()
+  {
+    return _warningsAsErrors;
   }
 
   protected final boolean isDebugEnabled()
