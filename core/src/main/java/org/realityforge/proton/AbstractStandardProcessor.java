@@ -49,6 +49,7 @@ public abstract class AbstractStandardProcessor
   private boolean _debug;
   private boolean _profile;
   private boolean _warningsAsErrors;
+  private int _invalidTypeCount;
 
   @FunctionalInterface
   public interface Action<E extends Element>
@@ -56,8 +57,6 @@ public abstract class AbstractStandardProcessor
     void process( @Nonnull E element )
       throws Exception;
   }
-
-  private int _invalidTypeCount;
 
   @Override
   public synchronized void init( @Nonnull final ProcessingEnvironment processingEnv )
