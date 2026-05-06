@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+Changes in this release:
+
+* Make `SuperficialValidation.isTypeOf(...)` fail closed for `NullType` / `<nulltype>` rather than throwing `IllegalArgumentException`, and add a regression test covering the behavior.
+
 ### [v0.69](https://github.com/realityforge/proton/tree/v0.69) (2026-04-29) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.68...v0.69)
 
 Changes in this release:

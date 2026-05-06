@@ -24,6 +24,7 @@ define 'proton' do
                  :javax_json,
                  :javapoet,
                  :guava
+    test.with :testng
     doc.options.merge!('Xdoclint:all,-missing' => true)
 
     package(:jar)

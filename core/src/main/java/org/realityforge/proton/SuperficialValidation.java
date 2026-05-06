@@ -35,6 +35,7 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ErrorType;
 import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.NoType;
+import javax.lang.model.type.NullType;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -132,8 +133,9 @@ public final class SuperficialValidation
 
   /**
    * Returns true if the raw type underlying the given {@link TypeMirror} represents the same raw
-   * type as the given {@link Class} and throws an IllegalArgumentException if the {@link
-   * TypeMirror} does not represent a type that can be referenced by a {@link Class}
+   * type as the given {@link Class}. Returns false for {@link NullType} and throws an
+   * IllegalArgumentException if the {@link TypeMirror} does not represent another type that can
+   * be referenced by a {@link Class}.
    */
   private static boolean isTypeOf( @Nonnull final Class<?> clazz, @Nonnull final TypeMirror type )
   {
@@ -161,6 +163,12 @@ public final class SuperficialValidation
     public Boolean visitNoType( NoType noType, Void p )
     {
       return TypeKind.VOID == noType.getKind() && Void.TYPE.equals( _clazz );
+    }
+
+    @Override
+    public Boolean visitNull( final NullType type, final Void p )
+    {
+      return false;
     }
 
     @Override
