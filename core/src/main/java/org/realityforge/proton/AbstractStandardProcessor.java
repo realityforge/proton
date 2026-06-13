@@ -101,7 +101,7 @@ public abstract class AbstractStandardProcessor
     _debug = readBooleanOption( "debug", false );
     _profile = readBooleanOption( "profile", false );
     _warningsAsErrors = readBooleanOption( "warnings_as_errors", false );
-    _formatGeneratedSource = readBooleanOption( "format_generated_source", false );
+    _formatGeneratedSource = readBooleanOption( "format_generated_source", true );
   }
 
   @Override

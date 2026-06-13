@@ -298,7 +298,6 @@ public final class ProcessorTestHarnessTest
       command.add( "-Xlint:all,-processing" );
       command.add( "-implicit:none" );
       command.add( "-Aproton_test.defer.errors=false" );
-      command.add( "-Aproton_test.format_generated_source=true" );
       command.add( "-s" );
       command.add( sourceOutput.toString() );
       command.add( "-d" );

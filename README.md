@@ -10,8 +10,8 @@ the [GitHub project](https://github.com/realityforge/proton).
 # Generated Source Formatting
 
 Processors extending `AbstractStandardProcessor` support the `<optionPrefix>.format_generated_source` option. The
-option defaults to `false`; when set to `true`, Proton formats JavaPoet-generated source with palantir-java-format
-before writing it through the annotation processing `Filer`.
+option defaults to `true`; when enabled, Proton formats JavaPoet-generated source with palantir-java-format before
+writing it through the annotation processing `Filer`.
 
 Proton first looks for `com.palantir.javaformat.java.Formatter` on the processor path, then falls back to the formatter
 copy bundled in `proton-core.jar` under `org.realityforge.proton.vendor`. Downstream processors that already shade

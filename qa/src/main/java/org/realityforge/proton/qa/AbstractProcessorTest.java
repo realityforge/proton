@@ -109,11 +109,11 @@ public abstract class AbstractProcessorTest
                                                 @Nonnull final Predicate<String> filter )
     throws Exception
   {
-    assertSuccessfulCompile( inputs, expectedOutputs, filter, "expected", getOptions() );
+    final List<String> unformattedOptions = new ArrayList<>( getOptions() );
+    unformattedOptions.add( "-A" + getOptionPrefix() + ".format_generated_source=false" );
+    assertSuccessfulCompile( inputs, expectedOutputs, filter, "expected", unformattedOptions );
 
-    final List<String> options = new ArrayList<>( getOptions() );
-    options.add( "-A" + getOptionPrefix() + ".format_generated_source=true" );
-    assertSuccessfulCompile( inputs, expectedOutputs, filter, "expectedFormatted", options );
+    assertSuccessfulCompile( inputs, expectedOutputs, filter, "expectedFormatted", getOptions() );
   }
 
   protected final void assertSuccessfulCompile( @Nonnull final List<JavaFileObject> inputs,

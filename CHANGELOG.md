@@ -2,6 +2,11 @@
 
 ### Unreleased
 
+Changes in this release:
+
+* Change the default value of `<prefix>.format_generated_source` to `true` so generated Java source is formatted unless
+  processors explicitly disable formatting.
+
 ### [v0.71](https://github.com/realityforge/proton/tree/v0.71) (2026-06-13) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.70...v0.71)
 
 Changes in this release:
