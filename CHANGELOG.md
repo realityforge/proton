@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.71](https://github.com/realityforge/proton/tree/v0.71) (2026-06-13) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.70...v0.71)
+
+Changes in this release:
 
 * Add the `<prefix>.format_generated_source` option to `AbstractStandardProcessor` so generated Java source can be
   formatted before it is written, defaulting to the existing unformatted behavior.
