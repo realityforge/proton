@@ -37,8 +37,6 @@ public abstract class AbstractStandardProcessor
   extends AbstractProcessor
 {
   @Nonnull
-  private static final String FORMAT_GENERATED_SOURCE_OPTION = "format_generated_source";
-  @Nonnull
   private static final String ORIGINAL_FORMATTER_CLASSNAME = "com.palantir.javaformat.java.Formatter";
   @Nonnull
   private static final List<String> COMMON_OPTIONS =
@@ -48,7 +46,7 @@ public abstract class AbstractStandardProcessor
                                                  "debug",
                                                  "profile",
                                                  "warnings_as_errors",
-                                                 FORMAT_GENERATED_SOURCE_OPTION ) );
+                                                 "format_generated_source" ) );
   @Nonnull
   private static final List<String> FORMATTER_JDK_EXPORTS =
     Collections.unmodifiableList( Arrays.asList( "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
@@ -103,7 +101,7 @@ public abstract class AbstractStandardProcessor
     _debug = readBooleanOption( "debug", false );
     _profile = readBooleanOption( "profile", false );
     _warningsAsErrors = readBooleanOption( "warnings_as_errors", false );
-    _formatGeneratedSource = readBooleanOption( FORMAT_GENERATED_SOURCE_OPTION, false );
+    _formatGeneratedSource = readBooleanOption( "format_generated_source", false );
   }
 
   @Override
@@ -665,7 +663,7 @@ public abstract class AbstractStandardProcessor
   private IOException newFormatterFailure( @Nonnull final String action, @Nonnull final Throwable cause )
   {
     return new IOException(
-      "Unable to " + action + " while " + getOptionPrefix() + "." + FORMAT_GENERATED_SOURCE_OPTION + "=true. " +
+      "Unable to " + action + " while " + getOptionPrefix() + ".format_generated_source=true. " +
       "Proton attempted to load source formatter classes " + ORIGINAL_FORMATTER_CLASSNAME + " and " +
       getVendorFormatterClassname() + ". If these classes are missing, ensure the annotation processor path " +
       "contains palantir-java-format or a processor jar that includes Proton's bundled vendor formatter classes. " +
