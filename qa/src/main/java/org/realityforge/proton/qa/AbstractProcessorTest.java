@@ -190,7 +190,7 @@ public abstract class AbstractProcessorTest
   }
 
   @Nonnull
-  protected static final List<String> formatterJdkExports()
+  protected static List<String> formatterJdkExports()
   {
     return FORMATTER_JDK_EXPORTS;
   }
