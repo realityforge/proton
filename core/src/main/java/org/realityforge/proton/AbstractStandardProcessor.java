@@ -1,10 +1,15 @@
 package org.realityforge.proton;
 
+import com.palantir.javapoet.JavaFile;
 import com.palantir.javapoet.TypeSpec;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -26,10 +31,33 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
+import javax.tools.JavaFileObject;
 
 public abstract class AbstractStandardProcessor
   extends AbstractProcessor
 {
+  @Nonnull
+  private static final String FORMAT_GENERATED_SOURCE_OPTION = "format_generated_source";
+  @Nonnull
+  private static final String ORIGINAL_FORMATTER_CLASSNAME = "com.palantir.javaformat.java.Formatter";
+  @Nonnull
+  private static final List<String> COMMON_OPTIONS =
+    Collections.unmodifiableList( Arrays.asList( "verbose_out_of_round.errors",
+                                                 "defer.errors",
+                                                 "defer.unresolved",
+                                                 "debug",
+                                                 "profile",
+                                                 "warnings_as_errors",
+                                                 FORMAT_GENERATED_SOURCE_OPTION ) );
+  @Nonnull
+  private static final List<String> FORMATTER_JDK_EXPORTS =
+    Collections.unmodifiableList( Arrays.asList( "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+                                                 "--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+                                                 "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+                                                 "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+                                                 "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+                                                 "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED" ) );
+
   /**
    * Names of types that have been passed to the processor in the current round or earlier rounds.
    * The set is used to restrict which types the processor will return in <code>getNewTypeElementsToProcess()</code>.
@@ -49,7 +77,14 @@ public abstract class AbstractStandardProcessor
   private boolean _debug;
   private boolean _profile;
   private boolean _warningsAsErrors;
+  private boolean _formatGeneratedSource;
+  @Nullable
+  private FormatterProxy _formatter;
   private int _invalidTypeCount;
+
+  private record FormatterProxy( @Nonnull Object formatter, @Nonnull Method formatSourceMethod )
+  {
+  }
 
   @FunctionalInterface
   public interface Action<E extends Element>
@@ -68,6 +103,19 @@ public abstract class AbstractStandardProcessor
     _debug = readBooleanOption( "debug", false );
     _profile = readBooleanOption( "profile", false );
     _warningsAsErrors = readBooleanOption( "warnings_as_errors", false );
+    _formatGeneratedSource = readBooleanOption( FORMAT_GENERATED_SOURCE_OPTION, false );
+  }
+
+  @Override
+  @Nonnull
+  public Set<String> getSupportedOptions()
+  {
+    final Set<String> options = new HashSet<>( super.getSupportedOptions() );
+    for ( final String option : COMMON_OPTIONS )
+    {
+      options.add( getOptionPrefix() + "." + option );
+    }
+    return Collections.unmodifiableSet( options );
   }
 
   protected final void debugAnnotationProcessingRootElements( @Nonnull final RoundEnvironment env )
@@ -528,10 +576,133 @@ public abstract class AbstractStandardProcessor
     {
       _emitJavaTypeStopWatch.start();
     }
-    GeneratorUtil.emitJavaType( packageName, typeSpec, processingEnv.getFiler() );
+    final JavaFile javaFile =
+      JavaFile.builder( packageName, typeSpec ).
+        skipJavaLangImports( true ).
+        build();
+    if ( _formatGeneratedSource )
+    {
+      writeFormattedJavaFile( javaFile, formatSource( javaFile ) );
+    }
+    else
+    {
+      javaFile.writeTo( processingEnv.getFiler() );
+    }
     if ( _profile )
     {
       _emitJavaTypeStopWatch.stop();
+    }
+  }
+
+  @Nonnull
+  private String formatSource( @Nonnull final JavaFile javaFile )
+    throws IOException
+  {
+    try
+    {
+      final FormatterProxy formatter = formatter();
+      return (String) formatter.formatSourceMethod().invoke( formatter.formatter(), javaFile.toString() );
+    }
+    catch ( final ClassNotFoundException e )
+    {
+      throw newFormatterFailure( "locate source formatter", e );
+    }
+    catch ( final InvocationTargetException e )
+    {
+      final Throwable cause = e.getCause();
+      throw newFormatterFailure( "format generated source", null == cause ? e : cause );
+    }
+    catch ( final ReflectiveOperationException | LinkageError e )
+    {
+      throw newFormatterFailure( "format generated source", e );
+    }
+  }
+
+  @Nonnull
+  private FormatterProxy formatter()
+    throws ClassNotFoundException, ReflectiveOperationException
+  {
+    if ( null == _formatter )
+    {
+      _formatter = createFormatter();
+    }
+    return _formatter;
+  }
+
+  @Nonnull
+  private FormatterProxy createFormatter()
+    throws ClassNotFoundException, ReflectiveOperationException
+  {
+    try
+    {
+      return createFormatter( ORIGINAL_FORMATTER_CLASSNAME );
+    }
+    catch ( final ClassNotFoundException originalNotFound )
+    {
+      try
+      {
+        return createFormatter( getVendorFormatterClassname() );
+      }
+      catch ( final ClassNotFoundException vendorNotFound )
+      {
+        vendorNotFound.addSuppressed( originalNotFound );
+        throw vendorNotFound;
+      }
+    }
+  }
+
+  @Nonnull
+  private FormatterProxy createFormatter( @Nonnull final String formatterClassName )
+    throws ClassNotFoundException, ReflectiveOperationException
+  {
+    final ClassLoader classLoader = AbstractStandardProcessor.class.getClassLoader();
+    final Class<?> formatterClass = Class.forName( formatterClassName, true, classLoader );
+    final Object formatter = formatterClass.getMethod( "create" ).invoke( null );
+    return new FormatterProxy( formatter, formatterClass.getMethod( "formatSource", String.class ) );
+  }
+
+  @Nonnull
+  private IOException newFormatterFailure( @Nonnull final String action, @Nonnull final Throwable cause )
+  {
+    return new IOException(
+      "Unable to " + action + " while " + getOptionPrefix() + "." + FORMAT_GENERATED_SOURCE_OPTION + "=true. " +
+      "Proton attempted to load source formatter classes " + ORIGINAL_FORMATTER_CLASSNAME + " and " +
+      getVendorFormatterClassname() + ". If these classes are missing, ensure the annotation processor path " +
+      "contains palantir-java-format or a processor jar that includes Proton's bundled vendor formatter classes. " +
+      "Downstream processors that shade Proton must include Proton's bundled org.realityforge.proton.vendor classes " +
+      "in the processor jar. On JDK 16+ the formatter requires the JVM running javac and annotation processing to " +
+      "receive these module exports: " + String.join( ", ", FORMATTER_JDK_EXPORTS ) + ".",
+      cause );
+  }
+
+  @Nonnull
+  private String getVendorFormatterClassname()
+  {
+    return AbstractStandardProcessor.class.getPackageName() + ".vendor.javaformat.java.Formatter";
+  }
+
+  private void writeFormattedJavaFile( @Nonnull final JavaFile javaFile, @Nonnull final String formattedSource )
+    throws IOException
+  {
+    final TypeSpec typeSpec = javaFile.typeSpec();
+    final String packageName = javaFile.packageName();
+    final String fileName = packageName.isEmpty() ? typeSpec.name() : packageName + "." + typeSpec.name();
+    final JavaFileObject sourceFile =
+      processingEnv.getFiler().createSourceFile( fileName, typeSpec.originatingElements().toArray( new Element[ 0 ] ) );
+    try ( final Writer writer = sourceFile.openWriter() )
+    {
+      writer.write( formattedSource );
+    }
+    catch ( final Exception e )
+    {
+      try
+      {
+        sourceFile.delete();
+      }
+      catch ( final Exception ignored )
+      {
+      }
+      throw e;
     }
   }
 

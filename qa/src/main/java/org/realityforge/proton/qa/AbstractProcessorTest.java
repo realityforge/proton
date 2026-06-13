@@ -29,6 +29,16 @@ import static org.testng.Assert.*;
 public abstract class AbstractProcessorTest
 {
   @Nonnull
+  private static final String FORMAT_GENERATED_SOURCE_OPTION = "format_generated_source";
+  @Nonnull
+  private static final List<String> FORMATTER_JDK_EXPORTS =
+    Collections.unmodifiableList( Arrays.asList( "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+                                                 "--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+                                                 "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+                                                 "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+                                                 "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+                                                 "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED" ) );
+  @Nonnull
   private final List<Path> _dirsToDelete = new ArrayList<>();
 
   @AfterTest
@@ -101,17 +111,31 @@ public abstract class AbstractProcessorTest
                                                 @Nonnull final Predicate<String> filter )
     throws Exception
   {
+    assertSuccessfulCompile( inputs, expectedOutputs, filter, "expected", getOptions() );
+
+    final List<String> options = new ArrayList<>( getOptions() );
+    options.add( "-A" + getOptionPrefix() + "." + FORMAT_GENERATED_SOURCE_OPTION + "=true" );
+    assertSuccessfulCompile( inputs, expectedOutputs, filter, "expectedFormatted", options );
+  }
+
+  protected final void assertSuccessfulCompile( @Nonnull final List<JavaFileObject> inputs,
+                                                @Nonnull final List<String> expectedOutputs,
+                                                @Nonnull final Predicate<String> filter,
+                                                @Nonnull final String expectedDirectory,
+                                                @Nonnull final List<String> options )
+    throws Exception
+  {
     final Compilation compilation =
-      CompileTestUtil.assertCompilesWithoutWarnings( inputs, getOptions(), processors(), Collections.emptyList() );
+      CompileTestUtil.assertCompilesWithoutWarnings( inputs, options, processors(), Collections.emptyList() );
 
     _dirsToDelete.add( compilation.sourceOutput() );
     _dirsToDelete.add( compilation.classOutput() );
 
-    outputFilesIfEnabled( compilation, filter );
+    outputFilesIfEnabled( compilation, expectedDirectory, filter );
 
     for ( final String expectedOutput : expectedOutputs )
     {
-      final Path fixture = fixtureDir().resolve( "expected" ).resolve( expectedOutput );
+      final Path fixture = fixtureDir().resolve( expectedDirectory ).resolve( expectedOutput );
       assertTrue( Files.exists( fixture ),
                   "Expected fixture to exist for " + expectedOutput + " but no such fixture present" );
       final Path output1 = compilation.sourceOutput().resolve( expectedOutput );
@@ -127,12 +151,20 @@ public abstract class AbstractProcessorTest
                                              @Nonnull final Predicate<String> filter )
     throws IOException
   {
+    outputFilesIfEnabled( compilation, "expected", filter );
+  }
+
+  protected final void outputFilesIfEnabled( @Nonnull final Compilation compilation,
+                                             @Nonnull final String expectedDirectory,
+                                             @Nonnull final Predicate<String> filter )
+    throws IOException
+  {
     final List<String> createdSourceFiles =
       compilation.sourceOutputFilenames().stream().filter( filter ).toList();
     final List<String> createdOutputFiles =
       compilation.classOutputFilenames().stream().filter( p -> !p.endsWith( ".class" ) ).filter( filter ).toList();
 
-    outputFilesIfEnabled( compilation, createdSourceFiles, createdOutputFiles );
+    outputFilesIfEnabled( compilation, expectedDirectory, createdSourceFiles, createdOutputFiles );
   }
 
   protected final void outputFilesIfEnabled( @Nonnull final Compilation results,
@@ -140,11 +172,27 @@ public abstract class AbstractProcessorTest
                                              @Nonnull final List<String> createdOutputFiles )
     throws IOException
   {
+    outputFilesIfEnabled( results, "expected", createdSourceFiles, createdOutputFiles );
+  }
+
+  protected final void outputFilesIfEnabled( @Nonnull final Compilation results,
+                                             @Nonnull final String expectedDirectory,
+                                             @Nonnull final List<String> createdSourceFiles,
+                                             @Nonnull final List<String> createdOutputFiles )
+    throws IOException
+  {
     if ( outputFiles() )
     {
-      CompileTestUtil.outputFiles( createdSourceFiles, results.sourceOutput(), fixtureDir().resolve( "expected" ) );
-      CompileTestUtil.outputFiles( createdOutputFiles, results.classOutput(), fixtureDir().resolve( "expected" ) );
+      final Path targetDir = fixtureDir().resolve( expectedDirectory );
+      CompileTestUtil.outputFiles( createdSourceFiles, results.sourceOutput(), targetDir );
+      CompileTestUtil.outputFiles( createdOutputFiles, results.classOutput(), targetDir );
     }
+  }
+
+  @Nonnull
+  protected static final List<String> formatterJdkExports()
+  {
+    return FORMATTER_JDK_EXPORTS;
   }
 
   @Nonnull

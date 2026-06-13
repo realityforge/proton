@@ -2,6 +2,13 @@
 
 ### Unreleased
 
+* Add the `<prefix>.format_generated_source` option to `AbstractStandardProcessor` so generated Java source can be
+  formatted before it is written, defaulting to the existing unformatted behavior.
+* Bundle a shaded palantir-java-format fallback in `proton-core.jar` under `org.realityforge.proton.vendor`, while
+  keeping formatter dependencies out of published transitive dependency metadata.
+* Extend `AbstractProcessorTest.assertSuccessfulCompile(...)` to verify both `expected` and `expectedFormatted`
+  generated-source fixtures, with fixture regeneration support for both trees.
+
 ### [v0.70](https://github.com/realityforge/proton/tree/v0.70) (2026-05-06) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.69...v0.70)
 
 Changes in this release:
