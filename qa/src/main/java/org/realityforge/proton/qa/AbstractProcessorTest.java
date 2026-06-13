@@ -29,8 +29,6 @@ import static org.testng.Assert.*;
 public abstract class AbstractProcessorTest
 {
   @Nonnull
-  private static final String FORMAT_GENERATED_SOURCE_OPTION = "format_generated_source";
-  @Nonnull
   private static final List<String> FORMATTER_JDK_EXPORTS =
     Collections.unmodifiableList( Arrays.asList( "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
                                                  "--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
@@ -114,7 +112,7 @@ public abstract class AbstractProcessorTest
     assertSuccessfulCompile( inputs, expectedOutputs, filter, "expected", getOptions() );
 
     final List<String> options = new ArrayList<>( getOptions() );
-    options.add( "-A" + getOptionPrefix() + "." + FORMAT_GENERATED_SOURCE_OPTION + "=true" );
+    options.add( "-A" + getOptionPrefix() + ".format_generated_source=true" );
     assertSuccessfulCompile( inputs, expectedOutputs, filter, "expectedFormatted", options );
   }
 
