@@ -4,6 +4,8 @@
 
 Changes in this release:
 
+* Remove the unused `MemberChecks.mustBePublic(...)`, `MemberChecks.mustBePrivate(...)`,
+  `MemberChecks.shouldNotBeProtected(...)`, and `MemberChecks.shouldBeInternalMethod(...)` helpers.
 * Remove the deprecated `ElementsUtil.isElementDeprecated(...)` helper.
 * Remove the unused `GeneratorUtil.emitJavaType(...)` helper.
 * Remove the unused `AnnotationsUtil.getTypeElementsAnnotationParameter(...)` helper.

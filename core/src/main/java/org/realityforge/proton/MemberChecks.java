@@ -2,7 +2,6 @@ package org.realityforge.proton;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -156,15 +155,6 @@ public final class MemberChecks
     }
   }
 
-  public static void mustBePublic( @Nonnull final String annotationName, @Nonnull final Element element )
-    throws ProcessorException
-  {
-    if ( !element.getModifiers().contains( Modifier.PUBLIC ) )
-    {
-      throw new ProcessorException( must( annotationName, "be public" ), element );
-    }
-  }
-
   public static void mustNotBePublic( @Nonnull final String annotationName, @Nonnull final Element element )
     throws ProcessorException
   {
@@ -189,15 +179,6 @@ public final class MemberChecks
     if ( element.getModifiers().contains( Modifier.PROTECTED ) )
     {
       throw new ProcessorException( mustNot( annotationName, "be protected" ), element );
-    }
-  }
-
-  public static void mustBePrivate( @Nonnull final String annotationName, @Nonnull final Element element )
-    throws ProcessorException
-  {
-    if ( !element.getModifiers().contains( Modifier.PRIVATE ) )
-    {
-      throw new ProcessorException( must( annotationName, "be private" ), element );
     }
   }
 
@@ -405,31 +386,6 @@ public final class MemberChecks
     }
   }
 
-  public static void shouldNotBeProtected( @Nonnull final ProcessingEnvironment processingEnv,
-                                           @Nonnull final ExecutableElement method,
-                                           @Nonnull final String annotationName,
-                                           @Nonnull final Diagnostic.Kind kind,
-                                           @Nonnull final String warning )
-  {
-    shouldNotBeProtected( processingEnv, method, annotationName, kind, warning, null );
-  }
-
-  public static void shouldNotBeProtected( @Nonnull final ProcessingEnvironment processingEnv,
-                                           @Nonnull final ExecutableElement method,
-                                           @Nonnull final String annotationName,
-                                           @Nonnull final Diagnostic.Kind kind,
-                                           @Nonnull final String warning,
-                                           @Nullable final String alternativeSuppressWarnings )
-  {
-    if ( method.getModifiers().contains( Modifier.PROTECTED ) &&
-         ElementsUtil.isWarningNotSuppressed( method, warning, alternativeSuppressWarnings ) )
-    {
-      final String message =
-        shouldNot( annotationName, "be protected. " + suppressedBy( warning, alternativeSuppressWarnings ) );
-      processingEnv.getMessager().printMessage( kind, message, method );
-    }
-  }
-
   public static void mustReturnAnInstanceOf( @Nonnull final ProcessingEnvironment processingEnv,
                                              @Nonnull final ExecutableElement method,
                                              @Nonnull final String annotationClassname,
@@ -450,53 +406,6 @@ public final class MemberChecks
     {
       final String message = must( annotationClassname, "return an instance of " + expectedType );
       throw new ProcessorException( message, method );
-    }
-  }
-
-  public static void shouldBeInternalMethod( @Nonnull final ProcessingEnvironment processingEnv,
-                                             @Nonnull final TypeElement typeElement,
-                                             @Nonnull final ExecutableElement method,
-                                             @Nonnull final String annotationClassname,
-                                             @Nonnull final Diagnostic.Kind kind,
-                                             @Nonnull final String publicWarning,
-                                             @Nonnull final String protectedWarning )
-  {
-    shouldBeInternalMethod( processingEnv,
-                            typeElement,
-                            method,
-                            annotationClassname,
-                            kind,
-                            publicWarning,
-                            protectedWarning,
-                            null );
-  }
-
-  public static void shouldBeInternalMethod( @Nonnull final ProcessingEnvironment processingEnv,
-                                             @Nonnull final TypeElement typeElement,
-                                             @Nonnull final ExecutableElement method,
-                                             @Nonnull final String annotationClassname,
-                                             @Nonnull final Diagnostic.Kind kind,
-                                             @Nonnull final String publicWarning,
-                                             @Nonnull final String protectedWarning,
-                                             @Nullable final String alternativeSuppressWarnings )
-  {
-    if ( doesMethodNotOverrideInterfaceMethod( processingEnv, typeElement, method ) )
-    {
-      shouldNotBePublic( processingEnv,
-                         method,
-                         annotationClassname,
-                         kind,
-                         publicWarning,
-                         alternativeSuppressWarnings );
-    }
-    if ( Objects.equals( typeElement, method.getEnclosingElement() ) )
-    {
-      shouldNotBeProtected( processingEnv,
-                            method,
-                            annotationClassname,
-                            kind,
-                            protectedWarning,
-                            alternativeSuppressWarnings );
     }
   }
 
