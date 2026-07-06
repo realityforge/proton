@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -369,7 +370,101 @@ public final class ElementsUtil
 
   public static boolean isNonStaticNestedClass( @Nonnull final TypeElement element )
   {
+    return isNonStaticNestedType( element );
+  }
+
+  public static boolean isNonStaticNestedType( @Nonnull final TypeElement element )
+  {
     return NestingKind.TOP_LEVEL != element.getNestingKind() && !element.getModifiers().contains( Modifier.STATIC );
+  }
+
+  public static boolean isPackageAccess( @Nonnull final Element element )
+  {
+    final Set<Modifier> modifiers = element.getModifiers();
+    return !modifiers.contains( Modifier.PRIVATE ) &&
+           !modifiers.contains( Modifier.PROTECTED ) &&
+           !modifiers.contains( Modifier.PUBLIC );
+  }
+
+  @Nonnull
+  public static TypeElement getOwningType( @Nonnull final Element element )
+  {
+    Element current = element;
+    while ( !( current instanceof TypeElement ) )
+    {
+      current = current.getEnclosingElement();
+    }
+    return (TypeElement) current;
+  }
+
+  public static boolean isElementAccessibleFrom( @Nonnull final TypeElement scope,
+                                                 @Nonnull final Element element )
+  {
+    final Set<Modifier> modifiers = element.getModifiers();
+    return !modifiers.contains( Modifier.PRIVATE ) &&
+           ( modifiers.contains( Modifier.PUBLIC ) || areTypesInSamePackage( getOwningType( element ), scope ) );
+  }
+
+  public static boolean isTypeAccessibleFrom( @Nonnull final TypeElement scope,
+                                              @Nonnull final TypeElement element )
+  {
+    TypeElement current = element;
+    while ( true )
+    {
+      if ( !isElementAccessibleFrom( scope, current ) )
+      {
+        return false;
+      }
+      final Element enclosing = current.getEnclosingElement();
+      if ( enclosing instanceof TypeElement )
+      {
+        current = (TypeElement) enclosing;
+      }
+      else
+      {
+        return true;
+      }
+    }
+  }
+
+  public static boolean hasAccessibleNoArgConstructor( @Nonnull final TypeElement scope,
+                                                       @Nonnull final TypeElement element )
+  {
+    final List<ExecutableElement> constructors = getConstructors( element );
+    return constructors.isEmpty() ||
+           constructors
+             .stream()
+             .anyMatch( c -> c.getParameters().isEmpty() && isElementAccessibleFrom( scope, c ) );
+  }
+
+  @Nullable
+  public static TypeElement asTypeElement( @Nonnull final ProcessingEnvironment processingEnv,
+                                           @Nonnull final TypeMirror type )
+  {
+    final Element element = processingEnv.getTypeUtils().asElement( type );
+    return element instanceof TypeElement ? (TypeElement) element : null;
+  }
+
+  public static boolean isAssignableTo( @Nonnull final ProcessingEnvironment processingEnv,
+                                        @Nonnull final TypeMirror type,
+                                        @Nonnull final TypeElement targetType )
+  {
+    return processingEnv.getTypeUtils().isAssignable( type, targetType.asType() );
+  }
+
+  public static boolean isAssignableTo( @Nonnull final ProcessingEnvironment processingEnv,
+                                        @Nonnull final TypeMirror type,
+                                        @Nonnull final String targetType )
+  {
+    final TypeElement typeElement = processingEnv.getElementUtils().getTypeElement( targetType );
+    return null != typeElement && isAssignableTo( processingEnv, type, typeElement );
+  }
+
+  public static boolean isAssignableTo( @Nonnull final ProcessingEnvironment processingEnv,
+                                        @Nonnull final Element element,
+                                        @Nonnull final String targetType )
+  {
+    return isAssignableTo( processingEnv, element.asType(), targetType );
   }
 
   public static boolean hasDeprecatedAnnotation( @Nonnull final Element element )

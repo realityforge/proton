@@ -4,6 +4,8 @@
 
 * Add `NamesUtil` to share Java identifier validation, derived-name helpers, and annotation name extraction behavior
   across annotation processors.
+* Add narrow `ElementsUtil` accessibility and type helpers for processor checks that need owning type, package access,
+  type accessibility, assignability, and accessible no-arg constructor detection.
 * Remove the unused `MemberChecks.mustBePublic(...)`, `MemberChecks.mustBePrivate(...)`,
   `MemberChecks.shouldNotBeProtected(...)`, and `MemberChecks.shouldBeInternalMethod(...)` helpers.
 * Remove the deprecated `ElementsUtil.isElementDeprecated(...)` helper.
