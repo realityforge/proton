@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.AnnotatedConstruct;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
@@ -15,7 +14,6 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
@@ -60,18 +58,6 @@ public final class AnnotationsUtil
     return ( (List<AnnotationValue>) getAnnotationValue( annotated, annotationClassName, parameterName ).getValue() )
       .stream()
       .map( v -> (TypeMirror) v.getValue() ).toList();
-  }
-
-  @Nonnull
-  public static List<TypeElement> getTypeElementsAnnotationParameter( @Nonnull final ProcessingEnvironment processingEnv,
-                                                                      @Nonnull final AnnotatedConstruct annotated,
-                                                                      @Nonnull final String annotationClassName,
-                                                                      @Nonnull final String parameterName )
-  {
-    return getTypeMirrorsAnnotationParameter( annotated, annotationClassName, parameterName )
-      .stream()
-      .map( typeMirror -> (TypeElement) processingEnv.getTypeUtils().asElement( typeMirror ) )
-      .toList();
   }
 
   @Nonnull
