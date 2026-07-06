@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.73](https://github.com/realityforge/proton/tree/v0.73) (2026-07-06) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.72...v0.73)
+
+Changes in this release:
 
 * Remove the unused `MemberChecks.mustBePublic(...)`, `MemberChecks.mustBePrivate(...)`,
   `MemberChecks.shouldNotBeProtected(...)`, and `MemberChecks.shouldBeInternalMethod(...)` helpers.
