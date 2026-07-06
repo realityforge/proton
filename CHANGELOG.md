@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Add `NamesUtil` to share Java identifier validation, derived-name helpers, and annotation name extraction behavior
+  across annotation processors.
 * Remove the unused `MemberChecks.mustBePublic(...)`, `MemberChecks.mustBePrivate(...)`,
   `MemberChecks.shouldNotBeProtected(...)`, and `MemberChecks.shouldBeInternalMethod(...)` helpers.
 * Remove the deprecated `ElementsUtil.isElementDeprecated(...)` helper.
