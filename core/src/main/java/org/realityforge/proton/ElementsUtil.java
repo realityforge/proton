@@ -229,7 +229,7 @@ public final class ElementsUtil
       (ExecutableType) typeUtils.asMemberOf( (DeclaredType) typeElement.asType(), method );
 
     final String key = method.getSimpleName().toString();
-    final ArrayList<ExecutableElement> elements = methods.computeIfAbsent( key, k -> new ArrayList<>() );
+    final ArrayList<ExecutableElement> elements = methods.computeIfAbsent( key, ignored -> new ArrayList<>() );
     boolean found = false;
     final int size = elements.size();
     for ( int i = 0; i < size; i++ )
