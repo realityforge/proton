@@ -4,6 +4,7 @@
 
 Changes in this release:
 
+* Remove the deprecated `ElementsUtil.isElementDeprecated(...)` helper.
 * Remove the unused `GeneratorUtil.emitJavaType(...)` helper.
 * Remove the unused `AnnotationsUtil.getTypeElementsAnnotationParameter(...)` helper.
 * Remove the unused `IOUtil.readFully(...)` helper.

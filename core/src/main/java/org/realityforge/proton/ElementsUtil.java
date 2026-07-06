@@ -372,16 +372,6 @@ public final class ElementsUtil
     return NestingKind.TOP_LEVEL != element.getNestingKind() && !element.getModifiers().contains( Modifier.STATIC );
   }
 
-  /**
-   * @deprecated Use {@link #hasDeprecatedAnnotation(Element)} instead.
-   */
-  @SuppressWarnings( "DeprecatedIsStillUsed" )
-  @Deprecated
-  public static boolean isElementDeprecated( @Nonnull final Element element )
-  {
-    return hasDeprecatedAnnotation( element );
-  }
-
   public static boolean hasDeprecatedAnnotation( @Nonnull final Element element )
   {
     return element
@@ -392,7 +382,7 @@ public final class ElementsUtil
 
   public static boolean isDeprecated( @Nonnull final Element element )
   {
-    if ( isElementDeprecated( element ) )
+    if ( hasDeprecatedAnnotation( element ) )
     {
       return true;
     }
