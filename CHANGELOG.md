@@ -9,6 +9,8 @@
 * Add a `GeneratorUtil.refMethod(...)` overload that accepts additional warning suppressions.
 * Add focused `SuppressWarningsUtil` read helpers for checking whether warnings are suppressed on an annotated
   construct or element.
+* Add generic type-level `MemberChecks` helpers for class/interface, type parameter, and non-static nested type
+  validation.
 * Remove the unused `MemberChecks.mustBePublic(...)`, `MemberChecks.mustBePrivate(...)`,
   `MemberChecks.shouldNotBeProtected(...)`, and `MemberChecks.shouldBeInternalMethod(...)` helpers.
 * Remove the deprecated `ElementsUtil.isElementDeprecated(...)` helper.

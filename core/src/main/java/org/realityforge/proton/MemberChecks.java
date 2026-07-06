@@ -119,6 +119,54 @@ public final class MemberChecks
     }
   }
 
+  public static void mustBeClass( @Nonnull final String annotationName, @Nonnull final TypeElement element )
+    throws ProcessorException
+  {
+    if ( ElementKind.CLASS != element.getKind() )
+    {
+      throw new ProcessorException( must( annotationName, "be a class" ), element );
+    }
+  }
+
+  public static void mustBeInterface( @Nonnull final String annotationName, @Nonnull final TypeElement element )
+    throws ProcessorException
+  {
+    if ( ElementKind.INTERFACE != element.getKind() )
+    {
+      throw new ProcessorException( must( annotationName, "be an interface" ), element );
+    }
+  }
+
+  public static void mustBeClassOrInterface( @Nonnull final String annotationName,
+                                             @Nonnull final TypeElement element )
+    throws ProcessorException
+  {
+    if ( ElementKind.CLASS != element.getKind() && ElementKind.INTERFACE != element.getKind() )
+    {
+      throw new ProcessorException( must( annotationName, "be a class or an interface" ), element );
+    }
+  }
+
+  public static void mustNotHaveTypeParameters( @Nonnull final String annotationName,
+                                                @Nonnull final TypeElement element )
+    throws ProcessorException
+  {
+    if ( !element.getTypeParameters().isEmpty() )
+    {
+      throw new ProcessorException( mustNot( annotationName, "have type parameters" ), element );
+    }
+  }
+
+  public static void mustNotBeNonStaticNestedType( @Nonnull final String annotationName,
+                                                   @Nonnull final TypeElement element )
+    throws ProcessorException
+  {
+    if ( ElementsUtil.isNonStaticNestedType( element ) )
+    {
+      throw new ProcessorException( mustNot( annotationName, "be a non-static nested class" ), element );
+    }
+  }
+
   public static void mustBeAbstract( @Nonnull final String annotationName, @Nonnull final Element element )
     throws ProcessorException
   {
