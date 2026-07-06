@@ -444,8 +444,7 @@ public final class SuperficialValidation
     @Override
     public Boolean visitRecordComponent( final RecordComponentElement t, final Void unused )
     {
-      // just assume that record components are OK
-      return null;
+      return isValidBaseElement( t );
     }
 
     @Override
