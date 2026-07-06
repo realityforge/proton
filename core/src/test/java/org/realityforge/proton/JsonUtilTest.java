@@ -73,7 +73,7 @@ public final class JsonUtilTest
     throws Exception
   {
     final CapturingResource resource = new CapturingResource();
-    final Element element = proxy( Element.class, ( _, method, _ ) -> unsupported( method ) );
+    final Element element = proxy( Element.class, ( self, method, args ) -> unsupported( method ) );
     final ProcessingEnvironment processingEnv =
       processingEnvironment( filer( "metadata.json", element, resource.asFileObject() ) );
 
@@ -104,7 +104,7 @@ public final class JsonUtilTest
   private static ProcessingEnvironment processingEnvironment( @Nonnull final Filer filer )
   {
     return proxy( ProcessingEnvironment.class,
-                  ( _, method, _ ) -> "getFiler".equals( method.getName() ) ? filer : unsupported( method ) );
+                  ( self, method, args ) -> "getFiler".equals( method.getName() ) ? filer : unsupported( method ) );
   }
 
   @SuppressWarnings( "SameParameterValue" )
@@ -113,7 +113,7 @@ public final class JsonUtilTest
                               @Nonnull final Element element,
                               @Nonnull final FileObject fileObject )
   {
-    return proxy( Filer.class, ( _, method, args ) -> {
+    return proxy( Filer.class, ( self, method, args ) -> {
       if ( "createResource".equals( method.getName() ) )
       {
         assertSame( args[ 0 ], StandardLocation.CLASS_OUTPUT );
@@ -170,7 +170,7 @@ public final class JsonUtilTest
     @Nonnull
     FileObject asFileObject()
     {
-      return proxy( FileObject.class, ( _, method, _ ) -> {
+      return proxy( FileObject.class, ( self, method, args ) -> {
         if ( "openOutputStream".equals( method.getName() ) )
         {
           return _outputStream;

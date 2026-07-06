@@ -17,12 +17,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.NullType;
+import javax.lang.model.type.ErrorType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
@@ -88,6 +90,17 @@ public final class SuperficialValidationTest
     assertFalse( invokeIsTypeOf( String.class, new FakeNullType() ) );
   }
 
+  @Test
+  public void validateTypeReturnsFalseForErrorType()
+  {
+    final ProcessingEnvironment processingEnv =
+      TestUtil.proxy( ProcessingEnvironment.class, ( self, method, args ) -> TestUtil.unsupported( method ) );
+    final ErrorType errorType = errorType();
+
+    assertFalse( SuperficialValidation.validateType( processingEnv, errorType ) );
+    assertFalse( SuperficialValidation.validateTypes( processingEnv, List.of( errorType ) ) );
+  }
+
   @SuppressWarnings( "SameParameterValue" )
   private static boolean invokeIsTypeOf( final Class<?> clazz, final TypeMirror type )
     throws Throwable
@@ -146,6 +159,38 @@ public final class SuperficialValidationTest
     {
       return "<nulltype>";
     }
+  }
+
+  @Nonnull
+  private static ErrorType errorType()
+  {
+    return TestUtil.proxy( ErrorType.class, ( self, method, args ) -> {
+      if ( "getKind".equals( method.getName() ) )
+      {
+        return TypeKind.ERROR;
+      }
+      else if ( "accept".equals( method.getName() ) )
+      {
+        @SuppressWarnings( "unchecked" )
+        final TypeVisitor<Object, Object> visitor = (TypeVisitor<Object, Object>) args[ 0 ];
+        return visitor.visitError( (ErrorType) self, args[ 1 ] );
+      }
+      else if ( "getAnnotationMirrors".equals( method.getName() ) )
+      {
+        return Collections.emptyList();
+      }
+      else if ( "getAnnotation".equals( method.getName() ) )
+      {
+        return null;
+      }
+      else if ( "getAnnotationsByType".equals( method.getName() ) )
+      {
+        @SuppressWarnings( "unchecked" )
+        final Class<? extends Annotation> annotationType = (Class<? extends Annotation>) args[ 0 ];
+        return Array.newInstance( annotationType, 0 );
+      }
+      return TestUtil.unsupported( method );
+    } );
   }
 
   @Nonnull
