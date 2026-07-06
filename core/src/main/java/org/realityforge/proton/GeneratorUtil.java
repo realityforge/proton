@@ -3,20 +3,17 @@ package org.realityforge.proton;
 import com.palantir.javapoet.AnnotationSpec;
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.FieldSpec;
-import com.palantir.javapoet.JavaFile;
 import com.palantir.javapoet.MethodSpec;
 import com.palantir.javapoet.ParameterSpec;
 import com.palantir.javapoet.TypeName;
 import com.palantir.javapoet.TypeSpec;
 import com.palantir.javapoet.TypeVariableName;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
-import javax.annotation.processing.Filer;
 import javax.annotation.processing.Generated;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.AnnotatedConstruct;
@@ -116,17 +113,6 @@ public final class GeneratorUtil
       name.insert( 0, t.getSimpleName() + "_" );
     }
     return name.toString();
-  }
-
-  public static void emitJavaType( @Nonnull final String packageName,
-                                   @Nonnull final TypeSpec typeSpec,
-                                   @Nonnull final Filer filer )
-    throws IOException
-  {
-    JavaFile.builder( packageName, typeSpec ).
-      skipJavaLangImports( true ).
-      build().
-      writeTo( filer );
   }
 
   @Nonnull

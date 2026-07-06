@@ -4,6 +4,7 @@
 
 Changes in this release:
 
+* Remove the unused `GeneratorUtil.emitJavaType(...)` helper.
 * Remove the unused `AnnotationsUtil.getTypeElementsAnnotationParameter(...)` helper.
 * Remove the unused `IOUtil.readFully(...)` helper.
 * Validate Java record components in `SuperficialValidation` using the standard element validation path, avoiding a
