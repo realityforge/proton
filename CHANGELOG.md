@@ -6,8 +6,6 @@
 
 Changes in this release:
 
-Changes in this release:
-
 * Change the default value of `<prefix>.format_generated_source` to `true` so generated Java source is formatted unless
   processors explicitly disable formatting.
 
