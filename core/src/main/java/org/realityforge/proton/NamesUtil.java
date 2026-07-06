@@ -1,6 +1,7 @@
 package org.realityforge.proton;
 
 import java.util.function.Function;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
@@ -103,7 +104,7 @@ public final class NamesUtil
       {
         continue;
       }
-      final String lower = part.toLowerCase();
+      final String lower = part.toLowerCase( Locale.ENGLISH );
       if ( sb.isEmpty() )
       {
         sb.append( lower );

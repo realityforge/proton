@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.lang.model.element.AnnotationMirror;
@@ -96,6 +97,21 @@ public final class NamesUtilTest
     assertEquals( NamesUtil.constantCaseToLowerCamel( "FOO_BAR" ), "fooBar" );
     assertEquals( NamesUtil.constantCaseToLowerCamel( "FOO__BAR_" ), "fooBar" );
     assertEquals( NamesUtil.constantCaseToLowerCamel( "URL_VALUE" ), "urlValue" );
+  }
+
+  @Test
+  public void constantCaseToLowerCamelIgnoresDefaultLocale()
+  {
+    final Locale defaultLocale = Locale.getDefault();
+    try
+    {
+      Locale.setDefault( Locale.forLanguageTag( "tr" ) );
+      assertEquals( NamesUtil.constantCaseToLowerCamel( "INITIAL_ID" ), "initialId" );
+    }
+    finally
+    {
+      Locale.setDefault( defaultLocale );
+    }
   }
 
   @Test
