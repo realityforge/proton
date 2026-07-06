@@ -355,8 +355,17 @@ public final class GeneratorUtil
                                               @Nonnull final TypeElement typeElement,
                                               @Nonnull final ExecutableElement executableElement )
   {
+    return refMethod( processingEnv, typeElement, executableElement, Collections.emptyList() );
+  }
+
+  @Nonnull
+  public static MethodSpec.Builder refMethod( @Nonnull final ProcessingEnvironment processingEnv,
+                                              @Nonnull final TypeElement typeElement,
+                                              @Nonnull final ExecutableElement executableElement,
+                                              @Nonnull final Collection<String> additionalSuppressions )
+  {
     final MethodSpec.Builder method =
-      overrideMethod( processingEnv, typeElement, executableElement, Collections.emptyList(), false );
+      overrideMethod( processingEnv, typeElement, executableElement, additionalSuppressions, false );
     if ( !executableElement.getReturnType().getKind().isPrimitive() )
     {
       method.addAnnotation( NONNULL_CLASSNAME );

@@ -6,6 +6,7 @@
   across annotation processors.
 * Add narrow `ElementsUtil` accessibility and type helpers for processor checks that need owning type, package access,
   type accessibility, assignability, and accessible no-arg constructor detection.
+* Add a `GeneratorUtil.refMethod(...)` overload that accepts additional warning suppressions.
 * Remove the unused `MemberChecks.mustBePublic(...)`, `MemberChecks.mustBePrivate(...)`,
   `MemberChecks.shouldNotBeProtected(...)`, and `MemberChecks.shouldBeInternalMethod(...)` helpers.
 * Remove the deprecated `ElementsUtil.isElementDeprecated(...)` helper.
