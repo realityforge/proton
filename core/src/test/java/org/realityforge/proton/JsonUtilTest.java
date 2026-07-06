@@ -44,7 +44,7 @@ public final class JsonUtilTest
   public void formatJsonRemovesLeadingBlankLineBeforeRootObject()
   {
     assertEquals( JsonUtil.formatJson( """
-                                         
+
                                          {
                                              "name":"Widget"
                                          }""" ), """
@@ -58,7 +58,7 @@ public final class JsonUtilTest
   public void formatJsonRemovesLeadingBlankLineBeforeRootArray()
   {
     assertEquals( JsonUtil.formatJson( """
-                                         
+
                                          [
                                              "Widget"
                                          ]""" ), """
