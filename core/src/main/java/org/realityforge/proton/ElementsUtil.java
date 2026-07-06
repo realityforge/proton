@@ -13,8 +13,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -53,44 +51,11 @@ public final class ElementsUtil
     return isWarningSuppressed( element, warning, null );
   }
 
-  @SuppressWarnings( "unchecked" )
   public static boolean isWarningSuppressed( @Nonnull final Element element,
                                              @Nonnull final String warning,
                                              @Nullable final String alternativeSuppressWarnings )
   {
-    if ( null != alternativeSuppressWarnings )
-    {
-      final AnnotationMirror suppress = AnnotationsUtil.findAnnotationByType( element, alternativeSuppressWarnings );
-      if ( null != suppress )
-      {
-        final AnnotationValue value = AnnotationsUtil.findAnnotationValueNoDefaults( suppress, "value" );
-        if ( null != value )
-        {
-          final List<AnnotationValue> warnings = (List<AnnotationValue>) value.getValue();
-          for ( final AnnotationValue suppression : warnings )
-          {
-            if ( warning.equals( suppression.getValue() ) )
-            {
-              return true;
-            }
-          }
-        }
-      }
-    }
-
-    final SuppressWarnings annotation = element.getAnnotation( SuppressWarnings.class );
-    if ( null != annotation )
-    {
-      for ( final String suppression : annotation.value() )
-      {
-        if ( warning.equals( suppression ) )
-        {
-          return true;
-        }
-      }
-    }
-    final Element enclosingElement = element.getEnclosingElement();
-    return null != enclosingElement && isWarningSuppressed( enclosingElement, warning, alternativeSuppressWarnings );
+    return SuppressWarningsUtil.isSuppressed( element, warning, alternativeSuppressWarnings );
   }
 
   @Nonnull
