@@ -56,11 +56,13 @@ public final class SuperficialValidationTest
       fileManager.setLocationFromPaths( StandardLocation.CLASS_OUTPUT, Collections.singletonList( classOutput ) );
       final JavaFileObject source =
         new SourceJavaFileObject( "com.example.Container",
-                                  "package com.example;\n" +
-                                  "public final class Container {\n" +
-                                  "  private record Heading(String text) {}\n" +
-                                  "  private record HeadingNode(Heading heading) {}\n" +
-                                  "}\n" );
+                                  """
+                                    package com.example;
+                                    public final class Container {
+                                      private record Heading(String text) {}
+                                      private record HeadingNode(Heading heading) {}
+                                    }
+                                    """ );
       final ValidationProcessor processor = new ValidationProcessor();
       final JavaCompiler.CompilationTask task =
         compiler.getTask( null,
@@ -86,6 +88,7 @@ public final class SuperficialValidationTest
     assertFalse( invokeIsTypeOf( String.class, new FakeNullType() ) );
   }
 
+  @SuppressWarnings( "SameParameterValue" )
   private static boolean invokeIsTypeOf( final Class<?> clazz, final TypeMirror type )
     throws Throwable
   {
@@ -117,6 +120,7 @@ public final class SuperficialValidationTest
     }
 
     @Override
+    @Nonnull
     public List<? extends AnnotationMirror> getAnnotationMirrors()
     {
       return Collections.emptyList();
@@ -129,6 +133,7 @@ public final class SuperficialValidationTest
     }
 
     @Override
+    @Nonnull
     public <A extends Annotation> A[] getAnnotationsByType( final Class<A> annotationType )
     {
       @SuppressWarnings( "unchecked" )

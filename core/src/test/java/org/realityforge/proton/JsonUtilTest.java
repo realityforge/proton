@@ -18,46 +18,54 @@ public final class JsonUtilTest
   @Test
   public void formatJsonReducesJsonGeneratorIndentation()
   {
-    assertEquals( JsonUtil.formatJson( "{\n" +
-                                       "    \"name\":\"Widget\",\n" +
-                                       "    \"nested\":{\n" +
-                                       "        \"enabled\":true,\n" +
-                                       "        \"values\":[\n" +
-                                       "            1\n" +
-                                       "        ]\n" +
-                                       "    }\n" +
-                                       "}" ),
-                  "{\n" +
-                  "  \"name\":\"Widget\",\n" +
-                  "  \"nested\":{\n" +
-                  "    \"enabled\":true,\n" +
-                  "    \"values\":[\n" +
-                  "      1\n" +
-                  "    ]\n" +
-                  "  }\n" +
-                  "}\n" );
+    assertEquals( JsonUtil.formatJson( """
+                                         {
+                                             "name":"Widget",
+                                             "nested":{
+                                                 "enabled":true,
+                                                 "values":[
+                                                     1
+                                                 ]
+                                             }
+                                         }""" ), """
+                    {
+                      "name":"Widget",
+                      "nested":{
+                        "enabled":true,
+                        "values":[
+                          1
+                        ]
+                      }
+                    }
+                    """ );
   }
 
   @Test
   public void formatJsonRemovesLeadingBlankLineBeforeRootObject()
   {
-    assertEquals( JsonUtil.formatJson( "\n{\n" +
-                                       "    \"name\":\"Widget\"\n" +
-                                       "}" ),
-                  "{\n" +
-                  "  \"name\":\"Widget\"\n" +
-                  "}\n" );
+    assertEquals( JsonUtil.formatJson( """
+                                         
+                                         {
+                                             "name":"Widget"
+                                         }""" ), """
+                    {
+                      "name":"Widget"
+                    }
+                    """ );
   }
 
   @Test
   public void formatJsonRemovesLeadingBlankLineBeforeRootArray()
   {
-    assertEquals( JsonUtil.formatJson( "\n[\n" +
-                                       "    \"Widget\"\n" +
-                                       "]" ),
-                  "[\n" +
-                  "  \"Widget\"\n" +
-                  "]\n" );
+    assertEquals( JsonUtil.formatJson( """
+                                         
+                                         [
+                                             "Widget"
+                                         ]""" ), """
+                    [
+                      "Widget"
+                    ]
+                    """ );
   }
 
   @Test
@@ -65,7 +73,7 @@ public final class JsonUtilTest
     throws Exception
   {
     final CapturingResource resource = new CapturingResource();
-    final Element element = proxy( Element.class, ( self, method, args ) -> unsupported( method ) );
+    final Element element = proxy( Element.class, ( _, method, _ ) -> unsupported( method ) );
     final ProcessingEnvironment processingEnv =
       processingEnvironment( filer( "metadata.json", element, resource.asFileObject() ) );
 
@@ -80,14 +88,15 @@ public final class JsonUtilTest
                                   .writeEnd()
                                   .writeEnd() );
 
-    assertEquals( resource.content(),
-                  "{\n" +
-                  "  \"name\": \"Widget\",\n" +
-                  "  \"values\": [\n" +
-                  "    1,\n" +
-                  "    2\n" +
-                  "  ]\n" +
-                  "}\n" );
+    assertEquals( resource.content(), """
+      {
+        "name": "Widget",
+        "values": [
+          1,
+          2
+        ]
+      }
+      """ );
     assertFalse( resource.isDeleted() );
   }
 
@@ -95,15 +104,16 @@ public final class JsonUtilTest
   private static ProcessingEnvironment processingEnvironment( @Nonnull final Filer filer )
   {
     return proxy( ProcessingEnvironment.class,
-                  ( self, method, args ) -> "getFiler".equals( method.getName() ) ? filer : unsupported( method ) );
+                  ( _, method, _ ) -> "getFiler".equals( method.getName() ) ? filer : unsupported( method ) );
   }
 
+  @SuppressWarnings( "SameParameterValue" )
   @Nonnull
   private static Filer filer( @Nonnull final String filename,
                               @Nonnull final Element element,
                               @Nonnull final FileObject fileObject )
   {
-    return proxy( Filer.class, ( self, method, args ) -> {
+    return proxy( Filer.class, ( _, method, args ) -> {
       if ( "createResource".equals( method.getName() ) )
       {
         assertSame( args[ 0 ], StandardLocation.CLASS_OUTPUT );
@@ -155,13 +165,12 @@ public final class JsonUtilTest
   private static final class CapturingResource
   {
     private final ByteArrayOutputStream _outputStream = new ByteArrayOutputStream();
-
     private boolean _deleted;
 
     @Nonnull
     FileObject asFileObject()
     {
-      return proxy( FileObject.class, ( self, method, args ) -> {
+      return proxy( FileObject.class, ( _, method, _ ) -> {
         if ( "openOutputStream".equals( method.getName() ) )
         {
           return _outputStream;
