@@ -58,9 +58,13 @@ public final class ElementsUtilTest
         @SuppressWarnings("method-warning")
         @AltSuppress("alt-warning")
         public void own() {}
+        void packageMethod() {}
+        private void privateMethod() {}
         public class Inner {}
         public static class StaticInner {}
         public static class PublicNested {}
+        static class PackageStaticNested {}
+        private static class PrivateNested {}
       }
       @Deprecated
       class DeprecatedOuter {
@@ -70,6 +74,9 @@ public final class ElementsUtilTest
         public static class PublicNested {}
       }
       class SamePackage {}
+      class PackageCtor { PackageCtor() {} }
+      class PrivateCtor { private PrivateCtor() {} }
+      class DefaultCtor {}
       """ ), TestUtil.source( "com.other.OtherType", """
       package com.other;
       public final class OtherType {}
@@ -145,14 +152,24 @@ public final class ElementsUtilTest
       final TypeElement inner = nestedType( target, "Inner" );
       final TypeElement staticInner = nestedType( target, "StaticInner" );
       final TypeElement publicNested = nestedType( target, "PublicNested" );
+      final TypeElement packageStaticNested = nestedType( target, "PackageStaticNested" );
+      final TypeElement privateNested = nestedType( target, "PrivateNested" );
       final TypeElement deprecatedOuter = type( "com.example.DeprecatedOuter" );
       final TypeElement deprecatedNested = nestedType( deprecatedOuter, "Nested" );
       final TypeElement packagePrivate = type( "com.example.PackagePrivate" );
+      final ExecutableElement own = method( target, "own" );
+      final ExecutableElement packageMethod = method( target, "packageMethod" );
+      final ExecutableElement privateMethod = method( target, "privateMethod" );
 
       assertSame( ElementsUtil.getTopLevelElement( inner ), target );
       assertTrue( ElementsUtil.isNonStaticNestedClass( inner ) );
       assertFalse( ElementsUtil.isNonStaticNestedClass( staticInner ) );
       assertFalse( ElementsUtil.isNonStaticNestedClass( target ) );
+      assertSame( ElementsUtil.getOwningType( target ), target );
+      assertSame( ElementsUtil.getOwningType( own ), target );
+      assertTrue( ElementsUtil.isNonStaticNestedType( inner ) );
+      assertFalse( ElementsUtil.isNonStaticNestedType( staticInner ) );
+      assertFalse( ElementsUtil.isNonStaticNestedType( target ) );
 
       assertTrue( ElementsUtil.hasDeprecatedAnnotation( deprecatedOuter ) );
       assertFalse( ElementsUtil.hasDeprecatedAnnotation( deprecatedNested ) );
@@ -167,6 +184,31 @@ public final class ElementsUtilTest
       assertTrue( ElementsUtil.areTypesInSamePackage( target, samePackage ) );
       assertFalse( ElementsUtil.areTypesInSamePackage( target, otherType ) );
       assertTrue( ElementsUtil.areTypesInDifferentPackage( target, otherType ) );
+
+      assertTrue( ElementsUtil.isPackageAccess( packageMethod ) );
+      assertFalse( ElementsUtil.isPackageAccess( own ) );
+      assertFalse( ElementsUtil.isPackageAccess( privateMethod ) );
+      assertTrue( ElementsUtil.isElementAccessibleFrom( target, packageMethod ) );
+      assertFalse( ElementsUtil.isElementAccessibleFrom( otherType, packageMethod ) );
+      assertTrue( ElementsUtil.isElementAccessibleFrom( otherType, own ) );
+      assertFalse( ElementsUtil.isElementAccessibleFrom( target, privateMethod ) );
+
+      assertTrue( ElementsUtil.isTypeAccessibleFrom( otherType, publicNested ) );
+      assertTrue( ElementsUtil.isTypeAccessibleFrom( target, packageStaticNested ) );
+      assertFalse( ElementsUtil.isTypeAccessibleFrom( otherType, packageStaticNested ) );
+      assertFalse( ElementsUtil.isTypeAccessibleFrom( target, privateNested ) );
+      assertSame( ElementsUtil.asTypeElement( processingEnv, target.asType() ), target );
+      final Element parameter =
+        processingEnv.getElementUtils().getTypeElement( List.class.getName() ).getTypeParameters().get( 0 );
+      assertNull( ElementsUtil.asTypeElement( processingEnv, parameter.asType() ) );
+      assertTrue( ElementsUtil.isAssignableTo( processingEnv, target.asType(), Object.class.getName() ) );
+      assertFalse( ElementsUtil.isAssignableTo( processingEnv, otherType.asType(), "com.example.ElementsTarget" ) );
+      assertFalse( ElementsUtil.isAssignableTo( processingEnv, otherType.asType(), "com.example.Missing" ) );
+      assertTrue( ElementsUtil.hasAccessibleNoArgConstructor( otherType, target ) );
+      assertTrue( ElementsUtil.hasAccessibleNoArgConstructor( target, type( "com.example.PackageCtor" ) ) );
+      assertFalse( ElementsUtil.hasAccessibleNoArgConstructor( otherType, type( "com.example.PackageCtor" ) ) );
+      assertFalse( ElementsUtil.hasAccessibleNoArgConstructor( target, type( "com.example.PrivateCtor" ) ) );
+      assertTrue( ElementsUtil.hasAccessibleNoArgConstructor( target, type( "com.example.DefaultCtor" ) ) );
     }
 
     private static void validateWarningSuppression( @Nonnull final TypeElement target )

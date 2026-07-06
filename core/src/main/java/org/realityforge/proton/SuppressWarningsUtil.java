@@ -14,6 +14,10 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.AnnotatedConstruct;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.Element;
 import javax.lang.model.type.TypeMirror;
 
 @SuppressWarnings( "unused" )
@@ -21,6 +25,106 @@ public final class SuppressWarningsUtil
 {
   private SuppressWarningsUtil()
   {
+  }
+
+  public static boolean isNotSuppressed( @Nonnull final AnnotatedConstruct annotated, @Nonnull final String warning )
+  {
+    return !isSuppressed( annotated, warning );
+  }
+
+  public static boolean isNotSuppressed( @Nonnull final AnnotatedConstruct annotated,
+                                         @Nonnull final String warning,
+                                         @Nullable final String alternativeSuppressWarnings )
+  {
+    return !isSuppressed( annotated, warning, alternativeSuppressWarnings );
+  }
+
+  public static boolean isNotSuppressed( @Nonnull final Element element, @Nonnull final String warning )
+  {
+    return !isSuppressed( element, warning );
+  }
+
+  public static boolean isNotSuppressed( @Nonnull final Element element,
+                                         @Nonnull final String warning,
+                                         @Nullable final String alternativeSuppressWarnings )
+  {
+    return !isSuppressed( element, warning, alternativeSuppressWarnings );
+  }
+
+  public static boolean isSuppressed( @Nonnull final AnnotatedConstruct annotated, @Nonnull final String warning )
+  {
+    return isSuppressed( annotated, warning, null );
+  }
+
+  public static boolean isSuppressed( @Nonnull final AnnotatedConstruct annotated,
+                                      @Nonnull final String warning,
+                                      @Nullable final String alternativeSuppressWarnings )
+  {
+    return null != alternativeSuppressWarnings && isSuppressedByAnnotation( annotated,
+                                                                            warning,
+                                                                            alternativeSuppressWarnings ) ||
+           isSuppressedBySuppressWarnings( annotated, warning );
+  }
+
+  public static boolean isSuppressed( @Nonnull final Element element, @Nonnull final String warning )
+  {
+    return isSuppressed( element, warning, null );
+  }
+
+  public static boolean isSuppressed( @Nonnull final Element element,
+                                      @Nonnull final String warning,
+                                      @Nullable final String alternativeSuppressWarnings )
+  {
+    if ( isSuppressed( (AnnotatedConstruct) element, warning, alternativeSuppressWarnings ) )
+    {
+      return true;
+    }
+    else
+    {
+      final Element enclosingElement = element.getEnclosingElement();
+      return null != enclosingElement && isSuppressed( enclosingElement, warning, alternativeSuppressWarnings );
+    }
+  }
+
+  private static boolean isSuppressedBySuppressWarnings( @Nonnull final AnnotatedConstruct annotated,
+                                                         @Nonnull final String warning )
+  {
+    final SuppressWarnings annotation = annotated.getAnnotation( SuppressWarnings.class );
+    if ( null != annotation )
+    {
+      for ( final String suppression : annotation.value() )
+      {
+        if ( warning.equals( suppression ) )
+        {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  @SuppressWarnings( "unchecked" )
+  private static boolean isSuppressedByAnnotation( @Nonnull final AnnotatedConstruct annotated,
+                                                   @Nonnull final String warning,
+                                                   @Nonnull final String annotationClassname )
+  {
+    final AnnotationMirror suppress = AnnotationsUtil.findAnnotationByType( annotated, annotationClassname );
+    if ( null != suppress )
+    {
+      final AnnotationValue value = AnnotationsUtil.findAnnotationValueNoDefaults( suppress, "value" );
+      if ( null != value )
+      {
+        final List<AnnotationValue> warnings = (List<AnnotationValue>) value.getValue();
+        for ( final AnnotationValue suppression : warnings )
+        {
+          if ( warning.equals( suppression.getValue() ) )
+          {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   @Nonnull

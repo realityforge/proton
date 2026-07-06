@@ -2,6 +2,16 @@
 
 ### Unreleased
 
+* Add `NamesUtil` to share Java identifier validation, derived-name helpers, and annotation name extraction behavior
+  across annotation processors.
+* Add narrow `ElementsUtil` accessibility and type helpers for processor checks that need owning type, package access,
+  type accessibility, assignability, and accessible no-arg constructor detection.
+* Add a `GeneratorUtil.refMethod(...)` overload that accepts additional warning suppressions.
+* Add focused `SuppressWarningsUtil` read helpers for checking whether warnings are suppressed on an annotated
+  construct or element.
+* Add generic type-level `MemberChecks` helpers for class/interface, type parameter, and non-static nested type
+  validation.
+
 ### [v0.73](https://github.com/realityforge/proton/tree/v0.73) (2026-07-06) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.72...v0.73)
 
 Changes in this release:

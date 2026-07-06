@@ -75,6 +75,14 @@ public final class MemberChecksTest
         @One @Three void allowedOverlap() {}
         @Override public void api() {}
       }
+      class PlainClass {}
+      interface Contract {}
+      enum Mode { ACTIVE }
+      class Generic<T> {}
+      class Outer {
+        class Inner {}
+        static class StaticNested {}
+      }
       """ ), TestUtil.source( "com.other.OtherBase", """
       package com.other;
       public class OtherBase {
@@ -101,6 +109,7 @@ public final class MemberChecksTest
         validateFailingChecks( target, otherBase );
         validateWarningEmission( target );
         validateReturnTypeAndOverrideHelpers( target );
+        validateTypeLevelChecks();
         _validated = true;
       }
       return false;
@@ -239,6 +248,40 @@ public final class MemberChecksTest
                                                                      method( target, "parameterMethod" ) ) );
     }
 
+    private void validateTypeLevelChecks()
+    {
+      final TypeElement model = type( "com.example.PlainClass" );
+      final TypeElement contract = type( "com.example.Contract" );
+      final TypeElement mode = type( "com.example.Mode" );
+      final TypeElement generic = type( "com.example.Generic" );
+      final TypeElement outer = type( "com.example.Outer" );
+      final TypeElement inner = nestedType( outer, "Inner" );
+      final TypeElement staticNested = nestedType( outer, "StaticNested" );
+
+      MemberChecks.mustBeClass( SCOPE, model );
+      assertFails( () -> MemberChecks.mustBeClass( SCOPE, contract ), contract, "@Scope target must be a class" );
+
+      MemberChecks.mustBeInterface( SCOPE, contract );
+      assertFails( () -> MemberChecks.mustBeInterface( SCOPE, model ), model, "@Scope target must be an interface" );
+
+      MemberChecks.mustBeClassOrInterface( SCOPE, model );
+      MemberChecks.mustBeClassOrInterface( SCOPE, contract );
+      assertFails( () -> MemberChecks.mustBeClassOrInterface( SCOPE, mode ),
+                   mode,
+                   "@Scope target must be a class or an interface" );
+
+      MemberChecks.mustNotHaveTypeParameters( SCOPE, model );
+      assertFails( () -> MemberChecks.mustNotHaveTypeParameters( SCOPE, generic ),
+                   generic,
+                   "@Scope target must not have type parameters" );
+
+      MemberChecks.mustNotBeNonStaticNestedType( SCOPE, model );
+      MemberChecks.mustNotBeNonStaticNestedType( SCOPE, staticNested );
+      assertFails( () -> MemberChecks.mustNotBeNonStaticNestedType( SCOPE, inner ),
+                   inner,
+                   "@Scope target must not be a non-static nested class" );
+    }
+
     @Nonnull
     private TypeElement type( @Nonnull final String classname )
     {
@@ -255,6 +298,17 @@ public final class MemberChecksTest
       .methodsIn( type.getEnclosedElements() )
       .stream()
       .filter( method -> name.contentEquals( method.getSimpleName() ) )
+      .findFirst()
+      .orElseThrow();
+  }
+
+  @Nonnull
+  private static TypeElement nestedType( @Nonnull final TypeElement type, @Nonnull final String name )
+  {
+    return ElementFilter
+      .typesIn( type.getEnclosedElements() )
+      .stream()
+      .filter( nested -> name.contentEquals( nested.getSimpleName() ) )
       .findFirst()
       .orElseThrow();
   }

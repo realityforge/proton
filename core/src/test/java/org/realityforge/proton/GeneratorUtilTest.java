@@ -209,6 +209,13 @@ public final class GeneratorUtilTest
       final MethodSpec ref = GeneratorUtil.refMethod( processingEnv, target, convert ).build();
       assertTrue( annotationStrings( ref.annotations() ).contains( "@javax.annotation.Nonnull" ) );
 
+      final MethodSpec refWithSuppressions =
+        GeneratorUtil.refMethod( processingEnv, target, convert, List.of( "unchecked" ) ).build();
+      assertTrue( annotationStrings( refWithSuppressions.annotations() )
+                    .stream()
+                    .anyMatch( a -> a.contains( "SuppressWarnings" ) && a.contains( "unchecked" ) ) );
+      assertTrue( annotationStrings( refWithSuppressions.annotations() ).contains( "@javax.annotation.Nonnull" ) );
+
       final MethodSpec primitiveRef = GeneratorUtil.refMethod( processingEnv, target, method( target, "primitiveRef" ) ).build();
       assertFalse( annotationStrings( primitiveRef.annotations() ).contains( "@javax.annotation.Nonnull" ) );
     }

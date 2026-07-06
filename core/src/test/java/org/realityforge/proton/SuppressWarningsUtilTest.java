@@ -11,12 +11,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import javax.lang.model.AnnotatedConstruct;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
@@ -46,7 +49,15 @@ public final class SuppressWarningsUtilTest
 
     TestUtil.compile( TestUtil.source( "com.example.SuppressTarget", """
       package com.example;
+      import java.lang.annotation.ElementType;
+      import java.lang.annotation.Target;
       import java.util.List;
+      @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
+      @interface SuppressCustomWarnings {
+        String[] value();
+      }
+      @SuppressWarnings("fromType")
+      @SuppressCustomWarnings("customFromType")
       public final class SuppressTarget {
         @Deprecated
         static final class Old {}
@@ -54,6 +65,10 @@ public final class SuppressWarningsUtilTest
         List<String> typedList;
         Old old;
         String string;
+        @SuppressWarnings({"fromField", "shared"})
+        String field;
+        @SuppressCustomWarnings({"customFromMethod", "sharedCustom"})
+        void action() {}
       }
       """ ), processor );
 
@@ -79,6 +94,7 @@ public final class SuppressWarningsUtilTest
             .collect( Collectors.toMap( f -> f.getSimpleName().toString(), f -> f ) );
         validateAnnotationGeneration( fields );
         validateBuilderHelpers( fields );
+        validateReadHelpers( target, fields );
         _validated = true;
       }
       return false;
@@ -135,6 +151,32 @@ public final class SuppressWarningsUtilTest
                     "@java.lang.SuppressWarnings(\"rawtypes\")" );
     }
 
+    private static void validateReadHelpers( @Nonnull final TypeElement target,
+                                             @Nonnull final Map<String, VariableElement> fields )
+    {
+      final VariableElement field = fields.get( "field" );
+      final ExecutableElement method = method( target, "action" );
+      final String customSuppressWarnings = "com.example.SuppressCustomWarnings";
+
+      assertTrue( SuppressWarningsUtil.isSuppressed( (AnnotatedConstruct) target, "fromType" ) );
+      assertFalse( SuppressWarningsUtil.isSuppressed( (AnnotatedConstruct) method, "fromType" ) );
+      assertTrue( SuppressWarningsUtil.isSuppressed( method, "fromType" ) );
+      assertTrue( SuppressWarningsUtil.isSuppressed( field, "fromField" ) );
+      assertTrue( SuppressWarningsUtil.isSuppressed( field, "shared" ) );
+      assertFalse( SuppressWarningsUtil.isSuppressed( field, "missing" ) );
+      assertTrue( SuppressWarningsUtil.isNotSuppressed( field, "missing" ) );
+      assertFalse( SuppressWarningsUtil.isNotSuppressed( field, "shared" ) );
+
+      assertTrue( SuppressWarningsUtil.isSuppressed( method, "customFromMethod", customSuppressWarnings ) );
+      assertTrue( SuppressWarningsUtil.isSuppressed( method, "customFromType", customSuppressWarnings ) );
+      assertFalse( SuppressWarningsUtil.isSuppressed( (AnnotatedConstruct) method,
+                                                      "customFromType",
+                                                      customSuppressWarnings ) );
+      assertTrue( SuppressWarningsUtil.isNotSuppressed( method, "missing", customSuppressWarnings ) );
+      assertTrue( ElementsUtil.isWarningSuppressed( method, "customFromMethod", customSuppressWarnings ) );
+      assertTrue( ElementsUtil.isWarningNotSuppressed( method, "missing", customSuppressWarnings ) );
+    }
+
     @Nonnull
     private static String suppressWarningsAnnotation( @Nonnull final List<AnnotationSpec> annotations )
     {
@@ -142,6 +184,17 @@ public final class SuppressWarningsUtilTest
         .stream()
         .map( AnnotationSpec::toString )
         .filter( annotation -> annotation.contains( "SuppressWarnings" ) )
+        .findFirst()
+        .orElseThrow();
+    }
+
+    @Nonnull
+    private static ExecutableElement method( @Nonnull final TypeElement type, @Nonnull final String name )
+    {
+      return ElementFilter
+        .methodsIn( type.getEnclosedElements() )
+        .stream()
+        .filter( method -> name.contentEquals( method.getSimpleName() ) )
         .findFirst()
         .orElseThrow();
     }
