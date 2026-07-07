@@ -37,7 +37,6 @@ public final class ResourceUtilTest
 
   @Test
   public void writeResourceDeletesResourceWhenWriteFails()
-    throws Exception
   {
     final IOException failure = new IOException( "Write failed" );
     final FailingResource resource = new FailingResource( failure );
@@ -58,6 +57,29 @@ public final class ResourceUtilTest
     assertTrue( resource.isDeleted() );
   }
 
+  @Test
+  public void writeResourceDeletesResourceWhenOpenFails()
+  {
+    final IOException failure = new IOException( "Open failed" );
+    final FailingOpenResource resource = new FailingOpenResource( failure );
+    final Element element = TestUtil.proxy( Element.class, ( self, method, args ) -> TestUtil.unsupported( method ) );
+
+    try
+    {
+      ResourceUtil.writeResource( processingEnvironment( "metadata.txt", element, resource.asFileObject() ),
+                                  "metadata.txt",
+                                  "content",
+                                  element );
+      fail( "Expected IOException" );
+    }
+    catch ( final IOException e )
+    {
+      assertSame( e, failure );
+    }
+    assertTrue( resource.isDeleted() );
+  }
+
+  @SuppressWarnings( "SameParameterValue" )
   @Nonnull
   private static ProcessingEnvironment processingEnvironment( @Nonnull final String filename,
                                                               @Nonnull final Element element,
@@ -160,6 +182,40 @@ public final class ResourceUtilTest
               throw _failure;
             }
           };
+        }
+        else if ( "delete".equals( method.getName() ) )
+        {
+          _deleted = true;
+          return true;
+        }
+        return TestUtil.unsupported( method );
+      } );
+    }
+
+    boolean isDeleted()
+    {
+      return _deleted;
+    }
+  }
+
+  private static final class FailingOpenResource
+  {
+    @Nonnull
+    private final IOException _failure;
+    private boolean _deleted;
+
+    FailingOpenResource( @Nonnull final IOException failure )
+    {
+      _failure = failure;
+    }
+
+    @Nonnull
+    FileObject asFileObject()
+    {
+      return TestUtil.proxy( FileObject.class, ( self, method, args ) -> {
+        if ( "openOutputStream".equals( method.getName() ) )
+        {
+          throw _failure;
         }
         else if ( "delete".equals( method.getName() ) )
         {
