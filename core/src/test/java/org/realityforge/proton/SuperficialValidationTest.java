@@ -20,7 +20,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
@@ -41,6 +40,7 @@ import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
+import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
 
 public final class SuperficialValidationTest {
@@ -48,19 +48,19 @@ public final class SuperficialValidationTest {
     public void validateElementReturnsTrueForTypeWithEnclosedRecordComponents() throws Exception {
         final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         assertNotNull(compiler);
-        final DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<>();
+        final var diagnosticCollector = new DiagnosticCollector<JavaFileObject>();
         final Path classOutput = Files.createTempDirectory("compile");
         try (StandardJavaFileManager fileManager =
                 compiler.getStandardFileManager(diagnosticCollector, Locale.getDefault(), UTF_8)) {
             fileManager.setLocationFromPaths(StandardLocation.CLASS_OUTPUT, Collections.singletonList(classOutput));
-            final JavaFileObject source = new SourceJavaFileObject("com.example.Container", """
+            final var source = new SourceJavaFileObject("com.example.Container", """
                 package com.example;
                 public final class Container {
                   private record Heading(String text) {}
                   private record HeadingNode(Heading heading) {}
                 }
                 """);
-            final ValidationProcessor processor = new ValidationProcessor();
+            final var processor = new ValidationProcessor();
             final JavaCompiler.CompilationTask task = compiler.getTask(
                     null,
                     fileManager,
@@ -114,21 +114,20 @@ public final class SuperficialValidationTest {
         }
 
         @Override
-        @Nonnull
         public List<? extends AnnotationMirror> getAnnotationMirrors() {
             return Collections.emptyList();
         }
 
         @Override
+        @Nullable
         public <A extends Annotation> A getAnnotation(final Class<A> annotationType) {
             return null;
         }
 
         @Override
-        @Nonnull
         public <A extends Annotation> A[] getAnnotationsByType(final Class<A> annotationType) {
             @SuppressWarnings("unchecked")
-            final A[] annotations = (A[]) Array.newInstance(annotationType, 0);
+            final var annotations = (A[]) Array.newInstance(annotationType, 0);
             return annotations;
         }
 
@@ -138,14 +137,13 @@ public final class SuperficialValidationTest {
         }
     }
 
-    @Nonnull
     private static ErrorType errorType() {
         return TestUtil.proxy(ErrorType.class, (self, method, args) -> {
             if ("getKind".equals(method.getName())) {
                 return TypeKind.ERROR;
             } else if ("accept".equals(method.getName())) {
                 @SuppressWarnings("unchecked")
-                final TypeVisitor<Object, Object> visitor = (TypeVisitor<Object, Object>) args[0];
+                final var visitor = (TypeVisitor<Object, Object>) args[0];
                 return visitor.visitError((ErrorType) self, args[1]);
             } else if ("getAnnotationMirrors".equals(method.getName())) {
                 return Collections.emptyList();
@@ -153,19 +151,18 @@ public final class SuperficialValidationTest {
                 return null;
             } else if ("getAnnotationsByType".equals(method.getName())) {
                 @SuppressWarnings("unchecked")
-                final Class<? extends Annotation> annotationType = (Class<? extends Annotation>) args[0];
+                final var annotationType = (Class<? extends Annotation>) args[0];
                 return Array.newInstance(annotationType, 0);
             }
             return TestUtil.unsupported(method);
         });
     }
 
-    @Nonnull
-    private static String asMessage(@Nonnull final DiagnosticCollector<JavaFileObject> diagnostics) {
+    private static String asMessage(final DiagnosticCollector<JavaFileObject> diagnostics) {
         return diagnostics.getDiagnostics().stream().map(Object::toString).collect(Collectors.joining("\n"));
     }
 
-    private static void deleteDir(@Nonnull final Path dir) throws IOException {
+    private static void deleteDir(final Path dir) throws IOException {
         try (Stream<Path> paths = Files.walk(dir)) {
             for (final Path path : paths.sorted(Comparator.reverseOrder()).toList()) {
                 Files.deleteIfExists(path);
@@ -173,7 +170,7 @@ public final class SuperficialValidationTest {
         }
     }
 
-    private static boolean hasEnclosedRecordComponents(@Nonnull final TypeElement type) {
+    private static boolean hasEnclosedRecordComponents(final TypeElement type) {
         for (final TypeElement nestedType : ElementFilter.typesIn(type.getEnclosedElements())) {
             if (ElementKind.RECORD == nestedType.getKind()
                     && !nestedType.getRecordComponents().isEmpty()) {
@@ -184,10 +181,9 @@ public final class SuperficialValidationTest {
     }
 
     private static final class SourceJavaFileObject extends SimpleJavaFileObject {
-        @Nonnull
         private final String _source;
 
-        SourceJavaFileObject(@Nonnull final String classname, @Nonnull final String source) {
+        SourceJavaFileObject(final String classname, final String source) {
             super(URI.create("string:///" + classname.replace('.', '/') + Kind.SOURCE.extension), Kind.SOURCE);
             _source = source;
         }
@@ -201,13 +197,11 @@ public final class SuperficialValidationTest {
     private static final class ValidationProcessor extends AbstractProcessor {
         private boolean _validated;
 
-        @Nonnull
         @Override
         public Set<String> getSupportedAnnotationTypes() {
             return Collections.singleton("*");
         }
 
-        @Nonnull
         @Override
         public SourceVersion getSupportedSourceVersion() {
             return SourceVersion.latestSupported();

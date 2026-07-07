@@ -1,7 +1,7 @@
 package org.realityforge.proton;
 
 import java.util.List;
-import javax.annotation.Nonnull;
+import java.util.Objects;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
@@ -15,9 +15,9 @@ import javax.lang.model.type.TypeVariable;
 public final class TypesUtil {
     private TypesUtil() {}
 
-    public static boolean containsArrayType(@Nonnull final TypeMirror type) {
+    public static boolean containsArrayType(final TypeMirror type) {
         if (TypeKind.DECLARED == type.getKind()) {
-            final DeclaredType declaredType = (DeclaredType) type;
+            final var declaredType = (DeclaredType) type;
             for (final TypeMirror typeArgument : declaredType.getTypeArguments()) {
                 if (containsArrayType(typeArgument)) {
                     return true;
@@ -29,9 +29,9 @@ public final class TypesUtil {
         }
     }
 
-    public static boolean containsRawType(@Nonnull final TypeMirror type) {
+    public static boolean containsRawType(final TypeMirror type) {
         if (TypeKind.DECLARED == type.getKind()) {
-            final DeclaredType declaredType = (DeclaredType) type;
+            final var declaredType = (DeclaredType) type;
             final List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
             if (typeArguments.isEmpty()
                     && !((TypeElement) declaredType.asElement())
@@ -51,11 +51,11 @@ public final class TypesUtil {
         }
     }
 
-    public static boolean containsWildcard(@Nonnull final TypeMirror type) {
+    public static boolean containsWildcard(final TypeMirror type) {
         if (TypeKind.WILDCARD == type.getKind()) {
             return true;
         } else if (TypeKind.DECLARED == type.getKind()) {
-            final DeclaredType declaredType = (DeclaredType) type;
+            final var declaredType = (DeclaredType) type;
             for (final TypeMirror typeArgument : declaredType.getTypeArguments()) {
                 if (containsWildcard(typeArgument)) {
                     return true;
@@ -67,27 +67,26 @@ public final class TypesUtil {
         }
     }
 
-    public static boolean hasRawTypes(
-            @Nonnull final ProcessingEnvironment processingEnv, @Nonnull final TypeMirror type) {
+    public static boolean hasRawTypes(final ProcessingEnvironment processingEnv, final TypeMirror type) {
         final TypeKind kind = type.getKind();
         if (TypeKind.TYPEVAR == kind) {
-            final TypeVariable typeVariable = (TypeVariable) type;
+            final var typeVariable = (TypeVariable) type;
             return hasRawTypes(processingEnv, typeVariable.getLowerBound())
                     || hasRawTypes(processingEnv, typeVariable.getUpperBound());
         } else if (TypeKind.ARRAY == kind) {
             return hasRawTypes(processingEnv, ((ArrayType) type).getComponentType());
         } else if (TypeKind.DECLARED == kind) {
-            final DeclaredType declaredType = (DeclaredType) type;
+            final var declaredType = (DeclaredType) type;
             final int typeArgumentCount = declaredType.getTypeArguments().size();
-            final TypeElement typeElement =
-                    (TypeElement) processingEnv.getTypeUtils().asElement(type);
+            final var typeElement = (TypeElement)
+                    Objects.requireNonNull(processingEnv.getTypeUtils().asElement(type));
             if (typeArgumentCount != typeElement.getTypeParameters().size()) {
                 return true;
             } else {
                 return declaredType.getTypeArguments().stream().anyMatch(t -> hasRawTypes(processingEnv, t));
             }
         } else if (TypeKind.EXECUTABLE == kind) {
-            final ExecutableType executableType = (ExecutableType) type;
+            final var executableType = (ExecutableType) type;
             return hasRawTypes(processingEnv, executableType.getReturnType())
                     || executableType.getTypeVariables().stream().anyMatch(t -> hasRawTypes(processingEnv, t))
                     || executableType.getThrownTypes().stream().anyMatch(t -> hasRawTypes(processingEnv, t))
@@ -106,11 +105,10 @@ public final class TypesUtil {
      * @param type          the type.
      * @return true if the type or a compoennt of the type is deprecated.
      */
-    public static boolean isDeprecated(
-            @Nonnull final ProcessingEnvironment processingEnv, @Nonnull final TypeMirror type) {
+    public static boolean isDeprecated(final ProcessingEnvironment processingEnv, final TypeMirror type) {
         final TypeKind kind = type.getKind();
         if (TypeKind.TYPEVAR == kind) {
-            final TypeVariable typeVariable = (TypeVariable) type;
+            final var typeVariable = (TypeVariable) type;
             return isDeprecated(processingEnv, typeVariable.getLowerBound())
                     || isDeprecated(processingEnv, typeVariable.getUpperBound());
         } else if (TypeKind.ARRAY == kind) {
@@ -119,11 +117,11 @@ public final class TypesUtil {
             if (isTypeElementDeprecated(processingEnv, type)) {
                 return true;
             } else {
-                final DeclaredType declaredType = (DeclaredType) type;
+                final var declaredType = (DeclaredType) type;
                 return declaredType.getTypeArguments().stream().anyMatch(t -> isDeprecated(processingEnv, t));
             }
         } else if (TypeKind.EXECUTABLE == kind) {
-            final ExecutableType executableType = (ExecutableType) type;
+            final var executableType = (ExecutableType) type;
             return isTypeElementDeprecated(processingEnv, executableType)
                     || isDeprecated(processingEnv, executableType.getReturnType())
                     || executableType.getTypeVariables().stream().anyMatch(t -> isDeprecated(processingEnv, t))
@@ -134,8 +132,7 @@ public final class TypesUtil {
         }
     }
 
-    private static boolean isTypeElementDeprecated(
-            @Nonnull final ProcessingEnvironment processingEnv, @Nonnull final TypeMirror type) {
+    private static boolean isTypeElementDeprecated(final ProcessingEnvironment processingEnv, final TypeMirror type) {
         final Element element = processingEnv.getTypeUtils().asElement(type);
         return null != element && ElementsUtil.isDeprecated(element);
     }

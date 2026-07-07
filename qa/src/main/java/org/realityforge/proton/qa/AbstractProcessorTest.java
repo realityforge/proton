@@ -19,7 +19,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 import javax.annotation.processing.Processor;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
@@ -28,7 +27,6 @@ import javax.tools.ToolProvider;
 import org.testng.annotations.AfterTest;
 
 public abstract class AbstractProcessorTest {
-    @Nonnull
     private static final List<String> FORMATTER_JDK_EXPORTS = Collections.unmodifiableList(Arrays.asList(
             "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
             "--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
@@ -37,7 +35,6 @@ public abstract class AbstractProcessorTest {
             "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
             "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"));
 
-    @Nonnull
     private final List<Path> _dirsToDelete = new ArrayList<>();
 
     @AfterTest
@@ -47,7 +44,7 @@ public abstract class AbstractProcessorTest {
     }
 
     @SuppressWarnings({"resource", "ResultOfMethodCallIgnored"})
-    private void deleteDir(@Nonnull final Path directory) {
+    private void deleteDir(final Path directory) {
         try {
             Files.walk(directory)
                     .sorted(Comparator.reverseOrder())
@@ -58,46 +55,39 @@ public abstract class AbstractProcessorTest {
         }
     }
 
-    @Nonnull
     protected abstract String getOptionPrefix();
 
-    @Nonnull
     protected abstract Processor processor();
 
-    @Nonnull
     protected List<String> getOptions() {
         return Arrays.asList(
                 "-Xlint:all,-processing", "-implicit:none", "-A" + getOptionPrefix() + ".defer.errors=false");
     }
 
-    @Nonnull
     protected Processor[] additionalProcessors() {
         return new Processor[0];
     }
 
-    @Nonnull
     protected String getFixtureKeyPart() {
         return "";
     }
 
-    protected boolean emitGeneratedFile(@Nonnull final String target) {
+    protected boolean emitGeneratedFile(final String target) {
         return !target.endsWith(".class");
     }
 
-    protected final void assertSuccessfulCompile(
-            @Nonnull final String classname, @Nonnull final String... expectedOutputResources) throws Exception {
+    protected final void assertSuccessfulCompile(final String classname, final String... expectedOutputResources)
+            throws Exception {
         assertSuccessfulCompile(inputs(classname), Arrays.asList(expectedOutputResources));
     }
 
-    protected final void assertSuccessfulCompile(
-            @Nonnull final List<JavaFileObject> inputs, @Nonnull final List<String> outputs) throws Exception {
+    protected final void assertSuccessfulCompile(final List<JavaFileObject> inputs, final List<String> outputs)
+            throws Exception {
         assertSuccessfulCompile(inputs, outputs, this::emitGeneratedFile);
     }
 
     protected final void assertSuccessfulCompile(
-            @Nonnull final List<JavaFileObject> inputs,
-            @Nonnull final List<String> expectedOutputs,
-            @Nonnull final Predicate<String> filter)
+            final List<JavaFileObject> inputs, final List<String> expectedOutputs, final Predicate<String> filter)
             throws Exception {
         final List<String> unformattedOptions = new ArrayList<>(getOptions());
         unformattedOptions.add("-A" + getOptionPrefix() + ".format_generated_source=false");
@@ -107,11 +97,11 @@ public abstract class AbstractProcessorTest {
     }
 
     protected final void assertSuccessfulCompile(
-            @Nonnull final List<JavaFileObject> inputs,
-            @Nonnull final List<String> expectedOutputs,
-            @Nonnull final Predicate<String> filter,
-            @Nonnull final String expectedDirectory,
-            @Nonnull final List<String> options)
+            final List<JavaFileObject> inputs,
+            final List<String> expectedOutputs,
+            final Predicate<String> filter,
+            final String expectedDirectory,
+            final List<String> options)
             throws Exception {
         final Compilation compilation =
                 CompileTestUtil.assertCompilesWithoutWarnings(inputs, options, processors(), Collections.emptyList());
@@ -136,15 +126,13 @@ public abstract class AbstractProcessorTest {
         }
     }
 
-    protected final void outputFilesIfEnabled(
-            @Nonnull final Compilation compilation, @Nonnull final Predicate<String> filter) throws IOException {
+    protected final void outputFilesIfEnabled(final Compilation compilation, final Predicate<String> filter)
+            throws IOException {
         outputFilesIfEnabled(compilation, "expected", filter);
     }
 
     protected final void outputFilesIfEnabled(
-            @Nonnull final Compilation compilation,
-            @Nonnull final String expectedDirectory,
-            @Nonnull final Predicate<String> filter)
+            final Compilation compilation, final String expectedDirectory, final Predicate<String> filter)
             throws IOException {
         final List<String> createdSourceFiles =
                 compilation.sourceOutputFilenames().stream().filter(filter).toList();
@@ -157,18 +145,16 @@ public abstract class AbstractProcessorTest {
     }
 
     protected final void outputFilesIfEnabled(
-            @Nonnull final Compilation results,
-            @Nonnull final List<String> createdSourceFiles,
-            @Nonnull final List<String> createdOutputFiles)
+            final Compilation results, final List<String> createdSourceFiles, final List<String> createdOutputFiles)
             throws IOException {
         outputFilesIfEnabled(results, "expected", createdSourceFiles, createdOutputFiles);
     }
 
     protected final void outputFilesIfEnabled(
-            @Nonnull final Compilation results,
-            @Nonnull final String expectedDirectory,
-            @Nonnull final List<String> createdSourceFiles,
-            @Nonnull final List<String> createdOutputFiles)
+            final Compilation results,
+            final String expectedDirectory,
+            final List<String> createdSourceFiles,
+            final List<String> createdOutputFiles)
             throws IOException {
         if (outputFiles()) {
             final Path targetDir = fixtureDir().resolve(expectedDirectory);
@@ -177,12 +163,10 @@ public abstract class AbstractProcessorTest {
         }
     }
 
-    @Nonnull
     protected static List<String> formatterJdkExports() {
         return FORMATTER_JDK_EXPORTS;
     }
 
-    @Nonnull
     protected final List<Processor> processors() {
         final List<Processor> processors = new ArrayList<>();
         processors.add(processor());
@@ -195,7 +179,7 @@ public abstract class AbstractProcessorTest {
      *
      * @param compilation the compilation to verify.
      */
-    protected final void assertCompilationSuccessful(@Nonnull final Compilation compilation) {
+    protected final void assertCompilationSuccessful(final Compilation compilation) {
         assertTrue(compilation.success(), compilation + " - " + describeFailureDiagnostics(compilation));
     }
 
@@ -204,7 +188,7 @@ public abstract class AbstractProcessorTest {
      *
      * @param compilation the compilation to verify.
      */
-    protected final void assertCompilationUnsuccessful(@Nonnull final Compilation compilation) {
+    protected final void assertCompilationUnsuccessful(final Compilation compilation) {
         assertFalse(compilation.success(), compilation + " - " + describeFailureDiagnostics(compilation));
     }
 
@@ -214,13 +198,12 @@ public abstract class AbstractProcessorTest {
      * @param compilation the compilation.
      * @return a description of diagnostics for compilation.
      */
-    @Nonnull
-    protected final String describeFailureDiagnostics(@Nonnull final Compilation compilation) {
+    protected final String describeFailureDiagnostics(final Compilation compilation) {
         final List<Diagnostic<? extends JavaFileObject>> diagnostics = compilation.diagnostics();
         if (diagnostics.isEmpty()) {
             return "Compilation produced no diagnostics.\n";
         }
-        final StringBuilder message = new StringBuilder("Compilation produced the following diagnostics:\n");
+        final var message = new StringBuilder("Compilation produced the following diagnostics:\n");
         diagnostics.forEach(diagnostic -> message.append(diagnostic).append('\n'));
         return message.toString();
     }
@@ -233,8 +216,7 @@ public abstract class AbstractProcessorTest {
      * @param paths the additional user supplied paths to add to classpath.
      * @return an list of directories that define the created classpath.
      */
-    @Nonnull
-    protected final List<File> buildClasspath(@Nonnull final File... paths) {
+    protected final List<File> buildClasspath(final File... paths) {
         final Set<File> elements = new LinkedHashSet<>(Arrays.asList(paths));
         ClassLoader classloader = getClass().getClassLoader();
         while (true) {
@@ -258,69 +240,59 @@ public abstract class AbstractProcessorTest {
         return elements.stream().toList();
     }
 
-    @Nonnull
-    protected final Compilation assertCompilesWithoutErrors(@Nonnull final List<JavaFileObject> inputs) {
+    protected final Compilation assertCompilesWithoutErrors(final List<JavaFileObject> inputs) {
         final Compilation compilation = compile(inputs);
         assertCompilationSuccessful(compilation);
         assertDiagnosticCount(compilation, Diagnostic.Kind.ERROR, 0);
         return compilation;
     }
 
-    @Nonnull
-    protected final Compilation assertCompilesWithoutErrors(@Nonnull final String classname) {
+    protected final Compilation assertCompilesWithoutErrors(final String classname) {
         return assertCompilesWithoutErrors(inputs(classname));
     }
 
-    @Nonnull
-    protected final List<JavaFileObject> inputs(@Nonnull final String... classnames) {
+    protected final List<JavaFileObject> inputs(final String... classnames) {
         return Stream.of(classnames).map(this::input).toList();
     }
 
-    @Nonnull
-    protected final JavaFileObject input(@Nonnull final String classname) {
+    protected final JavaFileObject input(final String classname) {
         return input("input", classname);
     }
 
-    @Nonnull
-    protected final JavaFileObject input(@Nonnull final String dir, @Nonnull final String classname) {
+    protected final JavaFileObject input(final String dir, final String classname) {
         return fixture(dir + File.separator + toFilename(classname));
     }
 
-    @Nonnull
-    protected final Compilation assertCompilesWithoutWarnings(@Nonnull final String classname) {
+    protected final Compilation assertCompilesWithoutWarnings(final String classname) {
         return assertCompilesWithoutWarnings(inputs(classname));
     }
 
-    @Nonnull
-    protected final Compilation assertCompilesWithoutWarnings(@Nonnull final List<JavaFileObject> inputs) {
+    protected final Compilation assertCompilesWithoutWarnings(final List<JavaFileObject> inputs) {
         return CompileTestUtil.assertCompilesWithoutWarnings(
                 inputs, getOptions(), processors(), Collections.emptyList());
     }
 
     @SuppressWarnings("SameParameterValue")
-    @Nonnull
-    protected final Processor newSynthesizingProcessor(@Nonnull final String classname, final int targetRound)
+    protected final Processor newSynthesizingProcessor(final String classname, final int targetRound)
             throws IOException {
         return newSynthesizingProcessor("input", classname, targetRound);
     }
 
-    @Nonnull
-    protected final Processor newSynthesizingProcessor(
-            @Nonnull final String dir, @Nonnull final String classname, final int targetRound) throws IOException {
+    protected final Processor newSynthesizingProcessor(final String dir, final String classname, final int targetRound)
+            throws IOException {
         final Path path = fixtureDir().resolve(dir).resolve(toFilename(classname));
         final String source = Files.readString(path);
         return new SynthesizingProcessor(classname, source, targetRound);
     }
 
-    protected final void assertCompilesWithSingleWarning(
-            @Nonnull final String classname, @Nonnull final String messageFragment) {
+    protected final void assertCompilesWithSingleWarning(final String classname, final String messageFragment) {
         final Compilation compilation = assertCompilesWithoutErrors(classname);
         assertWarningDiagnostic(compilation, messageFragment);
         assertDiagnosticCount(compilation, Diagnostic.Kind.WARNING, 1);
     }
 
     protected final void assertCompilesWithSingleWarningThatCanBeUpgradedToError(
-            @Nonnull final String classname, @Nonnull final String messageFragment) {
+            final String classname, final String messageFragment) {
         assertCompilesWithSingleWarning(classname, messageFragment);
 
         final List<String> options = new ArrayList<>(getOptions());
@@ -331,37 +303,31 @@ public abstract class AbstractProcessorTest {
         assertErrorDiagnostic(compilation, messageFragment);
     }
 
-    @Nonnull
     protected final List<Diagnostic<? extends JavaFileObject>> assertDiagnosticCount(
-            @Nonnull final Compilation compilation, @Nonnull final Diagnostic.Kind kind, final int count) {
+            final Compilation compilation, final Diagnostic.Kind kind, final int count) {
         final List<Diagnostic<? extends JavaFileObject>> diagnostics = getDiagnostics(compilation, kind);
         assertEquals(diagnostics.size(), count);
         return diagnostics;
     }
 
-    @Nonnull
     private List<Diagnostic<? extends JavaFileObject>> getDiagnostics(
-            @Nonnull final Compilation compilation, @Nonnull final Diagnostic.Kind kind) {
+            final Compilation compilation, final Diagnostic.Kind kind) {
         return compilation.diagnostics().stream()
                 .filter(d -> d.getKind() == kind)
                 .toList();
     }
 
-    protected final void assertFailedCompile(
-            @Nonnull final String classname, @Nonnull final String errorMessageFragment) {
+    protected final void assertFailedCompile(final String classname, final String errorMessageFragment) {
         assertFailedCompileResource("bad_input/" + toFilename(classname), errorMessageFragment);
     }
 
-    @Nonnull
-    protected final String toFilename(@Nonnull final String classname) {
+    protected final String toFilename(final String classname) {
         return toFilename(classname, "", ".java");
     }
 
-    @Nonnull
-    protected final String toFilename(
-            @Nonnull final String classname, @Nonnull final String prefix, @Nonnull final String postfix) {
+    protected final String toFilename(final String classname, final String prefix, final String postfix) {
         final String[] elements = classname.contains(".") ? classname.split("\\.") : new String[] {classname};
-        final StringBuilder input = new StringBuilder();
+        final var input = new StringBuilder();
         for (int i = 0; i < elements.length; i++) {
             final boolean lastElement = i == elements.length - 1;
             if (0 != i) {
@@ -378,13 +344,12 @@ public abstract class AbstractProcessorTest {
         return input.toString();
     }
 
-    protected final void assertFailedCompileResource(
-            @Nonnull final String inputResource, @Nonnull final String errorMessageFragment) {
+    protected final void assertFailedCompileResource(final String inputResource, final String errorMessageFragment) {
         assertFailedCompileResource(Collections.singletonList(fixture(inputResource)), errorMessageFragment);
     }
 
     protected final void assertFailedCompileResource(
-            @Nonnull final List<JavaFileObject> inputs, @Nonnull final String errorMessageFragment) {
+            final List<JavaFileObject> inputs, final String errorMessageFragment) {
         final Compilation compilation = compile(inputs);
         assertFalse(compilation.success());
         assertDiagnostic(compilation, Diagnostic.Kind.ERROR, errorMessageFragment);
@@ -398,8 +363,7 @@ public abstract class AbstractProcessorTest {
      * @deprecated Use assertDiagnostic instead.
      */
     @Deprecated
-    protected final void assertDiagnosticPresent(
-            @Nonnull final Compilation compilation, @Nonnull final String message) {
+    protected final void assertDiagnosticPresent(final Compilation compilation, final String message) {
         for (final Diagnostic<? extends JavaFileObject> diagnostic : compilation.diagnostics()) {
             if (diagnostic.getMessage(Locale.getDefault()).contains(message)) {
                 return;
@@ -415,7 +379,7 @@ public abstract class AbstractProcessorTest {
      * @param compilation the compilation to check for the diagnostic.
      * @param message     the diagnostic message.
      */
-    protected final void assertErrorDiagnostic(@Nonnull final Compilation compilation, @Nonnull final String message) {
+    protected final void assertErrorDiagnostic(final Compilation compilation, final String message) {
         assertDiagnostic(compilation, Diagnostic.Kind.ERROR, message);
     }
 
@@ -425,8 +389,7 @@ public abstract class AbstractProcessorTest {
      * @param compilation the compilation to check for the diagnostic.
      * @param message     the diagnostic message.
      */
-    protected final void assertWarningDiagnostic(
-            @Nonnull final Compilation compilation, @Nonnull final String message) {
+    protected final void assertWarningDiagnostic(final Compilation compilation, final String message) {
         assertDiagnostic(compilation, Diagnostic.Kind.WARNING, message);
     }
 
@@ -438,9 +401,7 @@ public abstract class AbstractProcessorTest {
      * @param message     the diagnostic message.
      */
     protected final void assertDiagnostic(
-            @Nonnull final Compilation compilation,
-            @Nonnull final Diagnostic.Kind kind,
-            @Nonnull final String message) {
+            final Compilation compilation, final Diagnostic.Kind kind, final String message) {
         for (final Diagnostic<? extends JavaFileObject> diagnostic : compilation.diagnostics()) {
             if (diagnostic.getKind() == kind
                     && diagnostic.getMessage(Locale.getDefault()).contains(message)) {
@@ -451,8 +412,7 @@ public abstract class AbstractProcessorTest {
                 + "\nActual diagnostics:\n" + describeFailureDiagnostics(compilation));
     }
 
-    @Nonnull
-    protected final JavaFileObject fixture(@Nonnull final String filename) {
+    protected final JavaFileObject fixture(final String filename) {
         final Path path = fixtureDir().resolve(filename);
         if (!Files.exists(path)) {
             fail("Fixture " + path + " does not exist.");
@@ -462,18 +422,14 @@ public abstract class AbstractProcessorTest {
         return standardFileManager.getJavaFileObjects(path).iterator().next();
     }
 
-    @Nonnull
-    protected final Compilation compile(@Nonnull final List<JavaFileObject> inputs) {
+    protected final Compilation compile(final List<JavaFileObject> inputs) {
         return compile(inputs, Collections.emptyList());
     }
 
-    @Nonnull
-    protected final Compilation compile(
-            @Nonnull final List<JavaFileObject> inputs, @Nonnull final Collection<? extends File> classpath) {
+    protected final Compilation compile(final List<JavaFileObject> inputs, final Collection<? extends File> classpath) {
         return CompileTestUtil.compile(inputs, getOptions(), processors(), classpath);
     }
 
-    @Nonnull
     protected final Path fixtureDir() {
         final String key = getOptionPrefix() + getFixtureKeyPart() + ".fixture_dir";
         final String fixtureDir = System.getProperty(key);

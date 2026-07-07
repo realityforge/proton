@@ -5,6 +5,8 @@
 * Move the project from Buildr/Rake to Bazel, including bazel-depgen managed dependencies, GitHub Actions CI,
   Palantir Java Format automation, Buildifier checks, coverage enforcement, IntelliJ project view generation, and the
   Maven Central release workflow.
+* Enforce the strict Error Prone and NullAway rule set used by `bazel-depgen`, and migrate Proton's own nullness
+  annotations from `javax.annotation` to JSpecify.
 
 ### [v0.74](https://github.com/realityforge/proton/tree/v0.74) (2026-07-06) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.73...v0.74)
 

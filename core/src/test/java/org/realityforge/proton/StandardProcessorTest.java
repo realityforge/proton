@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
@@ -18,12 +16,13 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
+import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
 
 public final class StandardProcessorTest {
     @Test
     public void getSupportedOptionsAddsPrefixedCommonOptions() {
-        final Processor processor = new Processor();
+        final var processor = new Processor();
         final Set<String> options = processor.getSupportedOptions();
 
         assertTrue(options.contains("test.verbose_out_of_round.errors"));
@@ -37,7 +36,7 @@ public final class StandardProcessorTest {
 
     @Test
     public void initReadsDefaultBooleanOptions() {
-        final Processor processor = new Processor();
+        final var processor = new Processor();
 
         processor.init(processingEnvironment(Map.of(), new CapturingMessager()));
 
@@ -50,7 +49,7 @@ public final class StandardProcessorTest {
 
     @Test
     public void initReadsConfiguredBooleanOptions() {
-        final Processor processor = new Processor();
+        final var processor = new Processor();
 
         processor.init(processingEnvironment(
                 Map.of(
@@ -80,8 +79,8 @@ public final class StandardProcessorTest {
 
     @Test
     public void debugAndWarningUseConfiguredDiagnosticKinds() {
-        final CapturingMessager messager = new CapturingMessager();
-        final Processor processor = new Processor();
+        final var messager = new CapturingMessager();
+        final var processor = new Processor();
         final Element element = TestUtil.proxy(Element.class, (self, method, args) -> TestUtil.unsupported(method));
 
         processor.init(
@@ -97,9 +96,8 @@ public final class StandardProcessorTest {
         assertEquals(messager.messages().get(1).element(), element);
     }
 
-    @Nonnull
     private static ProcessingEnvironment processingEnvironment(
-            @Nonnull final Map<String, String> options, @Nonnull final Messager messager) {
+            final Map<String, String> options, final Messager messager) {
         return TestUtil.proxy(ProcessingEnvironment.class, (self, method, args) -> {
             if ("getOptions".equals(method.getName())) {
                 return options;
@@ -116,13 +114,11 @@ public final class StandardProcessorTest {
             return false;
         }
 
-        @Nonnull
         @Override
         protected String getIssueTrackerURL() {
             return "https://example.com/issues";
         }
 
-        @Nonnull
         @Override
         protected String getOptionPrefix() {
             return "test";
@@ -144,26 +140,24 @@ public final class StandardProcessorTest {
             return isDebugEnabled();
         }
 
-        @Nonnull
         Diagnostic.Kind warningKindValue() {
             return warningKind();
         }
 
-        boolean readBooleanOptionValue(@Nonnull final String relativeKey, final boolean defaultValue) {
+        boolean readBooleanOptionValue(final String relativeKey, final boolean defaultValue) {
             return readBooleanOption(relativeKey, defaultValue);
         }
 
-        void debugMessage(@Nonnull final String message) {
+        void debugMessage(final String message) {
             debug(() -> message);
         }
 
-        void warningMessage(@Nonnull final String message, @Nonnull final Element element) {
+        void warningMessage(final String message, final Element element) {
             warning(message, element);
         }
     }
 
     private static final class CapturingMessager implements Messager {
-        @Nonnull
         private final List<Message> _messages = new ArrayList<>();
 
         @Override
@@ -192,34 +186,29 @@ public final class StandardProcessorTest {
             _messages.add(new Message(kind, msg.toString(), e));
         }
 
-        @Nonnull
         List<Message> messages() {
             return _messages;
         }
     }
 
     private static final class Message {
-        @Nonnull
         private final Diagnostic.Kind _kind;
 
-        @Nonnull
         private final String _message;
 
         @Nullable
         private final Element _element;
 
-        Message(@Nonnull final Diagnostic.Kind kind, @Nonnull final String message, @Nullable final Element element) {
+        Message(final Diagnostic.Kind kind, final String message, @Nullable final Element element) {
             _kind = kind;
             _message = message;
             _element = element;
         }
 
-        @Nonnull
         Diagnostic.Kind kind() {
             return _kind;
         }
 
-        @Nonnull
         String message() {
             return _message;
         }

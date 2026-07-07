@@ -35,10 +35,12 @@ CORE_COMPILE_DEPENDENCY_JARS = [
     "@javapoet//file",
     "@javax_annotation//file",
     "@javax_json//file",
+    "@jspecify//file",
 ]
 
 QA_COMPILE_DEPENDENCY_JARS = [
     "@javax_annotation//file",
+    "@jspecify//file",
     "@testng//file",
 ]
 
@@ -108,6 +110,7 @@ release_pom(
         "org.glassfish:javax.json:1.1",
         "com.palantir.javapoet:javapoet:0.14.0",
         "com.google.guava:guava:27.1-jre",
+        "org.jspecify:jspecify:1.0.0",
     ],
     description = "Utilities for building annotation processors.",
     display_name = "Proton Core",
@@ -142,6 +145,7 @@ release_pom(
         "org.glassfish:javax.json:1.1",
         "com.palantir.javapoet:javapoet:0.14.0",
         "com.google.guava:guava:27.1-jre",
+        "org.jspecify:jspecify:1.0.0",
         "org.testng:testng:6.8",
     ],
     description = "Utilities to help testing annotation processors.",

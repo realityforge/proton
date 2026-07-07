@@ -17,7 +17,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
@@ -32,22 +31,19 @@ import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
+import org.jspecify.annotations.Nullable;
 
 final class TestUtil {
     private TestUtil() {}
 
-    @Nonnull
-    static CompilationResult compile(@Nonnull final Source source, @Nonnull final Processor processor)
-            throws Exception {
+    static CompilationResult compile(final Source source, final Processor processor) throws Exception {
         return compile(Collections.singletonList(source), processor);
     }
 
-    @Nonnull
-    static CompilationResult compile(@Nonnull final List<Source> sources, @Nonnull final Processor processor)
-            throws Exception {
+    static CompilationResult compile(final List<Source> sources, final Processor processor) throws Exception {
         final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         assertNotNull(compiler);
-        final DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<>();
+        final var diagnosticCollector = new DiagnosticCollector<JavaFileObject>();
         final Path classOutput = Files.createTempDirectory("compile");
         try (StandardJavaFileManager fileManager =
                 compiler.getStandardFileManager(diagnosticCollector, Locale.getDefault(), UTF_8)) {
@@ -63,7 +59,7 @@ final class TestUtil {
                     null,
                     sourceObjects);
             task.setProcessors(Collections.singletonList(processor));
-            final CompilationResult result = new CompilationResult(diagnosticCollector.getDiagnostics());
+            final var result = new CompilationResult(diagnosticCollector.getDiagnostics());
             assertTrue(task.call(), result.diagnostics());
             return result;
         } finally {
@@ -71,13 +67,11 @@ final class TestUtil {
         }
     }
 
-    @Nonnull
-    static Source source(@Nonnull final String classname, @Nonnull final String source) {
+    static Source source(final String classname, final String source) {
         return new Source(classname, source);
     }
 
-    @Nonnull
-    static <T> T proxy(@Nonnull final Class<T> type, @Nonnull final ProxyInvocation invocation) {
+    static <T> T proxy(final Class<T> type, final ProxyInvocation invocation) {
         return type.cast(Proxy.newProxyInstance(type.getClassLoader(), new Class<?>[] {type}, (self, method, args) -> {
             if ("equals".equals(method.getName()) && 1 == method.getParameterCount()) {
                 return self == args[0];
@@ -91,16 +85,15 @@ final class TestUtil {
         }));
     }
 
-    @Nonnull
-    static Name name(@Nonnull final String value) {
+    static Name name(final String value) {
         return new NameImpl(value);
     }
 
-    static Object unsupported(@Nonnull final Method method) {
+    static Object unsupported(final Method method) {
         throw new UnsupportedOperationException(method.toString());
     }
 
-    private static void deleteDir(@Nonnull final Path dir) throws IOException {
+    private static void deleteDir(final Path dir) throws IOException {
         try (Stream<Path> paths = Files.walk(dir)) {
             for (final Path path : paths.sorted(Comparator.reverseOrder()).toList()) {
                 Files.deleteIfExists(path);
@@ -110,17 +103,16 @@ final class TestUtil {
 
     @FunctionalInterface
     interface ProxyInvocation {
-        Object invoke(@Nonnull Object self, @Nonnull Method method, Object[] args) throws Throwable;
+        @Nullable
+        Object invoke(Object self, Method method, Object[] args) throws Throwable;
     }
 
     abstract static class TestProcessor extends AbstractProcessor {
-        @Nonnull
         @Override
         public Set<String> getSupportedAnnotationTypes() {
             return Collections.singleton("*");
         }
 
-        @Nonnull
         @Override
         public SourceVersion getSupportedSourceVersion() {
             return SourceVersion.latestSupported();
@@ -131,52 +123,44 @@ final class TestUtil {
     }
 
     static final class Source {
-        @Nonnull
         private final String _classname;
 
-        @Nonnull
         private final String _source;
 
-        Source(@Nonnull final String classname, @Nonnull final String source) {
+        Source(final String classname, final String source) {
             _classname = classname;
             _source = source;
         }
 
-        @Nonnull
         String classname() {
             return _classname;
         }
 
-        @Nonnull
         String source() {
             return _source;
         }
     }
 
     static final class CompilationResult {
-        @Nonnull
         private final List<Diagnostic<? extends JavaFileObject>> _diagnostics;
 
-        CompilationResult(@Nonnull final List<Diagnostic<? extends JavaFileObject>> diagnostics) {
+        CompilationResult(final List<Diagnostic<? extends JavaFileObject>> diagnostics) {
             _diagnostics = diagnostics;
         }
 
-        @Nonnull
         List<Diagnostic<? extends JavaFileObject>> diagnosticsList() {
             return _diagnostics;
         }
 
-        @Nonnull
         String diagnostics() {
             return _diagnostics.stream().map(Object::toString).collect(Collectors.joining("\n"));
         }
     }
 
     private static final class SourceJavaFileObject extends SimpleJavaFileObject {
-        @Nonnull
         private final String _source;
 
-        SourceJavaFileObject(@Nonnull final String classname, @Nonnull final String source) {
+        SourceJavaFileObject(final String classname, final String source) {
             super(URI.create("string:///" + classname.replace('.', '/') + Kind.SOURCE.extension), Kind.SOURCE);
             _source = source;
         }
@@ -188,10 +172,9 @@ final class TestUtil {
     }
 
     private static final class NameImpl implements Name {
-        @Nonnull
         private final String _value;
 
-        NameImpl(@Nonnull final String value) {
+        NameImpl(final String value) {
             _value = value;
         }
 

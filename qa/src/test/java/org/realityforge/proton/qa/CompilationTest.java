@@ -3,7 +3,6 @@ package org.realityforge.proton.qa;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nonnull;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import org.testng.annotations.Test;
@@ -29,14 +28,8 @@ public final class CompilationTest {
         compilation.assertClassOutputFilenamePresent("META-INF/services/javax.annotation.processing.Processor");
     }
 
-    @Test(expectedExceptions = AssertionError.class)
-    public void constructorRejectsNullDiagnostics() {
-        new Compilation(true, Path.of("source"), List.of(), Path.of("classes"), List.of(), null);
-    }
-
-    @Nonnull
     private static Compilation compilation(
-            @Nonnull final List<String> sourceOutputFilenames, @Nonnull final List<String> classOutputFilenames) {
+            final List<String> sourceOutputFilenames, final List<String> classOutputFilenames) {
         return new Compilation(
                 true,
                 Path.of("source"),
@@ -46,7 +39,6 @@ public final class CompilationTest {
                 diagnostics());
     }
 
-    @Nonnull
     private static List<Diagnostic<? extends JavaFileObject>> diagnostics() {
         return Collections.emptyList();
     }

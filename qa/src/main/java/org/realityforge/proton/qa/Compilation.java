@@ -5,17 +5,16 @@ import static org.testng.Assert.*;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Predicate;
-import javax.annotation.Nonnull;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
 public record Compilation(
         boolean success,
-        @Nonnull Path sourceOutput,
-        @Nonnull List<String> sourceOutputFilenames,
-        @Nonnull Path classOutput,
-        @Nonnull List<String> classOutputFilenames,
-        @Nonnull List<Diagnostic<? extends JavaFileObject>> diagnostics) {
+        Path sourceOutput,
+        List<String> sourceOutputFilenames,
+        Path classOutput,
+        List<String> classOutputFilenames,
+        List<Diagnostic<? extends JavaFileObject>> diagnostics) {
     public Compilation {
         assertNotNull(sourceOutput);
         assertNotNull(sourceOutputFilenames);
@@ -28,16 +27,16 @@ public record Compilation(
         assertSourceOutputFilenameCount(f -> f.endsWith(".java"), count);
     }
 
-    public void assertSourceOutputFilenameCount(@Nonnull final Predicate<String> predicate, final long count) {
+    public void assertSourceOutputFilenameCount(final Predicate<String> predicate, final long count) {
         assertEquals(sourceOutputFilenames.stream().filter(predicate).count(), count);
     }
 
-    public void assertJavaSourcePresent(@Nonnull final String classname) {
+    public void assertJavaSourcePresent(final String classname) {
         final String filename = classname.replace(".", "/") + ".java";
         assertSourceOutputFilenamePresent(filename);
     }
 
-    public void assertSourceOutputFilenamePresent(@Nonnull final String filename) {
+    public void assertSourceOutputFilenamePresent(final String filename) {
         assertTrue(
                 sourceOutputFilenames.stream().anyMatch(f -> f.equals(filename)),
                 "Missing source output filename " + filename);
@@ -47,16 +46,16 @@ public record Compilation(
         assertClassOutputFilenameCount(f -> f.endsWith(".class"), count);
     }
 
-    public void assertClassOutputFilenameCount(@Nonnull final Predicate<String> predicate, final long count) {
+    public void assertClassOutputFilenameCount(final Predicate<String> predicate, final long count) {
         assertEquals(classOutputFilenames.stream().filter(predicate).count(), count);
     }
 
-    public void assertJavaClassPresent(@Nonnull final String classname) {
+    public void assertJavaClassPresent(final String classname) {
         final String filename = classname.replace(".", "/") + ".class";
         assertClassOutputFilenamePresent(filename);
     }
 
-    public void assertClassOutputFilenamePresent(@Nonnull final String filename) {
+    public void assertClassOutputFilenamePresent(final String filename) {
         assertTrue(
                 classOutputFilenames.stream().anyMatch(f -> f.equals(filename)),
                 "Missing source output filename " + filename);

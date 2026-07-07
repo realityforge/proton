@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
 public final class StopWatchTest {
     @Test
     public void constructorInitializesNameAndDuration() {
-        final StopWatch stopWatch = new StopWatch("Load");
+        final var stopWatch = new StopWatch("Load");
 
         assertEquals(stopWatch.getName(), "Load");
         assertEquals(stopWatch.getTotalDuration(), 0L);
@@ -16,8 +16,8 @@ public final class StopWatchTest {
     }
 
     @Test
-    public void startStopAccumulatesDuration() throws Exception {
-        final StopWatch stopWatch = new StopWatch("Load");
+    public void startStopAccumulatesDuration() throws InterruptedException {
+        final var stopWatch = new StopWatch("Load");
 
         stopWatch.start();
         Thread.sleep(1);
@@ -32,8 +32,8 @@ public final class StopWatchTest {
     }
 
     @Test
-    public void resetClearsAccumulatedDuration() throws Exception {
-        final StopWatch stopWatch = new StopWatch("Load");
+    public void resetClearsAccumulatedDuration() throws InterruptedException {
+        final var stopWatch = new StopWatch("Load");
         stopWatch.start();
         Thread.sleep(1);
         stopWatch.stop();
@@ -47,7 +47,7 @@ public final class StopWatchTest {
             expectedExceptions = IllegalStateException.class,
             expectedExceptionsMessageRegExp = "Attempted to start Load timer that had already been started")
     public void startFailsWhenAlreadyStarted() {
-        final StopWatch stopWatch = new StopWatch("Load");
+        final var stopWatch = new StopWatch("Load");
 
         stopWatch.start();
         stopWatch.start();
@@ -57,7 +57,7 @@ public final class StopWatchTest {
             expectedExceptions = IllegalStateException.class,
             expectedExceptionsMessageRegExp = "Attempted to stop 'Load' timer that had not been started")
     public void stopFailsWhenNotStarted() {
-        final StopWatch stopWatch = new StopWatch("Load");
+        final var stopWatch = new StopWatch("Load");
 
         stopWatch.stop();
     }

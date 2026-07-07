@@ -3,7 +3,6 @@ package org.realityforge.proton;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import javax.annotation.Nonnull;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.tools.FileObject;
@@ -13,10 +12,10 @@ public final class ResourceUtil {
     private ResourceUtil() {}
 
     public static void writeResource(
-            @Nonnull final ProcessingEnvironment processingEnv,
-            @Nonnull final String filename,
-            @Nonnull final String content,
-            @Nonnull final Element element)
+            final ProcessingEnvironment processingEnv,
+            final String filename,
+            final String content,
+            final Element element)
             throws IOException {
         final FileObject resource =
                 processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", filename, element);

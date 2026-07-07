@@ -12,8 +12,10 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import org.jspecify.annotations.Nullable;
 
 public final class DistBuilder {
     private static final String GROUP_PATH = "org/realityforge/proton";
@@ -101,7 +103,7 @@ public final class DistBuilder {
                 .put(kind, Path.of(value.substring(equals + 1)));
     }
 
-    private static String env(final String name) {
+    private static @Nullable String env(final String name) {
         final String value = System.getenv(name);
         return value == null || value.isBlank() ? null : value;
     }
@@ -124,19 +126,22 @@ public final class DistBuilder {
         final var primaryFiles = new ArrayList<Path>();
         for (final Map.Entry<String, Map<String, Path>> artifact : artifacts.entrySet()) {
             final String artifactId = artifact.getKey();
+            final Map<String, Path> files = artifact.getValue();
             final Path repositoryDir =
                     stagingRoot.resolve(GROUP_PATH).resolve(artifactId).resolve(version);
             Files.createDirectories(repositoryDir);
-            primaryFiles.add(
-                    copy(artifact.getValue().get("jar"), repositoryDir.resolve(artifactId + "-" + version + ".jar")));
             primaryFiles.add(copy(
-                    artifact.getValue().get("sources"),
+                    Objects.requireNonNull(files.get("jar")),
+                    repositoryDir.resolve(artifactId + "-" + version + ".jar")));
+            primaryFiles.add(copy(
+                    Objects.requireNonNull(files.get("sources")),
                     repositoryDir.resolve(artifactId + "-" + version + "-sources.jar")));
             primaryFiles.add(copy(
-                    artifact.getValue().get("javadoc"),
+                    Objects.requireNonNull(files.get("javadoc")),
                     repositoryDir.resolve(artifactId + "-" + version + "-javadoc.jar")));
-            primaryFiles.add(
-                    copy(artifact.getValue().get("pom"), repositoryDir.resolve(artifactId + "-" + version + ".pom")));
+            primaryFiles.add(copy(
+                    Objects.requireNonNull(files.get("pom")),
+                    repositoryDir.resolve(artifactId + "-" + version + ".pom")));
         }
         return primaryFiles;
     }
@@ -257,15 +262,19 @@ public final class DistBuilder {
         private final Path _versionFile;
         private final Map<String, Map<String, Path>> _artifacts;
         private final String _gpgExecutable;
+
+        @Nullable
         private final String _gpgKeyId;
+
+        @Nullable
         private final String _gpgPass;
 
         private Options(
                 final Path versionFile,
                 final Map<String, Map<String, Path>> artifacts,
                 final String gpgExecutable,
-                final String gpgKeyId,
-                final String gpgPass) {
+                @Nullable final String gpgKeyId,
+                @Nullable final String gpgPass) {
             _versionFile = versionFile;
             _artifacts = artifacts;
             _gpgExecutable = gpgExecutable;
@@ -285,11 +294,11 @@ public final class DistBuilder {
             return _gpgExecutable;
         }
 
-        private String gpgKeyId() {
+        private @Nullable String gpgKeyId() {
             return _gpgKeyId;
         }
 
-        private String gpgPass() {
+        private @Nullable String gpgPass() {
             return _gpgPass;
         }
     }

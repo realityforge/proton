@@ -3,7 +3,6 @@ package org.realityforge.proton;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nonnull;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 
@@ -14,7 +13,6 @@ public final class DeferredElementSet {
     /**
      * The list of TypeElement instances deferred since the last call to extractDeferred.
      */
-    @Nonnull
     private final Set<TypeElement> _deferred = new HashSet<>();
 
     /**
@@ -23,7 +21,7 @@ public final class DeferredElementSet {
      * @param processingEnv the processing environment.
      * @return a list of TypeElement instances deferred in previous round.
      */
-    public List<TypeElement> extractDeferred(@Nonnull final ProcessingEnvironment processingEnv) {
+    public List<TypeElement> extractDeferred(final ProcessingEnvironment processingEnv) {
         final List<TypeElement> deferred = _deferred.stream()
                 .map(e -> processingEnv.getElementUtils().getTypeElement(e.getQualifiedName()))
                 .toList();
@@ -44,12 +42,11 @@ public final class DeferredElementSet {
      *
      * @return the underlying set of deferred types.
      */
-    @Nonnull
     public Set<TypeElement> getDeferred() {
         return _deferred;
     }
 
-    public void deferElement(@Nonnull final TypeElement element) {
+    public void deferElement(final TypeElement element) {
         _deferred.add(element);
     }
 }

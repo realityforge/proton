@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -18,6 +17,7 @@ import javax.lang.model.element.Name;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
+import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
 
 public final class NamesUtilTest {
@@ -170,8 +170,7 @@ public final class NamesUtilTest {
                 "@Action target did not specify the parameter name and the default value could not be derived");
     }
 
-    @Nonnull
-    private static ExecutableElement executableElement(@Nonnull final String name, final TypeKind returnKind) {
+    private static ExecutableElement executableElement(final String name, final TypeKind returnKind) {
         return proxy(ExecutableElement.class, (self, method, args) -> {
             if ("getSimpleName".equals(method.getName())) {
                 return name(name);
@@ -185,7 +184,6 @@ public final class NamesUtilTest {
         });
     }
 
-    @Nonnull
     private static TypeMirror typeMirror(final TypeKind kind) {
         return new TypeMirror() {
             @Override
@@ -204,6 +202,7 @@ public final class NamesUtilTest {
             }
 
             @Override
+            @Nullable
             public <A extends Annotation> A getAnnotation(final Class<A> annotationType) {
                 return null;
             }
@@ -211,14 +210,13 @@ public final class NamesUtilTest {
             @Override
             public <A extends Annotation> A[] getAnnotationsByType(final Class<A> annotationType) {
                 @SuppressWarnings("unchecked")
-                final A[] annotations = (A[]) Array.newInstance(annotationType, 0);
+                final var annotations = (A[]) Array.newInstance(annotationType, 0);
                 return annotations;
             }
         };
     }
 
-    @Nonnull
-    private static Name name(@Nonnull final String value) {
+    private static Name name(final String value) {
         return new Name() {
             @Override
             public boolean contentEquals(final CharSequence cs) {
@@ -240,7 +238,6 @@ public final class NamesUtilTest {
                 return value.subSequence(start, end);
             }
 
-            @Nonnull
             @Override
             public String toString() {
                 return value;
@@ -248,8 +245,7 @@ public final class NamesUtilTest {
         };
     }
 
-    @Nonnull
-    private static <T> T proxy(@Nonnull final Class<T> type, @Nonnull final ProxyInvocation invocation) {
+    private static <T> T proxy(final Class<T> type, final ProxyInvocation invocation) {
         return type.cast(Proxy.newProxyInstance(type.getClassLoader(), new Class<?>[] {type}, (self, method, args) -> {
             if ("equals".equals(method.getName())) {
                 return self == args[0];
@@ -263,11 +259,11 @@ public final class NamesUtilTest {
         }));
     }
 
-    private static Object unsupported(@Nonnull final Method method) {
+    private static Object unsupported(final Method method) {
         throw new UnsupportedOperationException(method.toString());
     }
 
     private interface ProxyInvocation {
-        Object invoke(@Nonnull Object self, @Nonnull Method method, Object[] args) throws Throwable;
+        Object invoke(Object self, Method method, Object[] args) throws Throwable;
     }
 }

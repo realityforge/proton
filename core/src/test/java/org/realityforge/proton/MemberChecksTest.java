@@ -11,8 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -22,6 +20,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic;
+import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
 
 public final class MemberChecksTest {
@@ -45,7 +44,7 @@ public final class MemberChecksTest {
 
     @Test
     public void memberChecksValidateModifiersSignaturesAnnotationsAndWarnings() throws Exception {
-        final MemberProcessor processor = new MemberProcessor();
+        final var processor = new MemberProcessor();
 
         TestUtil.compile(
                 List.of(TestUtil.source("com.example.MemberTarget", """
@@ -118,7 +117,7 @@ public final class MemberChecksTest {
             return _validated;
         }
 
-        private void validatePassingChecks(@Nonnull final TypeElement target) {
+        private void validatePassingChecks(final TypeElement target) {
             final ExecutableElement protectedMethod = method(target, "protectedMethod");
             final ExecutableElement staticMethod = method(target, "staticMethod");
             final ExecutableElement packageMethod = method(target, "packageMethod");
@@ -136,7 +135,7 @@ public final class MemberChecksTest {
                     Map.of("com.example.One", List.of("com.example.Three")));
         }
 
-        private void validateFailingChecks(@Nonnull final TypeElement target, @Nonnull final TypeElement otherBase) {
+        private void validateFailingChecks(final TypeElement target, final TypeElement otherBase) {
             assertFails(
                     () -> MemberChecks.mustBeStatic(SCOPE, method(target, "publicMethod")),
                     method(target, "publicMethod"),
@@ -212,8 +211,8 @@ public final class MemberChecksTest {
                     "Method can not be annotated with both @One and @Two");
         }
 
-        private void validateWarningEmission(@Nonnull final TypeElement target) {
-            final CapturingMessager messager = new CapturingMessager();
+        private void validateWarningEmission(final TypeElement target) {
+            final var messager = new CapturingMessager();
             final ProcessingEnvironment env = TestUtil.proxy(ProcessingEnvironment.class, (self, method, args) -> {
                 if ("getMessager".equals(method.getName())) {
                     return messager;
@@ -236,7 +235,7 @@ public final class MemberChecksTest {
             assertEquals(messager.messages().size(), 1);
         }
 
-        private void validateReturnTypeAndOverrideHelpers(@Nonnull final TypeElement target) {
+        private void validateReturnTypeAndOverrideHelpers(final TypeElement target) {
             MemberChecks.mustReturnAnInstanceOf(
                     processingEnv, method(target, "valueMethod"), SCOPE, "java.lang.String");
             assertFails(
@@ -286,32 +285,28 @@ public final class MemberChecksTest {
                     "@Scope target must not be a non-static nested class");
         }
 
-        @Nonnull
-        private TypeElement type(@Nonnull final String classname) {
+        private TypeElement type(final String classname) {
             final TypeElement type = processingEnv.getElementUtils().getTypeElement(classname);
             assertNotNull(type);
             return type;
         }
     }
 
-    @Nonnull
-    private static ExecutableElement method(@Nonnull final TypeElement type, @Nonnull final String name) {
+    private static ExecutableElement method(final TypeElement type, final String name) {
         return ElementFilter.methodsIn(type.getEnclosedElements()).stream()
                 .filter(method -> name.contentEquals(method.getSimpleName()))
                 .findFirst()
                 .orElseThrow();
     }
 
-    @Nonnull
-    private static TypeElement nestedType(@Nonnull final TypeElement type, @Nonnull final String name) {
+    private static TypeElement nestedType(final TypeElement type, final String name) {
         return ElementFilter.typesIn(type.getEnclosedElements()).stream()
                 .filter(nested -> name.contentEquals(nested.getSimpleName()))
                 .findFirst()
                 .orElseThrow();
     }
 
-    private static void assertFails(
-            @Nonnull final CheckedAction action, @Nonnull final Element element, @Nonnull final String message) {
+    private static void assertFails(final CheckedAction action, final Element element, final String message) {
         try {
             action.run();
             fail("Expected ProcessorException");
@@ -327,7 +322,6 @@ public final class MemberChecksTest {
     }
 
     private static final class CapturingMessager implements Messager {
-        @Nonnull
         private final List<Message> _messages = new java.util.ArrayList<>();
 
         @Override
@@ -356,34 +350,29 @@ public final class MemberChecksTest {
             _messages.add(new Message(kind, msg.toString(), e));
         }
 
-        @Nonnull
         List<Message> messages() {
             return _messages;
         }
     }
 
     private static final class Message {
-        @Nonnull
         private final Diagnostic.Kind _kind;
 
-        @Nonnull
         private final String _message;
 
         @Nullable
         private final Element _element;
 
-        Message(@Nonnull final Diagnostic.Kind kind, @Nonnull final String message, @Nullable final Element element) {
+        Message(final Diagnostic.Kind kind, final String message, @Nullable final Element element) {
             _kind = kind;
             _message = message;
             _element = element;
         }
 
-        @Nonnull
         Diagnostic.Kind kind() {
             return _kind;
         }
 
-        @Nonnull
         String message() {
             return _message;
         }

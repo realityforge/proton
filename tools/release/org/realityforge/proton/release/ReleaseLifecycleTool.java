@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 
 public final class ReleaseLifecycleTool {
     private static final Pattern UNRELEASED_HEADING = Pattern.compile("(?m)^### Unreleased[ \\t]*(?:\\R|$)");
@@ -332,12 +333,20 @@ public final class ReleaseLifecycleTool {
 
     private static final class PrepareOptions {
         private final Path _changelog;
+
+        @Nullable
         private final Path _readme;
+
         private final String _version;
+
+        @Nullable
         private final String _releaseDate;
 
         private PrepareOptions(
-                final Path changelog, final Path readme, final String version, final String releaseDate) {
+                final Path changelog,
+                @Nullable final Path readme,
+                final String version,
+                @Nullable final String releaseDate) {
             _changelog = changelog;
             _readme = readme;
             _version = version;
@@ -348,7 +357,7 @@ public final class ReleaseLifecycleTool {
             return _changelog;
         }
 
-        private Path readme() {
+        private @Nullable Path readme() {
             return _readme;
         }
 
@@ -356,7 +365,7 @@ public final class ReleaseLifecycleTool {
             return _version;
         }
 
-        private String releaseDate() {
+        private @Nullable String releaseDate() {
             return _releaseDate;
         }
     }

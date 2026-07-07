@@ -15,11 +15,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -32,12 +32,11 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
+import org.jspecify.annotations.Nullable;
 
 public abstract class AbstractStandardProcessor extends AbstractProcessor {
-    @Nonnull
     private static final String ORIGINAL_FORMATTER_CLASSNAME = "com.palantir.javaformat.java.Formatter";
 
-    @Nonnull
     private static final List<String> COMMON_OPTIONS = Collections.unmodifiableList(Arrays.asList(
             "verbose_out_of_round.errors",
             "defer.errors",
@@ -47,7 +46,6 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
             "warnings_as_errors",
             "format_generated_source"));
 
-    @Nonnull
     private static final List<String> FORMATTER_JDK_EXPORTS = Collections.unmodifiableList(Arrays.asList(
             "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
             "--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
@@ -61,16 +59,12 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
      * The set is used to restrict which types the processor will return in <code>getNewTypeElementsToProcess()</code>.
      * This is cleared in when processingOver() returns true.
      */
-    @Nonnull
     private final Set<String> _rootTypeNames = new HashSet<>();
 
-    @Nonnull
     private final StopWatch _emitJavaTypeStopWatch = new StopWatch("Emit Java Type");
 
-    @Nonnull
     private final StopWatch _validateElementStopWatch = new StopWatch("Validate Element");
 
-    @Nonnull
     private final StopWatch _extractDeferredStopWatch = new StopWatch("Extract Deferred");
 
     private boolean _verboseOutOfRoundErrors;
@@ -86,16 +80,15 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
 
     private int _invalidTypeCount;
 
-    private record FormatterProxy(
-            @Nonnull Object formatter, @Nonnull Method formatSourceMethod) {}
+    private record FormatterProxy(Object formatter, Method formatSourceMethod) {}
 
     @FunctionalInterface
     public interface Action<E extends Element> {
-        void process(@Nonnull E element) throws Exception;
+        void process(E element) throws Exception;
     }
 
     @Override
-    public synchronized void init(@Nonnull final ProcessingEnvironment processingEnv) {
+    public synchronized void init(final ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         _verboseOutOfRoundErrors = readBooleanOption("verbose_out_of_round.errors", true);
         _deferErrors = readBooleanOption("defer.errors", true);
@@ -107,7 +100,6 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
     }
 
     @Override
-    @Nonnull
     public Set<String> getSupportedOptions() {
         final Set<String> options = new HashSet<>(super.getSupportedOptions());
         for (final String option : COMMON_OPTIONS) {
@@ -116,7 +108,7 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
         return Collections.unmodifiableSet(options);
     }
 
-    protected final void debugAnnotationProcessingRootElements(@Nonnull final RoundEnvironment env) {
+    protected final void debugAnnotationProcessingRootElements(final RoundEnvironment env) {
         if (isDebugEnabled()) {
             for (final Element element : env.getRootElements()) {
                 if (element instanceof TypeElement) {
@@ -127,13 +119,13 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
     }
 
     protected final void processTypeElements(
-            @Nonnull final Set<? extends TypeElement> annotations,
-            @Nonnull final RoundEnvironment env,
-            @Nonnull final String annotationClassname,
-            @Nonnull final DeferredElementSet deferredTypes,
-            @Nonnull final String label,
-            @Nonnull final Action<TypeElement> action,
-            @Nonnull final StopWatch actionStopWatch) {
+            final Set<? extends TypeElement> annotations,
+            final RoundEnvironment env,
+            final String annotationClassname,
+            final DeferredElementSet deferredTypes,
+            final String label,
+            final Action<TypeElement> action,
+            final StopWatch actionStopWatch) {
         processTypeElements(
                 annotations,
                 env,
@@ -146,14 +138,14 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
     }
 
     protected final void processTypeElements(
-            @Nonnull final Set<? extends TypeElement> annotations,
-            @Nonnull final RoundEnvironment env,
-            @Nonnull final String annotationClassname,
-            @Nonnull final DeferredElementSet deferredTypes,
-            @Nonnull final String label,
-            @Nonnull final Action<TypeElement> action,
-            @Nonnull final StopWatch actionStopWatch,
-            @Nonnull final Predicate<TypeElement> isValidPredicate) {
+            final Set<? extends TypeElement> annotations,
+            final RoundEnvironment env,
+            final String annotationClassname,
+            final DeferredElementSet deferredTypes,
+            final String label,
+            final Action<TypeElement> action,
+            final StopWatch actionStopWatch,
+            final Predicate<TypeElement> isValidPredicate) {
         final Collection<TypeElement> newElementsToProcess =
                 getNewTypeElementsToProcess(annotations, env, annotationClassname);
         if (!deferredTypes.getDeferred().isEmpty() || !newElementsToProcess.isEmpty()) {
@@ -172,9 +164,9 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
      */
     @SuppressWarnings("unchecked")
     protected final Collection<TypeElement> getNewTypeElementsToProcess(
-            @Nonnull final Set<? extends TypeElement> annotations,
-            @Nonnull final RoundEnvironment env,
-            @Nonnull final String annotationClassname) {
+            final Set<? extends TypeElement> annotations,
+            final RoundEnvironment env,
+            final String annotationClassname) {
         return annotations.stream()
                 .filter(a -> a.getQualifiedName().toString().equals(annotationClassname))
                 .findAny()
@@ -185,18 +177,18 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
                 .orElse(Collections.emptyList());
     }
 
-    private boolean isRootType(@Nonnull final TypeElement typeElement) {
+    private boolean isRootType(final TypeElement typeElement) {
         return _rootTypeNames.contains(typeElement.getQualifiedName().toString());
     }
 
     private void processTypeElements(
-            @Nonnull final RoundEnvironment env,
-            @Nonnull final DeferredElementSet deferredSet,
-            @Nonnull final Collection<TypeElement> elements,
-            @Nonnull final String label,
-            @Nonnull final Action<TypeElement> action,
-            @Nonnull final StopWatch actionStopWatch,
-            @Nonnull final Predicate<TypeElement> isValidPredicate) {
+            final RoundEnvironment env,
+            final DeferredElementSet deferredSet,
+            final Collection<TypeElement> elements,
+            final String label,
+            final Action<TypeElement> action,
+            final StopWatch actionStopWatch,
+            final Predicate<TypeElement> isValidPredicate) {
         if (shouldDeferUnresolved()) {
             final Collection<TypeElement> elementsToProcess =
                     deriveElementsToProcess(deferredSet, elements, isValidPredicate);
@@ -208,7 +200,7 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
     }
 
     private void errorIfProcessingOverAndDeferredTypesUnprocessed(
-            @Nonnull final RoundEnvironment env, @Nonnull final DeferredElementSet deferredSet) {
+            final RoundEnvironment env, final DeferredElementSet deferredSet) {
         final Set<TypeElement> deferred = deferredSet.getDeferred();
         if ((env.processingOver() || env.errorRaised()) && !deferred.isEmpty()) {
             deferred.forEach(e -> processingErrorMessage(env, e));
@@ -216,7 +208,7 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
         }
     }
 
-    protected final void errorIfProcessingOverAndInvalidTypesDetected(@Nonnull final RoundEnvironment env) {
+    protected final void errorIfProcessingOverAndInvalidTypesDetected(final RoundEnvironment env) {
         if (env.processingOver()) {
             if (0 != _invalidTypeCount) {
                 processingEnv
@@ -230,7 +222,7 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
         }
     }
 
-    protected final void collectRootTypeNames(@Nonnull final RoundEnvironment env) {
+    protected final void collectRootTypeNames(final RoundEnvironment env) {
         for (final Element element : env.getRootElements()) {
             if (element instanceof TypeElement) {
                 _rootTypeNames.add(((TypeElement) element).getQualifiedName().toString());
@@ -238,7 +230,7 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
         }
     }
 
-    protected final void clearRootTypeNamesIfProcessingOver(@Nonnull final RoundEnvironment env) {
+    protected final void clearRootTypeNamesIfProcessingOver(final RoundEnvironment env) {
         if (env.processingOver()) {
             _rootTypeNames.clear();
         }
@@ -248,13 +240,11 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
         return _deferUnresolved;
     }
 
-    @Nonnull
     protected abstract String getIssueTrackerURL();
 
-    @Nonnull
     protected abstract String getOptionPrefix();
 
-    private void processingErrorMessage(@Nonnull final RoundEnvironment env, @Nonnull final TypeElement target) {
+    private void processingErrorMessage(final RoundEnvironment env, final TypeElement target) {
         reportError(
                 env,
                 getClass().getSimpleName() + " unable to process " + target.getQualifiedName()
@@ -264,13 +254,13 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
     }
 
     protected final void reportError(
-            @Nonnull final RoundEnvironment env, @Nonnull final String message, @Nullable final Element element) {
+            final RoundEnvironment env, final String message, @Nullable final Element element) {
         reportError(env, message, element, null, null);
     }
 
     protected final void reportError(
-            @Nonnull final RoundEnvironment env,
-            @Nonnull final String message,
+            final RoundEnvironment env,
+            final String message,
             @Nullable final Element element,
             @Nullable final AnnotationMirror annotation,
             @Nullable final AnnotationValue annotationValue) {
@@ -301,30 +291,34 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
                     .forEach(stopWatch -> {
                         messager.printMessage(
                                 Diagnostic.Kind.NOTE,
-                                String.format("  %30s: %20d", stopWatch.getName(), stopWatch.getTotalDuration()));
+                                String.format(
+                                        Locale.ROOT,
+                                        "  %30s: %20d",
+                                        stopWatch.getName(),
+                                        stopWatch.getTotalDuration()));
                     });
         }
     }
 
-    protected void collectStopWatches(@Nonnull final Collection<StopWatch> stopWatches) {}
+    protected void collectStopWatches(final Collection<StopWatch> stopWatches) {}
 
     private void doProcessTypeElements(
-            @Nonnull final RoundEnvironment env,
-            @Nonnull final Collection<TypeElement> elements,
-            @Nonnull final String label,
-            @Nonnull final Action<TypeElement> action,
-            @Nonnull final StopWatch actionStopWatch) {
+            final RoundEnvironment env,
+            final Collection<TypeElement> elements,
+            final String label,
+            final Action<TypeElement> action,
+            final StopWatch actionStopWatch) {
         for (final TypeElement element : elements) {
             performAction(env, label, action, element, actionStopWatch);
         }
     }
 
     protected final <E extends Element> void performAction(
-            @Nonnull final RoundEnvironment env,
-            @Nonnull final String label,
-            @Nonnull final Action<E> action,
-            @Nonnull final E element,
-            @Nonnull final StopWatch actionStopWatch) {
+            final RoundEnvironment env,
+            final String label,
+            final Action<E> action,
+            final E element,
+            final StopWatch actionStopWatch) {
         debug(() -> "Performing '" + label + "' action on element " + element);
         try {
             if (_profile) {
@@ -348,15 +342,17 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
                 if (!env.getRootElements().contains(outerElement)) {
                     final String location;
                     if (errorLocation instanceof final ExecutableElement executableElement) {
-                        final TypeElement typeElement = (TypeElement) executableElement.getEnclosingElement();
+                        final var typeElement =
+                                (TypeElement) Objects.requireNonNull(executableElement.getEnclosingElement());
                         location = typeElement.getQualifiedName() + "." + executableElement.getSimpleName();
                     } else if (errorLocation instanceof final VariableElement variableElement) {
-                        final Element enclosingElement = variableElement.getEnclosingElement();
+                        final Element enclosingElement = Objects.requireNonNull(variableElement.getEnclosingElement());
                         if (enclosingElement instanceof final TypeElement typeElement) {
                             location = typeElement.getQualifiedName() + "." + variableElement.getSimpleName();
                         } else {
-                            final ExecutableElement executableElement = (ExecutableElement) enclosingElement;
-                            final TypeElement typeElement = (TypeElement) executableElement.getEnclosingElement();
+                            final var executableElement = (ExecutableElement) enclosingElement;
+                            final var typeElement =
+                                    (TypeElement) Objects.requireNonNull(executableElement.getEnclosingElement());
                             location = typeElement.getQualifiedName() + "."
                                     + executableElement.getSimpleName()
                                     + "(..."
@@ -365,11 +361,11 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
                         }
                     } else {
                         assert errorLocation instanceof TypeElement;
-                        final TypeElement typeElement = (TypeElement) errorLocation;
+                        final var typeElement = (TypeElement) errorLocation;
                         location = typeElement.getQualifiedName().toString();
                     }
 
-                    final StringWriter sw = new StringWriter();
+                    final var sw = new StringWriter();
                     processingEnv.getElementUtils().printElements(sw, errorLocation);
                     sw.flush();
 
@@ -382,7 +378,12 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
                     reportError(env, message, element);
                 }
             }
-            reportError(env, e.getMessage(), e.getElement(), e.getAnnotation(), e.getAnnotationValue());
+            reportError(
+                    env,
+                    Objects.requireNonNull(e.getMessage()),
+                    e.getElement(),
+                    e.getAnnotation(),
+                    e.getAnnotationValue());
         } catch (final Throwable e) {
             final String message =
                     "There was an unexpected error running the " + getClass().getName() + " processor. This has "
@@ -397,19 +398,17 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
         }
     }
 
-    @Nonnull
-    private String printStackTrace(@Nonnull final Throwable e) {
-        final StringWriter sw = new StringWriter();
+    private String printStackTrace(final Throwable e) {
+        final var sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         sw.flush();
         return sw.toString();
     }
 
-    @Nonnull
     private Collection<TypeElement> deriveElementsToProcess(
-            @Nonnull final DeferredElementSet deferredSet,
-            @Nonnull final Collection<TypeElement> elements,
-            @Nonnull final Predicate<TypeElement> isValidPredicate) {
+            final DeferredElementSet deferredSet,
+            final Collection<TypeElement> elements,
+            final Predicate<TypeElement> isValidPredicate) {
         if (_profile) {
             _extractDeferredStopWatch.start();
         }
@@ -434,10 +433,10 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
     }
 
     private void collectElementsToProcess(
-            @Nonnull final Collection<TypeElement> elements,
-            @Nonnull final DeferredElementSet deferredSet,
-            @Nonnull final List<TypeElement> elementsToProcess,
-            @Nonnull final Predicate<TypeElement> isValidPredicate) {
+            final Collection<TypeElement> elements,
+            final DeferredElementSet deferredSet,
+            final List<TypeElement> elementsToProcess,
+            final Predicate<TypeElement> isValidPredicate) {
         for (final TypeElement element : elements) {
             if (_profile) {
                 _validateElementStopWatch.start();
@@ -461,26 +460,25 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
         return _profile;
     }
 
-    protected final void warning(@Nonnull final CharSequence message, @Nullable final Element element) {
+    protected final void warning(final CharSequence message, @Nullable final Element element) {
         processingEnv.getMessager().printMessage(warningKind(), message, element);
     }
 
     protected final void warning(
-            @Nonnull final CharSequence message,
+            final CharSequence message,
             @Nullable final Element element,
             @Nullable final AnnotationMirror annotationMirror) {
         processingEnv.getMessager().printMessage(warningKind(), message, element, annotationMirror);
     }
 
     protected final void warning(
-            @Nonnull final CharSequence message,
+            final CharSequence message,
             @Nullable final Element element,
             @Nullable final AnnotationMirror annotationMirror,
             @Nullable final AnnotationValue annotationValue) {
         processingEnv.getMessager().printMessage(warningKind(), message, element, annotationMirror, annotationValue);
     }
 
-    @Nonnull
     protected final Diagnostic.Kind warningKind() {
         return isWarningsAsErrorsEnabled() ? Diagnostic.Kind.ERROR : Diagnostic.Kind.WARNING;
     }
@@ -493,18 +491,17 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
         return _debug;
     }
 
-    protected final void debug(@Nonnull final Supplier<String> messageSupplier) {
+    protected final void debug(final Supplier<String> messageSupplier) {
         if (isDebugEnabled()) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, messageSupplier.get());
         }
     }
 
-    protected final void emitTypeSpec(@Nonnull final String packageName, @Nonnull final TypeSpec typeSpec)
-            throws IOException {
+    protected final void emitTypeSpec(final String packageName, final TypeSpec typeSpec) throws IOException {
         if (_profile) {
             _emitJavaTypeStopWatch.start();
         }
-        final JavaFile javaFile = JavaFile.builder(packageName, typeSpec)
+        final var javaFile = JavaFile.builder(packageName, typeSpec)
                 .skipJavaLangImports(true)
                 .build();
         if (_formatGeneratedSource) {
@@ -517,8 +514,7 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
         }
     }
 
-    @Nonnull
-    private String formatSource(@Nonnull final JavaFile javaFile) throws IOException {
+    private String formatSource(final JavaFile javaFile) throws IOException {
         try {
             final FormatterProxy formatter = formatter();
             return (String) formatter.formatSourceMethod().invoke(formatter.formatter(), javaFile.toString());
@@ -532,16 +528,14 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
         }
     }
 
-    @Nonnull
-    private FormatterProxy formatter() throws ClassNotFoundException, ReflectiveOperationException {
+    private FormatterProxy formatter() throws ReflectiveOperationException {
         if (null == _formatter) {
             _formatter = createFormatter();
         }
         return _formatter;
     }
 
-    @Nonnull
-    private FormatterProxy createFormatter() throws ClassNotFoundException, ReflectiveOperationException {
+    private FormatterProxy createFormatter() throws ReflectiveOperationException {
         try {
             return createFormatter(ORIGINAL_FORMATTER_CLASSNAME);
         } catch (final ClassNotFoundException originalNotFound) {
@@ -554,17 +548,14 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
         }
     }
 
-    @Nonnull
-    private FormatterProxy createFormatter(@Nonnull final String formatterClassName)
-            throws ClassNotFoundException, ReflectiveOperationException {
+    private FormatterProxy createFormatter(final String formatterClassName) throws ReflectiveOperationException {
         final ClassLoader classLoader = AbstractStandardProcessor.class.getClassLoader();
         final Class<?> formatterClass = Class.forName(formatterClassName, true, classLoader);
         final Object formatter = formatterClass.getMethod("create").invoke(null);
         return new FormatterProxy(formatter, formatterClass.getMethod("formatSource", String.class));
     }
 
-    @Nonnull
-    private IOException newFormatterFailure(@Nonnull final String action, @Nonnull final Throwable cause) {
+    private IOException newFormatterFailure(final String action, final Throwable cause) {
         return new IOException(
                 "Unable to " + action + " while " + getOptionPrefix() + ".format_generated_source=true. "
                         + "Proton attempted to load source formatter classes "
@@ -578,13 +569,11 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
                 cause);
     }
 
-    @Nonnull
     private String getVendorFormatterClassname() {
         return AbstractStandardProcessor.class.getPackageName() + ".vendor.javaformat.java.Formatter";
     }
 
-    private void writeFormattedJavaFile(@Nonnull final JavaFile javaFile, @Nonnull final String formattedSource)
-            throws IOException {
+    private void writeFormattedJavaFile(final JavaFile javaFile, final String formattedSource) throws IOException {
         final TypeSpec typeSpec = javaFile.typeSpec();
         final String packageName = javaFile.packageName();
         final String fileName = packageName.isEmpty() ? typeSpec.name() : packageName + "." + typeSpec.name();
@@ -596,13 +585,14 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
         } catch (final Exception e) {
             try {
                 sourceFile.delete();
-            } catch (final Exception ignored) {
+            } catch (final Exception deleteFailure) {
+                e.addSuppressed(deleteFailure);
             }
             throw e;
         }
     }
 
-    protected final boolean readBooleanOption(@Nonnull final String relativeKey, final boolean defaultValue) {
+    protected final boolean readBooleanOption(final String relativeKey, final boolean defaultValue) {
         final String optionValue = processingEnv.getOptions().get(getOptionPrefix() + "." + relativeKey);
         return null == optionValue ? defaultValue : "true".equals(optionValue);
     }

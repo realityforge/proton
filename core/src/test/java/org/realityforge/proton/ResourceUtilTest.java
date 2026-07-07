@@ -10,7 +10,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import javax.annotation.Nonnull;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -21,7 +20,7 @@ import org.testng.annotations.Test;
 public final class ResourceUtilTest {
     @Test
     public void writeResourceWritesUtf8Content() throws Exception {
-        final CapturingResource resource = new CapturingResource();
+        final var resource = new CapturingResource();
         final Element element = TestUtil.proxy(Element.class, (self, method, args) -> TestUtil.unsupported(method));
 
         ResourceUtil.writeResource(
@@ -36,8 +35,8 @@ public final class ResourceUtilTest {
 
     @Test
     public void writeResourceDeletesResourceWhenWriteFails() {
-        final IOException failure = new IOException("Write failed");
-        final FailingResource resource = new FailingResource(failure);
+        final var failure = new IOException("Write failed");
+        final var resource = new FailingResource(failure);
         final Element element = TestUtil.proxy(Element.class, (self, method, args) -> TestUtil.unsupported(method));
 
         try {
@@ -55,8 +54,8 @@ public final class ResourceUtilTest {
 
     @Test
     public void writeResourceDeletesResourceWhenOpenFails() {
-        final IOException failure = new IOException("Open failed");
-        final FailingOpenResource resource = new FailingOpenResource(failure);
+        final var failure = new IOException("Open failed");
+        final var resource = new FailingOpenResource(failure);
         final Element element = TestUtil.proxy(Element.class, (self, method, args) -> TestUtil.unsupported(method));
 
         try {
@@ -73,9 +72,8 @@ public final class ResourceUtilTest {
     }
 
     @SuppressWarnings("SameParameterValue")
-    @Nonnull
     private static ProcessingEnvironment processingEnvironment(
-            @Nonnull final String filename, @Nonnull final Element element, @Nonnull final FileObject fileObject) {
+            final String filename, final Element element, final FileObject fileObject) {
         return TestUtil.proxy(ProcessingEnvironment.class, (self, method, args) -> {
             if ("getFiler".equals(method.getName())) {
                 return filer(filename, element, fileObject);
@@ -84,15 +82,13 @@ public final class ResourceUtilTest {
         });
     }
 
-    @Nonnull
-    private static Filer filer(
-            @Nonnull final String filename, @Nonnull final Element element, @Nonnull final FileObject fileObject) {
+    private static Filer filer(final String filename, final Element element, final FileObject fileObject) {
         return TestUtil.proxy(Filer.class, (self, method, args) -> {
             if ("createResource".equals(method.getName())) {
                 assertSame(args[0], StandardLocation.CLASS_OUTPUT);
                 assertEquals(args[1], "");
                 assertEquals(args[2], filename);
-                final Element[] originatingElements = (Element[]) args[3];
+                final var originatingElements = (Element[]) args[3];
                 assertEquals(originatingElements.length, 1);
                 assertSame(originatingElements[0], element);
                 return fileObject;
@@ -102,12 +98,10 @@ public final class ResourceUtilTest {
     }
 
     private static final class CapturingResource {
-        @Nonnull
         private final ByteArrayOutputStream _outputStream = new ByteArrayOutputStream();
 
         private boolean _deleted;
 
-        @Nonnull
         FileObject asFileObject() {
             return TestUtil.proxy(FileObject.class, (self, method, args) -> {
                 if ("openOutputStream".equals(method.getName())) {
@@ -120,7 +114,6 @@ public final class ResourceUtilTest {
             });
         }
 
-        @Nonnull
         String content() {
             return _outputStream.toString(StandardCharsets.UTF_8);
         }
@@ -131,16 +124,14 @@ public final class ResourceUtilTest {
     }
 
     private static final class FailingResource {
-        @Nonnull
         private final IOException _failure;
 
         private boolean _deleted;
 
-        FailingResource(@Nonnull final IOException failure) {
+        FailingResource(final IOException failure) {
             _failure = failure;
         }
 
-        @Nonnull
         FileObject asFileObject() {
             return TestUtil.proxy(FileObject.class, (self, method, args) -> {
                 if ("openOutputStream".equals(method.getName())) {
@@ -169,16 +160,14 @@ public final class ResourceUtilTest {
     }
 
     private static final class FailingOpenResource {
-        @Nonnull
         private final IOException _failure;
 
         private boolean _deleted;
 
-        FailingOpenResource(@Nonnull final IOException failure) {
+        FailingOpenResource(final IOException failure) {
             _failure = failure;
         }
 
-        @Nonnull
         FileObject asFileObject() {
             return TestUtil.proxy(FileObject.class, (self, method, args) -> {
                 if ("openOutputStream".equals(method.getName())) {

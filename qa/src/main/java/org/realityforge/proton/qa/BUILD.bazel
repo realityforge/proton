@@ -9,6 +9,7 @@ java_library(
         "Compilation.java",
         "CompileTestUtil.java",
         "SynthesizingProcessor.java",
+        "package-info.java",
     ],
     deps = [
         "//third_party/java:javax_annotation",

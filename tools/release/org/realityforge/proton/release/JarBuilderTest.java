@@ -108,7 +108,7 @@ public final class JarBuilderTest {
             if (entry == null) {
                 throw new AssertionError("Missing relocated service entry");
             }
-            final String content = new String(jar.getInputStream(entry).readAllBytes(), StandardCharsets.UTF_8);
+            final var content = new String(jar.getInputStream(entry).readAllBytes(), StandardCharsets.UTF_8);
             assertContains(content, "org.example.vendor.impl.ServiceImpl", "relocated service content");
         }
     }

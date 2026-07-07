@@ -1,14 +1,12 @@
 package org.realityforge.proton;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import org.jspecify.annotations.Nullable;
 
 public final class ProcessorException extends RuntimeException {
-    @Nonnull
     private final Element _element;
 
     @Nullable
@@ -17,20 +15,18 @@ public final class ProcessorException extends RuntimeException {
     @Nullable
     private final AnnotationValue _annotationValue;
 
-    public ProcessorException(@Nonnull final String message, @Nonnull final Element element) {
+    public ProcessorException(final String message, final Element element) {
         this(message, element, null);
     }
 
     public ProcessorException(
-            @Nonnull final String message,
-            @Nonnull final Element element,
-            @Nullable final AnnotationMirror annotation) {
+            final String message, final Element element, @Nullable final AnnotationMirror annotation) {
         this(message, element, annotation, null);
     }
 
     public ProcessorException(
             final String message,
-            @Nonnull final Element element,
+            final Element element,
             @Nullable final AnnotationMirror annotation,
             @Nullable final AnnotationValue annotationValue) {
         super(message);
@@ -40,7 +36,6 @@ public final class ProcessorException extends RuntimeException {
         _annotationValue = annotationValue;
     }
 
-    @Nonnull
     public Element getElement() {
         return _element;
     }

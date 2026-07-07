@@ -1,13 +1,11 @@
 package org.realityforge.proton;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
 
 /**
  * A simple class used to time sections of code and accumulate times for section over multiple executions.
  */
 public final class StopWatch {
-    @Nonnull
     private final String _name;
     /**
      * The total time spent in timer since last reset.
@@ -18,11 +16,10 @@ public final class StopWatch {
      */
     private long _start;
 
-    public StopWatch(@Nonnull final String name) {
+    public StopWatch(final String name) {
         _name = Objects.requireNonNull(name);
     }
 
-    @Nonnull
     public String getName() {
         return _name;
     }
@@ -50,7 +47,6 @@ public final class StopWatch {
         _totalDuration = 0;
     }
 
-    @Nonnull
     @Override
     public String toString() {
         return _name + ": " + _totalDuration;

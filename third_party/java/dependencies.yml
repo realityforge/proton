@@ -20,6 +20,12 @@ artifacts:
     excludes:
       - com.palantir.javapoet:javapoet-root
   - coord: com.google.guava:guava:27.1-jre
+    excludes:
+      - org.checkerframework:checker-qual
   - coord: org.testng:testng:6.8
   - coord: org.ow2.asm:asm:9.10.1
   - coord: org.ow2.asm:asm-commons:9.10.1
+  - coord: com.uber.nullaway:nullaway:0.13.7
+  - coord: org.jspecify:jspecify:1.0.0
+    excludes:
+      - '*:*'

@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
-import javax.annotation.Nonnull;
 import javax.annotation.processing.Processor;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.testng.annotations.Test;
@@ -23,20 +22,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
-    private record JavacResult(
-            int exitCode,
-            @Nonnull String output,
-            @Nonnull String generatedSource,
-            @Nonnull String processorPath) {}
+    private record JavacResult(int exitCode, String output, String generatedSource, String processorPath) {}
 
     @Override
-    @Nonnull
     protected String getOptionPrefix() {
         return "proton_test";
     }
 
     @Override
-    @Nonnull
     protected Processor processor() {
         return new TestProcessor();
     }
@@ -130,7 +123,6 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
         assertTrue(dependencyVersions(pom, "com.google.guava", "failureaccess").isEmpty());
         assertTrue(
                 dependencyVersions(pom, "com.google.guava", "listenablefuture").isEmpty());
-        assertTrue(dependencyVersions(pom, "org.jspecify", "jspecify").isEmpty());
         assertTrue(dependencyVersions(pom, "com.google.errorprone", "error_prone_annotations")
                 .isEmpty());
         assertTrue(dependencyVersions(pom, "com.google.j2objc", "j2objc-annotations")
@@ -156,10 +148,11 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
         assertEquals(dependencyVersions(pom, "org.glassfish", "javax.json"), Arrays.asList("1.1"));
         assertEquals(dependencyVersions(pom, "com.palantir.javapoet", "javapoet"), Arrays.asList("0.14.0"));
         assertEquals(dependencyVersions(pom, "com.google.guava", "guava"), Arrays.asList("27.1-jre"));
+        assertEquals(dependencyVersions(pom, "org.jspecify", "jspecify"), Arrays.asList("1.0.0"));
     }
 
     @Test(groups = "external_javac")
-    public void externalJavacUsesPackagedVendorFormatter() throws Exception {
+    public void externalJavacUsesPackagedVendorFormatter() throws IOException, InterruptedException {
         final JavacResult result = runExternalJavac(coreJar());
         assertEquals(result.exitCode(), 0, result.output());
         assertFalse(result.processorPath().contains("palantir-java-format"));
@@ -167,7 +160,7 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
     }
 
     @Test(groups = "external_javac")
-    public void externalJavacReportsMissingFormatter() throws Exception {
+    public void externalJavacReportsMissingFormatter() throws IOException, InterruptedException {
         final JavacResult result = runExternalJavac(unshadedCoreJar());
         assertTrue(0 != result.exitCode(), "Expected javac failure but compilation succeeded");
         assertTrue(result.output().contains("proton_test.format_generated_source=true"), result.output());
@@ -179,7 +172,7 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
                 result.output());
     }
 
-    private void restoreProperty(@Nonnull final String key, final String value) {
+    private void restoreProperty(final String key, final String value) {
         if (null == value) {
             System.clearProperty(key);
         } else {
@@ -187,42 +180,35 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
         }
     }
 
-    @Nonnull
     private Path coreJar() {
         return Path.of(System.getProperty("proton.core.jar"));
     }
 
-    @Nonnull
     private Path corePom() {
         return Path.of(System.getProperty("proton.core.pom"));
     }
 
-    @Nonnull
     private Path unshadedCoreJar() {
         return Path.of(System.getProperty("proton.core.unshaded.jar"));
     }
 
-    @Nonnull
-    private List<String> jarEntries(@Nonnull final Path jar) throws IOException {
-        try (final JarFile jarFile = new JarFile(jar.toFile())) {
+    private List<String> jarEntries(final Path jar) throws IOException {
+        try (final var jarFile = new JarFile(jar.toFile())) {
             return jarFile.stream().map(ZipEntry::getName).toList();
         }
     }
 
-    @Nonnull
     private Document loadPom() throws Exception {
-        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        final var factory = DocumentBuilderFactory.newInstance();
         factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         return factory.newDocumentBuilder().parse(corePom().toFile());
     }
 
-    @Nonnull
-    private List<String> dependencyVersions(
-            @Nonnull final Document pom, @Nonnull final String groupId, @Nonnull final String artifactId) {
-        final List<String> versions = new ArrayList<>();
+    private List<String> dependencyVersions(final Document pom, final String groupId, final String artifactId) {
+        final var versions = new ArrayList<String>();
         final NodeList dependencies = pom.getElementsByTagName("dependency");
         for (int i = 0; i < dependencies.getLength(); i++) {
-            final Element dependency = (Element) dependencies.item(i);
+            final var dependency = (Element) dependencies.item(i);
             if (groupId.equals(childText(dependency, "groupId"))
                     && artifactId.equals(childText(dependency, "artifactId"))) {
                 versions.add(childText(dependency, "version"));
@@ -231,14 +217,12 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
         return versions;
     }
 
-    @Nonnull
-    private String childText(@Nonnull final Element element, @Nonnull final String tagName) {
+    private String childText(final Element element, final String tagName) {
         final NodeList nodes = element.getElementsByTagName(tagName);
         return 0 == nodes.getLength() ? "" : nodes.item(0).getTextContent();
     }
 
-    @Nonnull
-    private JavacResult runExternalJavac(@Nonnull final Path corePath) throws Exception {
+    private JavacResult runExternalJavac(final Path corePath) throws IOException, InterruptedException {
         final Path dir = Files.createTempDirectory("proton-javac");
         try {
             final Path source = dir.resolve("src/com/example/Model.java");
@@ -253,17 +237,18 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
                             + "@GenerateType\n"
                             + "public class Model {}\n");
 
-            final Path testClasses = Path.of(System.getProperty("baseDir"));
+            final var testClasses = Path.of(System.getProperty("baseDir"));
             final String classPath = testClasses.toString();
             final String processorPath = joinPaths(
                     testClasses,
                     corePath,
                     Path.of(System.getProperty("proton.javax_annotation.jar")),
+                    Path.of(System.getProperty("proton.jspecify.jar")),
                     Path.of(System.getProperty("proton.javapoet.jar")),
                     Path.of(System.getProperty("proton.guava.jar")));
             assertFalse(processorPath.contains("palantir-java-format"));
 
-            final List<String> command = new ArrayList<>();
+            final var command = new ArrayList<String>();
             command.add(Path.of(System.getProperty("java.home"))
                     .resolve("bin/javac")
                     .toString());
@@ -283,9 +268,9 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
             command.add(classOutput.toString());
             command.add(source.toString());
 
-            final Process process =
+            final var process =
                     new ProcessBuilder(command).redirectErrorStream(true).start();
-            final String output = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+            final var output = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
             final int exitCode = process.waitFor();
             final Path generatedSource = sourceOutput.resolve("com/example/generated/GeneratedModel.java");
             return new JavacResult(
@@ -298,8 +283,7 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
         }
     }
 
-    @Nonnull
-    private String joinPaths(@Nonnull final Path... paths) {
+    private String joinPaths(final Path... paths) {
         return Arrays.stream(paths)
                 .map(Path::toString)
                 .reduce((a, b) -> a + File.pathSeparator + b)
@@ -307,7 +291,7 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
     }
 
     @SuppressWarnings({"resource", "ResultOfMethodCallIgnored"})
-    private void deleteDir(@Nonnull final Path directory) throws IOException {
+    private void deleteDir(final Path directory) throws IOException {
         try (final Stream<Path> stream = Files.walk(directory)) {
             stream.sorted((a, b) -> b.compareTo(a)).map(Path::toFile).forEach(file -> assertTrue(file.delete()));
         }

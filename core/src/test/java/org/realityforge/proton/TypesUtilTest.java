@@ -5,9 +5,9 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
 public final class TypesUtilTest {
     @Test
     public void typeInspectionHelpersDetectArraysRawTypesWildcardsAndDeprecation() throws Exception {
-        final TypeProcessor processor = new TypeProcessor();
+        final var processor = new TypeProcessor();
 
         TestUtil.compile(TestUtil.source("com.example.TypeTarget", """
             package com.example;
@@ -62,32 +62,36 @@ public final class TypesUtilTest {
                         ElementFilter.fieldsIn(target.getEnclosedElements()).stream()
                                 .collect(Collectors.toMap(f -> f.getSimpleName().toString(), f -> f));
 
-                assertTrue(TypesUtil.containsArrayType(fields.get("arrayNested").asType()));
-                assertTrue(TypesUtil.containsArrayType(fields.get("array").asType()));
-                assertFalse(TypesUtil.containsArrayType(fields.get("noArray").asType()));
+                assertTrue(
+                        TypesUtil.containsArrayType(field(fields, "arrayNested").asType()));
+                assertTrue(TypesUtil.containsArrayType(field(fields, "array").asType()));
+                assertFalse(TypesUtil.containsArrayType(field(fields, "noArray").asType()));
 
-                assertTrue(TypesUtil.containsRawType(fields.get("rawList").asType()));
-                assertTrue(TypesUtil.containsRawType(fields.get("nestedRawList").asType()));
-                assertFalse(TypesUtil.containsRawType(fields.get("typedList").asType()));
-
-                assertTrue(TypesUtil.containsWildcard(fields.get("wildcardList").asType()));
-                assertFalse(TypesUtil.containsWildcard(fields.get("noWildcard").asType()));
-
-                assertTrue(TypesUtil.hasRawTypes(
-                        processingEnv, fields.get("rawList").asType()));
-                assertTrue(TypesUtil.hasRawTypes(
-                        processingEnv, fields.get("nestedRawList").asType()));
-                assertFalse(TypesUtil.hasRawTypes(
-                        processingEnv, fields.get("typedList").asType()));
+                assertTrue(TypesUtil.containsRawType(field(fields, "rawList").asType()));
+                assertTrue(
+                        TypesUtil.containsRawType(field(fields, "nestedRawList").asType()));
+                assertFalse(TypesUtil.containsRawType(field(fields, "typedList").asType()));
 
                 assertTrue(
-                        TypesUtil.isDeprecated(processingEnv, fields.get("old").asType()));
-                assertTrue(TypesUtil.isDeprecated(
-                        processingEnv, fields.get("oldList").asType()));
-                assertFalse(TypesUtil.isDeprecated(
-                        processingEnv, fields.get("string").asType()));
+                        TypesUtil.containsWildcard(field(fields, "wildcardList").asType()));
+                assertFalse(
+                        TypesUtil.containsWildcard(field(fields, "noWildcard").asType()));
 
-                final DeclaredType targetType = (DeclaredType) target.asType();
+                assertTrue(TypesUtil.hasRawTypes(
+                        processingEnv, field(fields, "rawList").asType()));
+                assertTrue(TypesUtil.hasRawTypes(
+                        processingEnv, field(fields, "nestedRawList").asType()));
+                assertFalse(TypesUtil.hasRawTypes(
+                        processingEnv, field(fields, "typedList").asType()));
+
+                assertTrue(TypesUtil.isDeprecated(
+                        processingEnv, field(fields, "old").asType()));
+                assertTrue(TypesUtil.isDeprecated(
+                        processingEnv, field(fields, "oldList").asType()));
+                assertFalse(TypesUtil.isDeprecated(
+                        processingEnv, field(fields, "string").asType()));
+
+                final var targetType = (DeclaredType) target.asType();
                 final ExecutableType rawReturn = executableType(targetType, method(target, "rawReturn"));
                 final ExecutableType clean = executableType(targetType, method(target, "clean"));
                 assertTrue(TypesUtil.hasRawTypes(processingEnv, rawReturn));
@@ -103,14 +107,15 @@ public final class TypesUtilTest {
             return _validated;
         }
 
-        @Nonnull
-        private ExecutableType executableType(
-                @Nonnull final DeclaredType targetType, @Nonnull final ExecutableElement method) {
+        private static VariableElement field(final Map<String, VariableElement> fields, final String name) {
+            return Objects.requireNonNull(fields.get(name));
+        }
+
+        private ExecutableType executableType(final DeclaredType targetType, final ExecutableElement method) {
             return (ExecutableType) processingEnv.getTypeUtils().asMemberOf(targetType, method);
         }
 
-        @Nonnull
-        private static ExecutableElement method(@Nonnull final TypeElement type, @Nonnull final String name) {
+        private static ExecutableElement method(final TypeElement type, final String name) {
             return ElementFilter.methodsIn(type.getEnclosedElements()).stream()
                     .filter(method -> name.contentEquals(method.getSimpleName()))
                     .findFirst()

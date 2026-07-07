@@ -69,6 +69,13 @@ _http_file(
 )
 
 _http_file(
+    name = "nullaway",
+    downloaded_file_path = "com/uber/nullaway/nullaway/0.13.7/nullaway-0.13.7.jar",
+    sha256 = "6bcb696ddcfa0f7cc12b90face8e7af041063f278cd9f3f07de2c53262e24d68",
+    urls = ["https://repo.maven.apache.org/maven2/com/uber/nullaway/nullaway/0.13.7/nullaway-0.13.7.jar"],
+)
+
+_http_file(
     name = "javax_json_api",
     downloaded_file_path = "javax/json/javax.json-api/1.1/javax.json-api-1.1.jar",
     sha256 = "208746be8ab088e6c4b17e8ecdb07ff7a6f7e62bb2b88bb09b993335ea17c615",
@@ -98,9 +105,16 @@ _http_file(
 
 _http_file(
     name = "checker_qual",
-    downloaded_file_path = "org/checkerframework/checker-qual/2.5.2/checker-qual-2.5.2.jar",
-    sha256 = "64b02691c8b9d4e7700f8ee2e742dce7ea2c6e81e662b7522c9ee3bf568c040a",
-    urls = ["https://repo.maven.apache.org/maven2/org/checkerframework/checker-qual/2.5.2/checker-qual-2.5.2.jar"],
+    downloaded_file_path = "org/checkerframework/checker-qual/4.0.0/checker-qual-4.0.0.jar",
+    sha256 = "a06f08bc5dfa51d751cc5bd2453443a99a14825d57bd3c576de2648d2c99fcb8",
+    urls = ["https://repo.maven.apache.org/maven2/org/checkerframework/checker-qual/4.0.0/checker-qual-4.0.0.jar"],
+)
+
+_http_file(
+    name = "dataflow_nullaway",
+    downloaded_file_path = "org/checkerframework/dataflow-nullaway/4.0.0/dataflow-nullaway-4.0.0.jar",
+    sha256 = "4038b94f4a58f5895a19dde9c9c04ee4cc8bf25e83d4ef10152428e760783f9a",
+    urls = ["https://repo.maven.apache.org/maven2/org/checkerframework/dataflow-nullaway/4.0.0/dataflow-nullaway-4.0.0.jar"],
 )
 
 _http_file(
@@ -122,6 +136,13 @@ _http_file(
     downloaded_file_path = "org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar",
     sha256 = "0361d1493ff0d94f861359efea91200720635072134792efb7217f6e09d5cffb",
     urls = ["https://repo.maven.apache.org/maven2/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar"],
+)
+
+_http_file(
+    name = "jspecify",
+    downloaded_file_path = "org/jspecify/jspecify/1.0.0/jspecify-1.0.0.jar",
+    sha256 = "1fad6e6be7557781e4d33729d49ae1cdc8fdda6fe477bb0cc68ce351eafdfbab",
+    urls = ["https://repo.maven.apache.org/maven2/org/jspecify/jspecify/1.0.0/jspecify-1.0.0.jar"],
 )
 
 _http_file(

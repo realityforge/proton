@@ -179,8 +179,8 @@ public final class JarBuilder {
     }
 
     private static byte[] relocateClass(final byte[] content, final List<Relocation> relocations) {
-        final ClassReader reader = new ClassReader(content);
-        final ClassWriter writer = new ClassWriter(0);
+        final var reader = new ClassReader(content);
+        final var writer = new ClassWriter(0);
         final ClassVisitor remapper = new ClassRemapper(writer, new PrefixRemapper(relocations));
         reader.accept(remapper, 0);
         return writer.toByteArray();

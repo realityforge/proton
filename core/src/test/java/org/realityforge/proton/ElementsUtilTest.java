@@ -9,9 +9,9 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 public final class ElementsUtilTest {
     @Test
     public void elementHelpersTraverseTypeHierarchiesAndElementMetadata() throws Exception {
-        final ElementProcessor processor = new ElementProcessor();
+        final var processor = new ElementProcessor();
 
         TestUtil.compile(
                 List.of(
@@ -111,7 +111,7 @@ public final class ElementsUtilTest {
             return _validated;
         }
 
-        private void validateHierarchyHelpers(@Nonnull final TypeElement target, @Nonnull final TypeElement base) {
+        private void validateHierarchyHelpers(final TypeElement target, final TypeElement base) {
             assertEquals(simpleNames(ElementsUtil.getSuperTypes(target)), List.of("Base", "Object"));
             assertEquals(simpleNames(ElementsUtil.getInterfaces(target)), List.of("ChildInterface", "RootInterface"));
 
@@ -127,9 +127,10 @@ public final class ElementsUtilTest {
                             .collect(Collectors.groupingBy(
                                     method -> method.getSimpleName().toString()));
             assertTrue(methodsByName.keySet().containsAll(List.of("baseOnly", "convert", "root", "child", "own")));
-            assertEquals(methodsByName.get("convert").size(), 1);
-            assertSame(methodsByName.get("convert").get(0).getEnclosingElement(), target);
-            assertEquals(methodsByName.get("convert").get(0).getReturnType().toString(), "java.lang.Integer");
+            final List<ExecutableElement> convertMethods = Objects.requireNonNull(methodsByName.get("convert"));
+            assertEquals(convertMethods.size(), 1);
+            assertSame(convertMethods.get(0).getEnclosingElement(), target);
+            assertEquals(convertMethods.get(0).getReturnType().toString(), "java.lang.Integer");
 
             assertEquals(ElementsUtil.getConstructors(target).size(), 1);
             assertTrue(ElementsUtil.doesMethodOverrideInterfaceMethod(
@@ -144,9 +145,7 @@ public final class ElementsUtilTest {
         }
 
         private void validateElementMetadataHelpers(
-                @Nonnull final TypeElement target,
-                @Nonnull final TypeElement samePackage,
-                @Nonnull final TypeElement otherType) {
+                final TypeElement target, final TypeElement samePackage, final TypeElement otherType) {
             final TypeElement inner = nestedType(target, "Inner");
             final TypeElement staticInner = nestedType(target, "StaticInner");
             final TypeElement publicNested = nestedType(target, "PublicNested");
@@ -213,7 +212,7 @@ public final class ElementsUtilTest {
             assertTrue(ElementsUtil.hasAccessibleNoArgConstructor(target, type("com.example.DefaultCtor")));
         }
 
-        private static void validateWarningSuppression(@Nonnull final TypeElement target) {
+        private static void validateWarningSuppression(final TypeElement target) {
             final ExecutableElement own = method(target, "own");
 
             assertTrue(ElementsUtil.isWarningSuppressed(own, "method-warning"));
@@ -224,39 +223,34 @@ public final class ElementsUtilTest {
             assertTrue(ElementsUtil.isWarningNotSuppressed(own, "missing-warning"));
         }
 
-        @Nonnull
-        private TypeElement type(@Nonnull final String classname) {
+        private TypeElement type(final String classname) {
             final TypeElement type = processingEnv.getElementUtils().getTypeElement(classname);
             assertNotNull(type);
             return type;
         }
 
-        @Nonnull
-        private static TypeElement nestedType(@Nonnull final TypeElement type, @Nonnull final String name) {
+        private static TypeElement nestedType(final TypeElement type, final String name) {
             return ElementFilter.typesIn(type.getEnclosedElements()).stream()
                     .filter(nested -> name.contentEquals(nested.getSimpleName()))
                     .findFirst()
                     .orElseThrow();
         }
 
-        @Nonnull
-        private static VariableElement field(@Nonnull final TypeElement type, @Nonnull final String name) {
+        private static VariableElement field(final TypeElement type, final String name) {
             return ElementFilter.fieldsIn(type.getEnclosedElements()).stream()
                     .filter(field -> name.contentEquals(field.getSimpleName()))
                     .findFirst()
                     .orElseThrow();
         }
 
-        @Nonnull
-        private static ExecutableElement method(@Nonnull final TypeElement type, @Nonnull final String name) {
+        private static ExecutableElement method(final TypeElement type, final String name) {
             return ElementFilter.methodsIn(type.getEnclosedElements()).stream()
                     .filter(method -> name.contentEquals(method.getSimpleName()))
                     .findFirst()
                     .orElseThrow();
         }
 
-        @Nonnull
-        private static List<String> simpleNames(@Nonnull final List<TypeElement> types) {
+        private static List<String> simpleNames(final List<TypeElement> types) {
             return types.stream().map(type -> type.getSimpleName().toString()).collect(Collectors.toList());
         }
     }

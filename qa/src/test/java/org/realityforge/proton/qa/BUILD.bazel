@@ -9,6 +9,7 @@ TEST_DEPS = [
     "//third_party/java:javapoet",
     "//third_party/java:javax_annotation",
     "//third_party/java:javax_json",
+    "//third_party/java:jspecify",
     "//third_party/java:testng",
 ]
 
@@ -26,6 +27,7 @@ TEST_DATA = [
     "@guava//file",
     "@javapoet//file",
     "@javax_annotation//file",
+    "@jspecify//file",
 ]
 
 TEST_JVM_FLAGS = [
@@ -36,6 +38,7 @@ TEST_JVM_FLAGS = [
     "-Dproton.guava.jar=$(rootpath @guava//file)",
     "-Dproton.javapoet.jar=$(rootpath @javapoet//file)",
     "-Dproton.javax_annotation.jar=$(rootpath @javax_annotation//file)",
+    "-Dproton.jspecify.jar=$(rootpath @jspecify//file)",
     "-Dproton_test.fixture_dir=qa/src/test/fixtures",
     "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
     "--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",

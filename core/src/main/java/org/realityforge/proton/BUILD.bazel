@@ -19,6 +19,7 @@ java_library(
         "SuperficialValidation.java",
         "SuppressWarningsUtil.java",
         "TypesUtil.java",
+        "package-info.java",
     ],
     deps = [
         "//third_party/java:guava",

@@ -14,7 +14,7 @@ public final class ProcessorExceptionTest {
     public void constructorStoresElement() {
         final Element element = TestUtil.proxy(Element.class, (self, method, args) -> TestUtil.unsupported(method));
 
-        final ProcessorException exception = new ProcessorException("Bad element", element);
+        final var exception = new ProcessorException("Bad element", element);
 
         assertEquals(exception.getMessage(), "Bad element");
         assertSame(exception.getElement(), element);
@@ -28,7 +28,7 @@ public final class ProcessorExceptionTest {
         final AnnotationMirror annotation =
                 TestUtil.proxy(AnnotationMirror.class, (self, method, args) -> TestUtil.unsupported(method));
 
-        final ProcessorException exception = new ProcessorException("Bad annotation", element, annotation);
+        final var exception = new ProcessorException("Bad annotation", element, annotation);
 
         assertEquals(exception.getMessage(), "Bad annotation");
         assertSame(exception.getElement(), element);
@@ -44,8 +44,7 @@ public final class ProcessorExceptionTest {
         final AnnotationValue annotationValue =
                 TestUtil.proxy(AnnotationValue.class, (self, method, args) -> TestUtil.unsupported(method));
 
-        final ProcessorException exception =
-                new ProcessorException("Bad annotation value", element, annotation, annotationValue);
+        final var exception = new ProcessorException("Bad annotation value", element, annotation, annotationValue);
 
         assertEquals(exception.getMessage(), "Bad annotation value");
         assertSame(exception.getElement(), element);

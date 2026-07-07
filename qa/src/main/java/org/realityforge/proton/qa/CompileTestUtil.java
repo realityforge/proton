@@ -15,8 +15,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import javax.annotation.processing.Processor;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
@@ -29,7 +29,7 @@ import javax.tools.ToolProvider;
 public final class CompileTestUtil {
     private CompileTestUtil() {}
 
-    public static void assertNoWarnings(@Nonnull final List<Diagnostic<? extends JavaFileObject>> diagnostics) {
+    public static void assertNoWarnings(final List<Diagnostic<? extends JavaFileObject>> diagnostics) {
         final List<Diagnostic<? extends JavaFileObject>> warnings = diagnostics.stream()
                 .filter(d -> Diagnostic.Kind.WARNING == d.getKind() || Diagnostic.Kind.MANDATORY_WARNING == d.getKind())
                 .toList();
@@ -38,7 +38,7 @@ public final class CompileTestUtil {
         }
     }
 
-    public static void assertNoErrors(@Nonnull final List<Diagnostic<? extends JavaFileObject>> diagnostics) {
+    public static void assertNoErrors(final List<Diagnostic<? extends JavaFileObject>> diagnostics) {
         final List<Diagnostic<? extends JavaFileObject>> errors = diagnostics.stream()
                 .filter(d -> Diagnostic.Kind.ERROR == d.getKind())
                 .toList();
@@ -47,18 +47,16 @@ public final class CompileTestUtil {
         }
     }
 
-    @Nonnull
-    public static String asMessage(@Nonnull final List<Diagnostic<? extends JavaFileObject>> diagnostics) {
+    public static String asMessage(final List<Diagnostic<? extends JavaFileObject>> diagnostics) {
         return diagnostics.stream().map(Object::toString).collect(Collectors.joining("\n"));
     }
 
     @SuppressWarnings("resource")
-    @Nonnull
     public static Compilation compile(
-            @Nonnull final List<JavaFileObject> inputs,
-            @Nonnull final Iterable<String> options,
-            @Nonnull final Iterable<? extends Processor> processors,
-            @Nonnull final Collection<? extends File> classpath) {
+            final List<JavaFileObject> inputs,
+            final Iterable<String> options,
+            final Iterable<? extends Processor> processors,
+            final Collection<? extends File> classpath) {
         try {
             final JavaCompiler javaCompiler = ToolProvider.getSystemJavaCompiler();
             final DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<>();
@@ -102,12 +100,11 @@ public final class CompileTestUtil {
         }
     }
 
-    @Nonnull
     public static Compilation assertCompilesWithoutWarnings(
-            @Nonnull final List<JavaFileObject> inputs,
-            @Nonnull final Iterable<String> options,
-            @Nonnull final Iterable<? extends Processor> processors,
-            @Nonnull final Collection<? extends File> classpath) {
+            final List<JavaFileObject> inputs,
+            final Iterable<String> options,
+            final Iterable<? extends Processor> processors,
+            final Collection<? extends File> classpath) {
         final Compilation results = compile(inputs, options, processors, classpath);
         assertNoErrors(results.diagnostics());
         assertNoWarnings(results.diagnostics());
@@ -123,12 +120,10 @@ public final class CompileTestUtil {
      * @param targetDir the target directory
      * @throws IOException if an error occurs writing the file or creating the directory.
      */
-    public static void outputFile(
-            @Nonnull final String file, @Nonnull final Path sourceDir, @Nonnull final Path targetDir)
-            throws IOException {
+    public static void outputFile(final String file, final Path sourceDir, final Path targetDir) throws IOException {
         final Path source = sourceDir.resolve(file);
         final Path target = targetDir.resolve(file);
-        final File dir = target.getParent().toFile();
+        final File dir = Objects.requireNonNull(target.getParent()).toFile();
         if (!dir.exists()) {
             assertTrue(dir.mkdirs());
         }
@@ -142,8 +137,7 @@ public final class CompileTestUtil {
         }
     }
 
-    private static boolean doesSourceMatchTarget(@Nonnull final Path source, @Nonnull final Path target)
-            throws IOException {
+    private static boolean doesSourceMatchTarget(final Path source, final Path target) throws IOException {
         try (InputStream generated = new FileInputStream(source.toFile())) {
             final byte[] existing = Files.readAllBytes(target);
             final byte[] data = new byte[generated.available()];
@@ -152,8 +146,7 @@ public final class CompileTestUtil {
         }
     }
 
-    public static void assertSourceMatchesTarget(@Nonnull final Path source, @Nonnull final Path target)
-            throws IOException {
+    public static void assertSourceMatchesTarget(final Path source, final Path target) throws IOException {
         try (InputStream generated = new FileInputStream(source.toFile())) {
             final byte[] existing = Files.readAllBytes(target);
             final byte[] data = new byte[generated.available()];
@@ -162,13 +155,11 @@ public final class CompileTestUtil {
         }
     }
 
-    public static void outputFiles(@Nonnull final Compilation compilation, @Nonnull final Path targetDir)
-            throws IOException {
+    public static void outputFiles(final Compilation compilation, final Path targetDir) throws IOException {
         outputFiles(compilation.classOutputFilenames(), compilation.classOutput(), targetDir);
     }
 
-    public static void outputFiles(
-            @Nonnull final List<String> files, @Nonnull final Path sourceDir, @Nonnull final Path targetDir)
+    public static void outputFiles(final List<String> files, final Path sourceDir, final Path targetDir)
             throws IOException {
         for (final String file : files) {
             outputFile(file, sourceDir, targetDir);

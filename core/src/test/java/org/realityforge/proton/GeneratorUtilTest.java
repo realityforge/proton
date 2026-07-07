@@ -15,7 +15,6 @@ import com.palantir.javapoet.TypeSpec;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -40,7 +39,7 @@ public final class GeneratorUtilTest {
 
     @Test
     public void generatorHelpersCopyModelMetadataIntoJavaPoetBuilders() throws Exception {
-        final GeneratorProcessor processor = new GeneratorProcessor();
+        final var processor = new GeneratorProcessor();
 
         TestUtil.compile(TestUtil.source("com.example.GeneratorTarget", """
             package com.example;
@@ -91,7 +90,7 @@ public final class GeneratorUtilTest {
             return _validated;
         }
 
-        private void validateNameHelpers(@Nonnull final TypeElement target) {
+        private void validateNameHelpers(final TypeElement target) {
             final TypeElement nested = nestedType(target, "Nested");
 
             assertEquals(GeneratorUtil.getQualifiedPackageName(target), "com.example");
@@ -116,8 +115,7 @@ public final class GeneratorUtilTest {
                     "T");
         }
 
-        private void validateTypeAndMethodBuilderHelpers(
-                @Nonnull final TypeElement target, @Nonnull final TypeElement base) {
+        private void validateTypeAndMethodBuilderHelpers(final TypeElement target, final TypeElement base) {
             final TypeSpec.Builder publicType = TypeSpec.classBuilder("Copy");
             GeneratorUtil.copyAccessModifiers(target, publicType);
             assertTrue(publicType.build().modifiers().contains(Modifier.PUBLIC));
@@ -154,7 +152,7 @@ public final class GeneratorUtilTest {
             assertTrue(originatingElements.contains(base));
         }
 
-        private void validateAnnotationCopyHelpers(@Nonnull final TypeElement target) {
+        private void validateAnnotationCopyHelpers(final TypeElement target) {
             final TypeSpec.Builder typeBuilder = TypeSpec.classBuilder("Annotated");
             GeneratorUtil.copyWhitelistedAnnotations(target, typeBuilder);
             final List<String> typeAnnotations =
@@ -177,9 +175,9 @@ public final class GeneratorUtilTest {
             assertTrue(annotationStrings(fieldBuilder.build().annotations()).contains("@javax.annotation.Nonnull"));
         }
 
-        private void validateOverrideAndRefMethodHelpers(@Nonnull final TypeElement target) {
+        private void validateOverrideAndRefMethodHelpers(final TypeElement target) {
             final ExecutableElement convert = method(target, "convert");
-            final ExecutableType convertType =
+            final var convertType =
                     (ExecutableType) processingEnv.getTypeUtils().asMemberOf((DeclaredType) target.asType(), convert);
 
             final MethodSpec.Builder copied = MethodSpec.methodBuilder("copied");
@@ -226,39 +224,34 @@ public final class GeneratorUtilTest {
             assertFalse(annotationStrings(primitiveRef.annotations()).contains("@javax.annotation.Nonnull"));
         }
 
-        @Nonnull
-        private TypeElement type(@Nonnull final String classname) {
+        private TypeElement type(final String classname) {
             final TypeElement type = processingEnv.getElementUtils().getTypeElement(classname);
             assertNotNull(type);
             return type;
         }
 
-        @Nonnull
-        private static TypeElement nestedType(@Nonnull final TypeElement type, @Nonnull final String name) {
+        private static TypeElement nestedType(final TypeElement type, final String name) {
             return ElementFilter.typesIn(type.getEnclosedElements()).stream()
                     .filter(nested -> name.contentEquals(nested.getSimpleName()))
                     .findFirst()
                     .orElseThrow();
         }
 
-        @Nonnull
-        private static ExecutableElement method(@Nonnull final TypeElement type, @Nonnull final String name) {
+        private static ExecutableElement method(final TypeElement type, final String name) {
             return ElementFilter.methodsIn(type.getEnclosedElements()).stream()
                     .filter(method -> name.contentEquals(method.getSimpleName()))
                     .findFirst()
                     .orElseThrow();
         }
 
-        @Nonnull
-        private static VariableElement field(@Nonnull final TypeElement type, @Nonnull final String name) {
+        private static VariableElement field(final TypeElement type, final String name) {
             return ElementFilter.fieldsIn(type.getEnclosedElements()).stream()
                     .filter(field -> name.contentEquals(field.getSimpleName()))
                     .findFirst()
                     .orElseThrow();
         }
 
-        @Nonnull
-        private static List<String> annotationStrings(@Nonnull final List<AnnotationSpec> annotations) {
+        private static List<String> annotationStrings(final List<AnnotationSpec> annotations) {
             return annotations.stream().map(AnnotationSpec::toString).collect(Collectors.toList());
         }
     }

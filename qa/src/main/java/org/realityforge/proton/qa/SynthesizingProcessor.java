@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Objects;
 import java.util.Set;
-import javax.annotation.Nonnull;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -17,16 +16,14 @@ import javax.tools.JavaFileObject;
 @SupportedAnnotationTypes("*")
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 final class SynthesizingProcessor extends AbstractProcessor {
-    @Nonnull
     private final String _classname;
 
-    @Nonnull
     private final String _source;
 
     private final int _targetRound;
     private int _round;
 
-    SynthesizingProcessor(@Nonnull final String classname, @Nonnull final String source, final int targetRound) {
+    SynthesizingProcessor(final String classname, final String source, final int targetRound) {
         _classname = Objects.requireNonNull(classname);
         _source = Objects.requireNonNull(source);
         _targetRound = targetRound;

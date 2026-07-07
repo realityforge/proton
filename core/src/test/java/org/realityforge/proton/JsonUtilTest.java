@@ -6,7 +6,6 @@ import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.nio.charset.StandardCharsets;
-import javax.annotation.Nonnull;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -70,7 +69,7 @@ public final class JsonUtilTest {
 
     @Test
     public void writeJsonResourceFormatsAndWritesResource() throws Exception {
-        final CapturingResource resource = new CapturingResource();
+        final var resource = new CapturingResource();
         final Element element = proxy(Element.class, (self, method, args) -> unsupported(method));
         final ProcessingEnvironment processingEnv =
                 processingEnvironment(filer("metadata.json", element, resource.asFileObject()));
@@ -99,23 +98,20 @@ public final class JsonUtilTest {
         assertFalse(resource.isDeleted());
     }
 
-    @Nonnull
-    private static ProcessingEnvironment processingEnvironment(@Nonnull final Filer filer) {
+    private static ProcessingEnvironment processingEnvironment(final Filer filer) {
         return proxy(
                 ProcessingEnvironment.class,
                 (self, method, args) -> "getFiler".equals(method.getName()) ? filer : unsupported(method));
     }
 
     @SuppressWarnings("SameParameterValue")
-    @Nonnull
-    private static Filer filer(
-            @Nonnull final String filename, @Nonnull final Element element, @Nonnull final FileObject fileObject) {
+    private static Filer filer(final String filename, final Element element, final FileObject fileObject) {
         return proxy(Filer.class, (self, method, args) -> {
             if ("createResource".equals(method.getName())) {
                 assertSame(args[0], StandardLocation.CLASS_OUTPUT);
                 assertEquals(args[1], "");
                 assertEquals(args[2], filename);
-                final Element[] originatingElements = (Element[]) args[3];
+                final var originatingElements = (Element[]) args[3];
                 assertEquals(originatingElements.length, 1);
                 assertSame(originatingElements[0], element);
                 return fileObject;
@@ -124,8 +120,7 @@ public final class JsonUtilTest {
         });
     }
 
-    @Nonnull
-    private static <T> T proxy(@Nonnull final Class<T> type, @Nonnull final ProxyInvocation invocation) {
+    private static <T> T proxy(final Class<T> type, final ProxyInvocation invocation) {
         return type.cast(Proxy.newProxyInstance(type.getClassLoader(), new Class<?>[] {type}, (self, method, args) -> {
             if ("equals".equals(method.getName())) {
                 return self == args[0];
@@ -139,19 +134,18 @@ public final class JsonUtilTest {
         }));
     }
 
-    private static Object unsupported(@Nonnull final Method method) {
+    private static Object unsupported(final Method method) {
         throw new UnsupportedOperationException(method.toString());
     }
 
     private interface ProxyInvocation {
-        Object invoke(@Nonnull Object self, @Nonnull Method method, Object[] args) throws Throwable;
+        Object invoke(Object self, Method method, Object[] args) throws Throwable;
     }
 
     private static final class CapturingResource {
         private final ByteArrayOutputStream _outputStream = new ByteArrayOutputStream();
         private boolean _deleted;
 
-        @Nonnull
         FileObject asFileObject() {
             return proxy(FileObject.class, (self, method, args) -> {
                 if ("openOutputStream".equals(method.getName())) {
@@ -165,7 +159,6 @@ public final class JsonUtilTest {
             });
         }
 
-        @Nonnull
         String content() {
             return _outputStream.toString(StandardCharsets.UTF_8);
         }

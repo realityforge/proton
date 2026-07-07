@@ -10,10 +10,10 @@ import static org.testng.Assert.fail;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ExecutableElement;
@@ -30,7 +30,7 @@ public final class AnnotationsUtilTest {
 
     @Test
     public void annotationHelpersReadMirrorsValuesAndDefaults() throws Exception {
-        final AnnotationProcessor processor = new AnnotationProcessor();
+        final var processor = new AnnotationProcessor();
 
         TestUtil.compile(TestUtil.source("com.example.AnnotationTarget", """
             package com.example;
@@ -104,7 +104,7 @@ public final class AnnotationsUtilTest {
             return _validated;
         }
 
-        private void validateTypeAnnotations(@Nonnull final TypeElement target) {
+        private void validateTypeAnnotations(final TypeElement target) {
             assertTrue(AnnotationsUtil.hasAnnotationOfType(target, MARKER));
             assertFalse(AnnotationsUtil.hasAnnotationOfType(target, "com.example.Missing"));
 
@@ -116,9 +116,11 @@ public final class AnnotationsUtilTest {
             assertEquals(
                     AnnotationsUtil.getAnnotationValue(target, MARKER, "name").getValue(), "explicit");
             assertEquals(
-                    AnnotationsUtil.findAnnotationValue(target, MARKER, "name").getValue(), "explicit");
+                    Objects.requireNonNull(AnnotationsUtil.findAnnotationValue(target, MARKER, "name"))
+                            .getValue(),
+                    "explicit");
             assertEquals(
-                    AnnotationsUtil.findAnnotationValueNoDefaults(marker, "name")
+                    Objects.requireNonNull(AnnotationsUtil.findAnnotationValueNoDefaults(marker, "name"))
                             .getValue(),
                     "explicit");
             assertEquals(AnnotationsUtil.getEnumAnnotationParameter(target, MARKER, "mode"), "SLOW");
@@ -133,7 +135,7 @@ public final class AnnotationsUtilTest {
             assertEquals(tagValues(tags), List.of("alpha", "beta"));
         }
 
-        private void validateFieldAnnotations(@Nonnull final TypeElement target) {
+        private void validateFieldAnnotations(final TypeElement target) {
             final VariableElement defaultMarker = field(target, "defaultMarker");
             final AnnotationMirror marker = AnnotationsUtil.getAnnotationByType(defaultMarker, MARKER);
             final Map<ExecutableElement, AnnotationValue> values =
@@ -143,7 +145,10 @@ public final class AnnotationsUtilTest {
                             .map(e -> e.getSimpleName().toString())
                             .collect(Collectors.toList()),
                     List.of("name", "mode", "types"));
-            assertEquals(AnnotationsUtil.findAnnotationValue(marker, "name").getValue(), "defaultName");
+            assertEquals(
+                    Objects.requireNonNull(AnnotationsUtil.findAnnotationValue(marker, "name"))
+                            .getValue(),
+                    "defaultName");
             assertNull(AnnotationsUtil.findAnnotationValueNoDefaults(marker, "name"));
 
             assertTrue(AnnotationsUtil.hasNonnullAnnotation(field(target, "nonnullField")));
@@ -151,7 +156,7 @@ public final class AnnotationsUtilTest {
             assertFalse(AnnotationsUtil.hasNullableAnnotation(field(target, "nonnullField")));
         }
 
-        private void validateMethodAnnotations(@Nonnull final TypeElement target) {
+        private void validateMethodAnnotations(final TypeElement target) {
             assertEquals(
                     tagValues(AnnotationsUtil.getRepeatingAnnotations(method(target, "singleTag"), TAGS, TAG)),
                     List.of("single"));
@@ -180,31 +185,27 @@ public final class AnnotationsUtilTest {
                             + "The value must not be a java keyword");
         }
 
-        @Nonnull
-        private static List<String> tagValues(@Nonnull final List<AnnotationMirror> annotations) {
+        private static List<String> tagValues(final List<AnnotationMirror> annotations) {
             return annotations.stream()
                     .map(a -> (String) AnnotationsUtil.getAnnotationValueValue(a, "value"))
                     .collect(Collectors.toList());
         }
 
-        @Nonnull
-        private static VariableElement field(@Nonnull final TypeElement type, @Nonnull final String name) {
+        private static VariableElement field(final TypeElement type, final String name) {
             return ElementFilter.fieldsIn(type.getEnclosedElements()).stream()
                     .filter(field -> name.contentEquals(field.getSimpleName()))
                     .findFirst()
                     .orElseThrow();
         }
 
-        @Nonnull
-        private static ExecutableElement method(@Nonnull final TypeElement type, @Nonnull final String name) {
+        private static ExecutableElement method(final TypeElement type, final String name) {
             return ElementFilter.methodsIn(type.getEnclosedElements()).stream()
                     .filter(method -> name.contentEquals(method.getSimpleName()))
                     .findFirst()
                     .orElseThrow();
         }
 
-        private static void assertProcessorException(
-                @Nonnull final ThrowingRunnable runnable, @Nonnull final String message) {
+        private static void assertProcessorException(final ThrowingRunnable runnable, final String message) {
             try {
                 runnable.run();
                 fail("Expected ProcessorException");

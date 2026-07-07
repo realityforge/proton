@@ -14,9 +14,9 @@ import com.palantir.javapoet.TypeName;
 import com.palantir.javapoet.TypeSpec;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import javax.lang.model.AnnotatedConstruct;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -41,7 +41,7 @@ public final class SuppressWarningsUtilTest {
 
     @Test
     public void processingEnvSuppressWarningsHelpersDetectRawAndDeprecatedTypes() throws Exception {
-        final SuppressProcessor processor = new SuppressProcessor();
+        final var processor = new SuppressProcessor();
 
         TestUtil.compile(TestUtil.source("com.example.SuppressTarget", """
             package com.example;
@@ -96,35 +96,36 @@ public final class SuppressWarningsUtilTest {
             return _validated;
         }
 
-        private void validateAnnotationGeneration(@Nonnull final Map<String, VariableElement> fields) {
+        private void validateAnnotationGeneration(final Map<String, VariableElement> fields) {
             assertNull(SuppressWarningsUtil.maybeSuppressWarningsAnnotation(
                     processingEnv,
                     List.of(
-                            fields.get("typedList").asType(),
-                            fields.get("string").asType())));
+                            field(fields, "typedList").asType(),
+                            field(fields, "string").asType())));
             assertEquals(
-                    SuppressWarningsUtil.maybeSuppressWarningsAnnotation(
-                                    processingEnv, List.of(fields.get("rawList").asType()))
+                    Objects.requireNonNull(SuppressWarningsUtil.maybeSuppressWarningsAnnotation(
+                                    processingEnv,
+                                    List.of(field(fields, "rawList").asType())))
                             .toString(),
                     "@java.lang.SuppressWarnings(\"rawtypes\")");
             assertEquals(
-                    SuppressWarningsUtil.maybeSuppressWarningsAnnotation(
-                                    processingEnv, List.of(fields.get("old").asType()))
+                    Objects.requireNonNull(SuppressWarningsUtil.maybeSuppressWarningsAnnotation(
+                                    processingEnv, List.of(field(fields, "old").asType())))
                             .toString(),
                     "@java.lang.SuppressWarnings(\"deprecation\")");
             assertEquals(
-                    SuppressWarningsUtil.maybeSuppressWarningsAnnotation(
+                    Objects.requireNonNull(SuppressWarningsUtil.maybeSuppressWarningsAnnotation(
                                     processingEnv,
                                     List.of("unchecked", "rawtypes"),
                                     List.of(
-                                            fields.get("old").asType(),
-                                            fields.get("rawList").asType()))
+                                            field(fields, "old").asType(),
+                                            field(fields, "rawList").asType())))
                             .toString(),
                     "@java.lang.SuppressWarnings({\"deprecation\", \"rawtypes\", \"unchecked\"})");
         }
 
-        private void validateBuilderHelpers(@Nonnull final Map<String, VariableElement> fields) {
-            final TypeMirror rawList = fields.get("rawList").asType();
+        private void validateBuilderHelpers(final Map<String, VariableElement> fields) {
+            final TypeMirror rawList = field(fields, "rawList").asType();
 
             final TypeSpec.Builder type = TypeSpec.classBuilder("Target");
             SuppressWarningsUtil.addSuppressWarningsIfRequired(processingEnv, type, rawList);
@@ -141,7 +142,7 @@ public final class SuppressWarningsUtilTest {
 
             final FieldSpec.Builder field = FieldSpec.builder(TypeName.get(String.class), "target");
             SuppressWarningsUtil.addSuppressWarningsIfRequired(
-                    processingEnv, field, fields.get("old").asType());
+                    processingEnv, field, field(fields, "old").asType());
             assertEquals(
                     suppressWarningsAnnotation(field.build().annotations()),
                     "@java.lang.SuppressWarnings(\"deprecation\")");
@@ -153,9 +154,8 @@ public final class SuppressWarningsUtilTest {
                     "@java.lang.SuppressWarnings(\"rawtypes\")");
         }
 
-        private static void validateReadHelpers(
-                @Nonnull final TypeElement target, @Nonnull final Map<String, VariableElement> fields) {
-            final VariableElement field = fields.get("field");
+        private static void validateReadHelpers(final TypeElement target, final Map<String, VariableElement> fields) {
+            final VariableElement field = field(fields, "field");
             final ExecutableElement method = method(target, "action");
             final String customSuppressWarnings = "com.example.SuppressCustomWarnings";
 
@@ -177,8 +177,11 @@ public final class SuppressWarningsUtilTest {
             assertTrue(ElementsUtil.isWarningNotSuppressed(method, "missing", customSuppressWarnings));
         }
 
-        @Nonnull
-        private static String suppressWarningsAnnotation(@Nonnull final List<AnnotationSpec> annotations) {
+        private static VariableElement field(final Map<String, VariableElement> fields, final String name) {
+            return Objects.requireNonNull(fields.get(name));
+        }
+
+        private static String suppressWarningsAnnotation(final List<AnnotationSpec> annotations) {
             return annotations.stream()
                     .map(AnnotationSpec::toString)
                     .filter(annotation -> annotation.contains("SuppressWarnings"))
@@ -186,8 +189,7 @@ public final class SuppressWarningsUtilTest {
                     .orElseThrow();
         }
 
-        @Nonnull
-        private static ExecutableElement method(@Nonnull final TypeElement type, @Nonnull final String name) {
+        private static ExecutableElement method(final TypeElement type, final String name) {
             return ElementFilter.methodsIn(type.getEnclosedElements()).stream()
                     .filter(method -> name.contentEquals(method.getSimpleName()))
                     .findFirst()

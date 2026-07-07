@@ -1,13 +1,18 @@
-load("@rules_java//java:defs.bzl", _java_binary = "java_binary", _java_import = "java_import", _java_test = "java_test")
+load("@rules_java//java:defs.bzl", _java_binary = "java_binary", _java_import = "java_import", _java_plugin = "java_plugin", _java_test = "java_test")
 
 package(default_visibility = ["//visibility:public"])
+
+_java_plugin(
+    name = "nullaway_plugin",
+    deps = [":nullaway"],
+)
 
 # --- depgen-generated targets start ---
 
 # DO NOT EDIT: Content is auto-generated from //third_party/java:dependencies.yml by https://github.com/realityforge/bazel-depgen version 0.26
 
 # SHA256 of the configuration content that generated this content
-_CONFIG_SHA256 = "4103AD1E665B71DFFC901284EA3D94414320471002F687FDD93808A7CFD946F7"
+_CONFIG_SHA256 = "FE61156177725EAEFC55916C75A28A18C794E52CC0DB2570A75D8846F012BC6A"
 
 exports_files(["dependencies.yml"])
 
@@ -21,7 +26,6 @@ exports_files(["dependencies.yml"])
 # |  +- com.google.guava:failureaccess:jar:1.0.1 [compile]
 # |  +- com.google.guava:listenablefuture:jar:9999.0-empty-to-avoid-conflict-with-guava [compile]
 # |  +- com.google.code.findbugs:jsr305:jar:3.0.2 [compile]
-# |  +- org.checkerframework:checker-qual:jar:2.5.2 [compile]
 # |  +- com.google.errorprone:error_prone_annotations:jar:2.2.0 [compile]
 # |  +- com.google.j2objc:j2objc-annotations:jar:1.1 [compile]
 # |  \- org.codehaus.mojo:animal-sniffer-annotations:jar:1.17 [compile]
@@ -33,10 +37,16 @@ exports_files(["dependencies.yml"])
 # |  +- com.beust:jcommander:jar:1.27 [compile]
 # |  \- org.yaml:snakeyaml:jar:1.6 [compile]
 # +- org.ow2.asm:asm:jar:9.10.1 [compile]
-# \- org.ow2.asm:asm-commons:jar:9.10.1 [compile]
-#    +- org.ow2.asm:asm:jar:9.10.1 [compile]
-#    \- org.ow2.asm:asm-tree:jar:9.10.1 [compile]
-#       \- org.ow2.asm:asm:jar:9.10.1 [compile]
+# +- org.ow2.asm:asm-commons:jar:9.10.1 [compile]
+# |  +- org.ow2.asm:asm:jar:9.10.1 [compile]
+# |  \- org.ow2.asm:asm-tree:jar:9.10.1 [compile]
+# |     \- org.ow2.asm:asm:jar:9.10.1 [compile]
+# +- com.uber.nullaway:nullaway:jar:0.13.7 [compile]
+# |  +- org.jspecify:jspecify:jar:1.0.0 [compile]
+# |  +- org.checkerframework:dataflow-nullaway:jar:4.0.0 [runtime]
+# |  |  \- org.checkerframework:checker-qual:jar:4.0.0 [runtime]
+# |  \- com.google.guava:guava:jar:31.1-jre [runtime] (conflicts with 27.1-jre)
+# \- org.jspecify:jspecify:jar:1.0.0 [compile]
 
 _java_test(
     name = "verify_config_sha256",
@@ -111,7 +121,6 @@ _java_import(
     tags = ["maven_coordinates=com.google.guava:guava:27.1-jre"],
     deps = [
         ":animal_sniffer_annotations",
-        ":checker_qual",
         ":error_prone_annotations",
         ":failureaccess",
         ":j2objc_annotations",
@@ -138,6 +147,17 @@ _java_import(
     name = "javapoet",
     jars = ["@javapoet//file"],
     tags = ["maven_coordinates=com.palantir.javapoet:javapoet:0.14.0"],
+)
+
+_java_import(
+    name = "nullaway",
+    jars = ["@nullaway//file"],
+    tags = ["maven_coordinates=com.uber.nullaway:nullaway:0.13.7"],
+    runtime_deps = [
+        ":dataflow_nullaway",
+        ":guava",
+    ],
+    deps = [":jspecify"],
 )
 
 _java_import(
@@ -172,8 +192,16 @@ _java_import(
 _java_import(
     name = "checker_qual",
     jars = ["@checker_qual//file"],
-    tags = ["maven_coordinates=org.checkerframework:checker-qual:2.5.2"],
+    tags = ["maven_coordinates=org.checkerframework:checker-qual:4.0.0"],
     visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "dataflow_nullaway",
+    jars = ["@dataflow_nullaway//file"],
+    tags = ["maven_coordinates=org.checkerframework:dataflow-nullaway:4.0.0"],
+    visibility = ["//visibility:private"],
+    runtime_deps = [":checker_qual"],
 )
 
 _java_import(
@@ -194,6 +222,12 @@ _java_import(
     jars = ["@hamcrest_core//file"],
     tags = ["maven_coordinates=org.hamcrest:hamcrest-core:1.1"],
     visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "jspecify",
+    jars = ["@jspecify//file"],
+    tags = ["maven_coordinates=org.jspecify:jspecify:1.0.0"],
 )
 
 _java_import(

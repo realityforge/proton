@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import javax.annotation.Nonnull;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
@@ -16,16 +15,16 @@ public final class JsonUtil {
     private JsonUtil() {}
 
     public static void writeJsonResource(
-            @Nonnull final ProcessingEnvironment processingEnv,
-            @Nonnull final Element element,
-            @Nonnull final String filename,
-            @Nonnull final Consumer<JsonGenerator> action)
+            final ProcessingEnvironment processingEnv,
+            final Element element,
+            final String filename,
+            final Consumer<JsonGenerator> action)
             throws IOException {
         final Map<String, Object> properties = new HashMap<>();
         properties.put(JsonGenerator.PRETTY_PRINTING, true);
         final JsonGeneratorFactory generatorFactory = Json.createGeneratorFactory(properties);
 
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final var baos = new ByteArrayOutputStream();
         final JsonGenerator g = generatorFactory.createGenerator(baos);
         action.accept(g);
         g.close();
@@ -37,8 +36,7 @@ public final class JsonUtil {
      * Format the json file.
      * This is horribly inefficient but it is not called very often or with big files so ... meh.
      */
-    @Nonnull
-    public static String formatJson(@Nonnull final String input) {
+    public static String formatJson(final String input) {
         return input.replaceAll("(?m)^ {4}([^ ])", "  $1")
                         .replaceAll("(?m)^ {8}([^ ])", "    $1")
                         .replaceAll("(?m)^ {12}([^ ])", "      $1")

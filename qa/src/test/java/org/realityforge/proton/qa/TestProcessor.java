@@ -4,7 +4,6 @@ import com.palantir.javapoet.MethodSpec;
 import com.palantir.javapoet.TypeSpec;
 import java.io.IOException;
 import java.util.Set;
-import javax.annotation.Nonnull;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedOptions;
@@ -20,25 +19,22 @@ import org.realityforge.proton.StopWatch;
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 @SupportedOptions("proton_test.custom_option")
 public final class TestProcessor extends AbstractStandardProcessor {
-    @Nonnull
     private final StopWatch _generateStopWatch = new StopWatch("Generate Test Type");
 
     private boolean _generated;
 
     @Override
-    @Nonnull
     protected String getIssueTrackerURL() {
         return "https://github.com/realityforge/proton/issues";
     }
 
     @Override
-    @Nonnull
     protected String getOptionPrefix() {
         return "proton_test";
     }
 
     @Override
-    public boolean process(@Nonnull final Set<? extends TypeElement> annotations, @Nonnull final RoundEnvironment env) {
+    public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment env) {
         if (!_generated
                 && !env.processingOver()
                 && !env.getElementsAnnotatedWith(GenerateType.class).isEmpty()) {

@@ -4,27 +4,22 @@ import java.util.Locale;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.TypeKind;
+import org.jspecify.annotations.Nullable;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 public final class NamesUtil {
     private NamesUtil() {}
 
-    public static boolean isJavaIdentifier(@Nonnull final String name) {
+    public static boolean isJavaIdentifier(final String name) {
         return SourceVersion.isIdentifier(name) && !SourceVersion.isKeyword(name);
     }
 
-    @Nonnull
     public static String mustBeJavaIdentifier(
-            @Nonnull final String annotationClassname,
-            @Nonnull final String parameterName,
-            @Nonnull final String name,
-            @Nonnull final Element element) {
+            final String annotationClassname, final String parameterName, final String name, final Element element) {
         if (!SourceVersion.isIdentifier(name)) {
             throw new ProcessorException(
                     MemberChecks.toSimpleName(annotationClassname) + " target specified an " + "invalid value '"
@@ -42,17 +37,13 @@ public final class NamesUtil {
         }
     }
 
-    @Nonnull
-    public static String firstCharacterToLowerCase(@Nonnull final String name) {
+    public static String firstCharacterToLowerCase(final String name) {
         return Character.toLowerCase(name.charAt(0)) + name.substring(1);
     }
 
     @Nullable
     public static String deriveName(
-            @Nonnull final Element element,
-            @Nonnull final Pattern pattern,
-            @Nonnull final String name,
-            @Nonnull final String sentinelValue) {
+            final Element element, final Pattern pattern, final String name, final String sentinelValue) {
         if (sentinelValue.equals(name)) {
             final Matcher matcher = pattern.matcher(element.getSimpleName().toString());
             return matcher.find() ? firstCharacterToLowerCase(matcher.group(1)) : null;
@@ -61,13 +52,12 @@ public final class NamesUtil {
         }
     }
 
-    @Nonnull
     public static String getPropertyAccessorName(
-            @Nonnull final ExecutableElement method,
-            @Nonnull final Pattern getterPattern,
-            @Nonnull final Pattern booleanGetterPattern,
-            @Nonnull final String specifiedName,
-            @Nonnull final String sentinelValue) {
+            final ExecutableElement method,
+            final Pattern getterPattern,
+            final Pattern booleanGetterPattern,
+            final String specifiedName,
+            final String sentinelValue) {
         String name = deriveName(method, getterPattern, specifiedName, sentinelValue);
         if (null != name) {
             return name;
@@ -80,10 +70,9 @@ public final class NamesUtil {
         return method.getSimpleName().toString();
     }
 
-    @Nonnull
-    public static String constantCaseToLowerCamel(@Nonnull final String name) {
+    public static String constantCaseToLowerCamel(final String name) {
         final String[] parts = name.split("_");
-        final StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
         for (final String part : parts) {
             if (part.isEmpty()) {
                 continue;
@@ -101,14 +90,13 @@ public final class NamesUtil {
         return sb.toString();
     }
 
-    @Nonnull
     public static String extractName(
-            @Nonnull final ExecutableElement method,
-            @Nonnull final Function<ExecutableElement, String> defaultExtractor,
-            @Nonnull final String annotationClassname,
-            @Nonnull final String parameterName,
-            @Nonnull final String sentinelValue,
-            @Nonnull final String declaredName) {
+            final ExecutableElement method,
+            final Function<ExecutableElement, String> defaultExtractor,
+            final String annotationClassname,
+            final String parameterName,
+            final String sentinelValue,
+            final String declaredName) {
         if (sentinelValue.equals(declaredName)) {
             final String defaultValue = defaultExtractor.apply(method);
             if (null == defaultValue) {
