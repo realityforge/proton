@@ -44,6 +44,11 @@ if [[ -z "${GPG_USER:-}" ]]; then
   exit 1
 fi
 
+if [[ -z "${MAVEN_CENTRAL_USERNAME:-}" ]]; then
+  echo "MAVEN_CENTRAL_USERNAME must be set." >&2
+  exit 1
+fi
+
 if [[ -z "${MAVEN_CENTRAL_PASSWORD:-}" ]]; then
   echo "MAVEN_CENTRAL_PASSWORD must be set." >&2
   exit 1
