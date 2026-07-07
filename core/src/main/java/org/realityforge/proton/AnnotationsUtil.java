@@ -17,202 +17,185 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 
-@SuppressWarnings( { "SameParameterValue", "WeakerAccess", "unused", "RedundantSuppression" } )
-public final class AnnotationsUtil
-{
-  @Nonnull
-  public static final String NULLABLE_CLASSNAME = "javax.annotation.Nullable";
-  @Nonnull
-  public static final String NONNULL_CLASSNAME = "javax.annotation.Nonnull";
+@SuppressWarnings({"SameParameterValue", "WeakerAccess", "unused", "RedundantSuppression"})
+public final class AnnotationsUtil {
+    @Nonnull
+    public static final String NULLABLE_CLASSNAME = "javax.annotation.Nullable";
 
-  private AnnotationsUtil()
-  {
-  }
+    @Nonnull
+    public static final String NONNULL_CLASSNAME = "javax.annotation.Nonnull";
 
-  @SuppressWarnings( "unchecked" )
-  @Nonnull
-  public static List<AnnotationMirror> getRepeatingAnnotations( @Nonnull final Element typeElement,
-                                                                @Nonnull final String containerClassName,
-                                                                @Nonnull final String annotationClassName )
-  {
-    final AnnotationValue annotationValue = findAnnotationValue( typeElement, containerClassName, "value" );
-    if ( null != annotationValue )
-    {
-      return ( (List<AnnotationValue>) annotationValue.getValue() ).stream().
-        map( v -> (AnnotationMirror) v.getValue() ).toList();
-    }
-    else
-    {
-      final AnnotationMirror annotation = findAnnotationByType( typeElement, annotationClassName );
-      return null != annotation ? Collections.singletonList( annotation ) : Collections.emptyList();
-    }
-  }
+    private AnnotationsUtil() {}
 
-  @SuppressWarnings( "unchecked" )
-  @Nonnull
-  public static List<TypeMirror> getTypeMirrorsAnnotationParameter( @Nonnull final AnnotatedConstruct annotated,
-                                                                    @Nonnull final String annotationClassName,
-                                                                    @Nonnull final String parameterName )
-  {
-    return ( (List<AnnotationValue>) getAnnotationValue( annotated, annotationClassName, parameterName ).getValue() )
-      .stream()
-      .map( v -> (TypeMirror) v.getValue() ).toList();
-  }
-
-  @Nonnull
-  public static String getEnumAnnotationParameter( @Nonnull final AnnotatedConstruct annotated,
-                                                   @Nonnull final String annotationClassname,
-                                                   @Nonnull final String parameterName )
-  {
-    final VariableElement parameter = (VariableElement)
-      getAnnotationValue( annotated, annotationClassname, parameterName ).getValue();
-    return parameter.getSimpleName().toString();
-  }
-
-  @Nonnull
-  public static AnnotationValue getAnnotationValue( @Nonnull final AnnotatedConstruct annotated,
-                                                    @Nonnull final String annotationClassName,
-                                                    @Nonnull final String parameterName )
-  {
-    final AnnotationValue value = findAnnotationValue( annotated, annotationClassName, parameterName );
-    assert null != value;
-    return value;
-  }
-
-  @Nullable
-  public static AnnotationValue findAnnotationValue( @Nonnull final AnnotatedConstruct annotated,
-                                                     @Nonnull final String annotationClassName,
-                                                     @Nonnull final String parameterName )
-  {
-    final AnnotationMirror annotation = findAnnotationByType( annotated, annotationClassName );
-    return null == annotation ? null : findAnnotationValue( annotation, parameterName );
-  }
-
-  @Nullable
-  public static AnnotationValue findAnnotationValue( @Nonnull final AnnotationMirror annotation,
-                                                     @Nonnull final String parameterName )
-  {
-    final Map<ExecutableElement, AnnotationValue> values = getAnnotationValuesWithDefaults( annotation );
-    final ExecutableElement annotationKey = values.keySet().stream().
-      filter( k -> parameterName.equals( k.getSimpleName().toString() ) ).findFirst().orElse( null );
-    return values.get( annotationKey );
-  }
-
-  /**
-   * Returns the {@link AnnotationMirror}'s map of {@link AnnotationValue} indexed by {@link
-   * ExecutableElement}, supplying default values from the annotation if the annotation property has
-   * not been set. This is equivalent to {@link
-   * Elements#getElementValuesWithDefaults(AnnotationMirror)} but can be called statically without
-   * an {@link Elements} instance.
-   *
-   * <p>The iteration order of elements of the returned map will be the order in which the {@link
-   * ExecutableElement}s are defined in {@code annotation}'s {@linkplain
-   * AnnotationMirror#getAnnotationType() type}.
-   */
-  @Nonnull
-  public static Map<ExecutableElement, AnnotationValue> getAnnotationValuesWithDefaults( @Nonnull final AnnotationMirror annotation )
-  {
-    final Map<ExecutableElement, AnnotationValue> values = new LinkedHashMap<>();
-    final Map<? extends ExecutableElement, ? extends AnnotationValue> declaredValues = annotation.getElementValues();
-    final List<? extends Element> enclosedElements = annotation.getAnnotationType().asElement().getEnclosedElements();
-    for ( final Element enclosedElement : enclosedElements )
-    {
-      if ( ElementKind.METHOD == enclosedElement.getKind() )
-      {
-        final ExecutableElement method = (ExecutableElement) enclosedElement;
-        // Must iterate and put in this order, to ensure consistency in generated code.
-        if ( declaredValues.containsKey( method ) )
-        {
-          values.put( method, declaredValues.get( method ) );
+    @SuppressWarnings("unchecked")
+    @Nonnull
+    public static List<AnnotationMirror> getRepeatingAnnotations(
+            @Nonnull final Element typeElement,
+            @Nonnull final String containerClassName,
+            @Nonnull final String annotationClassName) {
+        final AnnotationValue annotationValue = findAnnotationValue(typeElement, containerClassName, "value");
+        if (null != annotationValue) {
+            return ((List<AnnotationValue>) annotationValue.getValue())
+                    .stream().map(v -> (AnnotationMirror) v.getValue()).toList();
+        } else {
+            final AnnotationMirror annotation = findAnnotationByType(typeElement, annotationClassName);
+            return null != annotation ? Collections.singletonList(annotation) : Collections.emptyList();
         }
-        else
-        {
-          final AnnotationValue defaultValue = method.getDefaultValue();
-          assert null != defaultValue;
-          values.put( method, defaultValue );
-        }
-      }
     }
-    return values;
-  }
 
-  @Nullable
-  public static AnnotationValue findAnnotationValueNoDefaults( @Nonnull final AnnotationMirror annotation,
-                                                               @Nonnull final String parameterName )
-  {
-    final Map<? extends ExecutableElement, ? extends AnnotationValue> values = annotation.getElementValues();
-    final ExecutableElement annotationKey = values.keySet().stream().
-      filter( k -> parameterName.equals( k.getSimpleName().toString() ) ).findFirst().orElse( null );
-    return values.get( annotationKey );
-  }
+    @SuppressWarnings("unchecked")
+    @Nonnull
+    public static List<TypeMirror> getTypeMirrorsAnnotationParameter(
+            @Nonnull final AnnotatedConstruct annotated,
+            @Nonnull final String annotationClassName,
+            @Nonnull final String parameterName) {
+        return ((List<AnnotationValue>) getAnnotationValue(annotated, annotationClassName, parameterName)
+                        .getValue())
+                .stream().map(v -> (TypeMirror) v.getValue()).toList();
+    }
 
-  @Nonnull
-  public static AnnotationValue getAnnotationValue( @Nonnull final AnnotationMirror annotation,
-                                                    @Nonnull final String parameterName )
-  {
-    final AnnotationValue value = findAnnotationValue( annotation, parameterName );
-    assert null != value;
-    return value;
-  }
+    @Nonnull
+    public static String getEnumAnnotationParameter(
+            @Nonnull final AnnotatedConstruct annotated,
+            @Nonnull final String annotationClassname,
+            @Nonnull final String parameterName) {
+        final VariableElement parameter =
+                (VariableElement) getAnnotationValue(annotated, annotationClassname, parameterName)
+                        .getValue();
+        return parameter.getSimpleName().toString();
+    }
 
-  @SuppressWarnings( "unchecked" )
-  @Nonnull
-  public static <T> T getAnnotationValueValue( @Nonnull final AnnotationMirror annotation,
-                                               @Nonnull final String parameterName )
-  {
-    return (T) getAnnotationValue( annotation, parameterName ).getValue();
-  }
+    @Nonnull
+    public static AnnotationValue getAnnotationValue(
+            @Nonnull final AnnotatedConstruct annotated,
+            @Nonnull final String annotationClassName,
+            @Nonnull final String parameterName) {
+        final AnnotationValue value = findAnnotationValue(annotated, annotationClassName, parameterName);
+        assert null != value;
+        return value;
+    }
 
-  @Nonnull
-  public static AnnotationMirror getAnnotationByType( @Nonnull final AnnotatedConstruct annotated,
-                                                      @Nonnull final String annotationClassName )
-  {
-    final AnnotationMirror annotation = findAnnotationByType( annotated, annotationClassName );
-    assert null != annotation;
-    return annotation;
-  }
+    @Nullable
+    public static AnnotationValue findAnnotationValue(
+            @Nonnull final AnnotatedConstruct annotated,
+            @Nonnull final String annotationClassName,
+            @Nonnull final String parameterName) {
+        final AnnotationMirror annotation = findAnnotationByType(annotated, annotationClassName);
+        return null == annotation ? null : findAnnotationValue(annotation, parameterName);
+    }
 
-  @Nullable
-  public static AnnotationMirror findAnnotationByType( @Nonnull final AnnotatedConstruct annotated,
-                                                       @Nonnull final String annotationClassName )
-  {
-    return
-      annotated.getAnnotationMirrors().stream()
-        .filter( a -> a.getAnnotationType().toString().equals( annotationClassName ) )
-        .findFirst()
-        .orElse( null );
-  }
+    @Nullable
+    public static AnnotationValue findAnnotationValue(
+            @Nonnull final AnnotationMirror annotation, @Nonnull final String parameterName) {
+        final Map<ExecutableElement, AnnotationValue> values = getAnnotationValuesWithDefaults(annotation);
+        final ExecutableElement annotationKey = values.keySet().stream()
+                .filter(k -> parameterName.equals(k.getSimpleName().toString()))
+                .findFirst()
+                .orElse(null);
+        return values.get(annotationKey);
+    }
 
-  public static boolean hasAnnotationOfType( @Nonnull final AnnotatedConstruct annotated,
-                                             @Nonnull final String annotationClassName )
-  {
-    return null != findAnnotationByType( annotated, annotationClassName );
-  }
+    /**
+     * Returns the {@link AnnotationMirror}'s map of {@link AnnotationValue} indexed by {@link
+     * ExecutableElement}, supplying default values from the annotation if the annotation property has
+     * not been set. This is equivalent to {@link
+     * Elements#getElementValuesWithDefaults(AnnotationMirror)} but can be called statically without
+     * an {@link Elements} instance.
+     *
+     * <p>The iteration order of elements of the returned map will be the order in which the {@link
+     * ExecutableElement}s are defined in {@code annotation}'s {@linkplain
+     * AnnotationMirror#getAnnotationType() type}.
+     */
+    @Nonnull
+    public static Map<ExecutableElement, AnnotationValue> getAnnotationValuesWithDefaults(
+            @Nonnull final AnnotationMirror annotation) {
+        final Map<ExecutableElement, AnnotationValue> values = new LinkedHashMap<>();
+        final Map<? extends ExecutableElement, ? extends AnnotationValue> declaredValues =
+                annotation.getElementValues();
+        final List<? extends Element> enclosedElements =
+                annotation.getAnnotationType().asElement().getEnclosedElements();
+        for (final Element enclosedElement : enclosedElements) {
+            if (ElementKind.METHOD == enclosedElement.getKind()) {
+                final ExecutableElement method = (ExecutableElement) enclosedElement;
+                // Must iterate and put in this order, to ensure consistency in generated code.
+                if (declaredValues.containsKey(method)) {
+                    values.put(method, declaredValues.get(method));
+                } else {
+                    final AnnotationValue defaultValue = method.getDefaultValue();
+                    assert null != defaultValue;
+                    values.put(method, defaultValue);
+                }
+            }
+        }
+        return values;
+    }
 
-  @Nonnull
-  public static String extractName( @Nonnull final ExecutableElement method,
-                                    @Nonnull final Function<ExecutableElement, String> defaultExtractor,
-                                    @Nonnull final String annotationClassname,
-                                    @Nonnull final String parameterName,
-                                    @Nonnull final String sentinelValue )
-  {
-    final String declaredName =
-      (String) getAnnotationValue( method, annotationClassname, parameterName ).getValue();
-    return NamesUtil.extractName( method,
-                                  defaultExtractor,
-                                  annotationClassname,
-                                  parameterName,
-                                  sentinelValue,
-                                  declaredName );
-  }
+    @Nullable
+    public static AnnotationValue findAnnotationValueNoDefaults(
+            @Nonnull final AnnotationMirror annotation, @Nonnull final String parameterName) {
+        final Map<? extends ExecutableElement, ? extends AnnotationValue> values = annotation.getElementValues();
+        final ExecutableElement annotationKey = values.keySet().stream()
+                .filter(k -> parameterName.equals(k.getSimpleName().toString()))
+                .findFirst()
+                .orElse(null);
+        return values.get(annotationKey);
+    }
 
-  public static boolean hasNonnullAnnotation( @Nonnull final Element element )
-  {
-    return hasAnnotationOfType( element, NONNULL_CLASSNAME );
-  }
+    @Nonnull
+    public static AnnotationValue getAnnotationValue(
+            @Nonnull final AnnotationMirror annotation, @Nonnull final String parameterName) {
+        final AnnotationValue value = findAnnotationValue(annotation, parameterName);
+        assert null != value;
+        return value;
+    }
 
-  public static boolean hasNullableAnnotation( @Nonnull final Element element )
-  {
-    return hasAnnotationOfType( element, NULLABLE_CLASSNAME );
-  }
+    @SuppressWarnings("unchecked")
+    @Nonnull
+    public static <T> T getAnnotationValueValue(
+            @Nonnull final AnnotationMirror annotation, @Nonnull final String parameterName) {
+        return (T) getAnnotationValue(annotation, parameterName).getValue();
+    }
+
+    @Nonnull
+    public static AnnotationMirror getAnnotationByType(
+            @Nonnull final AnnotatedConstruct annotated, @Nonnull final String annotationClassName) {
+        final AnnotationMirror annotation = findAnnotationByType(annotated, annotationClassName);
+        assert null != annotation;
+        return annotation;
+    }
+
+    @Nullable
+    public static AnnotationMirror findAnnotationByType(
+            @Nonnull final AnnotatedConstruct annotated, @Nonnull final String annotationClassName) {
+        return annotated.getAnnotationMirrors().stream()
+                .filter(a -> a.getAnnotationType().toString().equals(annotationClassName))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public static boolean hasAnnotationOfType(
+            @Nonnull final AnnotatedConstruct annotated, @Nonnull final String annotationClassName) {
+        return null != findAnnotationByType(annotated, annotationClassName);
+    }
+
+    @Nonnull
+    public static String extractName(
+            @Nonnull final ExecutableElement method,
+            @Nonnull final Function<ExecutableElement, String> defaultExtractor,
+            @Nonnull final String annotationClassname,
+            @Nonnull final String parameterName,
+            @Nonnull final String sentinelValue) {
+        final String declaredName = (String)
+                getAnnotationValue(method, annotationClassname, parameterName).getValue();
+        return NamesUtil.extractName(
+                method, defaultExtractor, annotationClassname, parameterName, sentinelValue, declaredName);
+    }
+
+    public static boolean hasNonnullAnnotation(@Nonnull final Element element) {
+        return hasAnnotationOfType(element, NONNULL_CLASSNAME);
+    }
+
+    public static boolean hasNullableAnnotation(@Nonnull final Element element) {
+        return hasAnnotationOfType(element, NULLABLE_CLASSNAME);
+    }
 }

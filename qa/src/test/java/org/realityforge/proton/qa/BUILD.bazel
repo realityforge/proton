@@ -1,0 +1,102 @@
+load("//third_party/java:rules.bzl", "java_library", "java_testng_test")
+
+package(default_visibility = ["//visibility:public"])
+
+TEST_DEPS = [
+    "//core/src/main/java/org/realityforge/proton:core",
+    "//qa/src/main/java/org/realityforge/proton/qa:qa",
+    "//third_party/java:guava",
+    "//third_party/java:javapoet",
+    "//third_party/java:javax_annotation",
+    "//third_party/java:javax_json",
+    "//third_party/java:testng",
+]
+
+TEST_SRCS = [
+    "CompilationTest.java",
+    "ProcessorTestHarnessTest.java",
+]
+
+TEST_DATA = [
+    ":processor_test_support",
+    "//qa/src/test/fixtures",
+    "//tools/release:proton_core_jar",
+    "//tools/release:proton_core_pom",
+    "//tools/release:proton_core_unshaded_jar",
+    "@guava//file",
+    "@javapoet//file",
+    "@javax_annotation//file",
+]
+
+TEST_JVM_FLAGS = [
+    "-DbaseDir=$(rootpath :processor_test_support)",
+    "-Dproton.core.jar=$(rootpath //tools/release:proton_core_jar)",
+    "-Dproton.core.pom=$(rootpath //tools/release:proton_core_pom)",
+    "-Dproton.core.unshaded.jar=$(rootpath //tools/release:proton_core_unshaded_jar)",
+    "-Dproton.guava.jar=$(rootpath @guava//file)",
+    "-Dproton.javapoet.jar=$(rootpath @javapoet//file)",
+    "-Dproton.javax_annotation.jar=$(rootpath @javax_annotation//file)",
+    "-Dproton_test.fixture_dir=qa/src/test/fixtures",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+]
+
+TEST_CLASSES = [
+    "org.realityforge.proton.qa.CompilationTest",
+    "org.realityforge.proton.qa.ProcessorTestHarnessTest",
+]
+
+java_library(
+    name = "processor_test_support",
+    srcs = [
+        "GenerateType.java",
+        "TestProcessor.java",
+    ],
+    deps = TEST_DEPS,
+)
+
+java_testng_test(
+    name = "qa_tests",
+    size = "small",
+    srcs = TEST_SRCS,
+    data = TEST_DATA,
+    jvm_flags = TEST_JVM_FLAGS,
+    test_classes = TEST_CLASSES,
+    runtime_deps = [
+        "//tools/java-format:com_palantir_javaformat__palantir_java_format",
+    ],
+    deps = TEST_DEPS + [
+        ":processor_test_support",
+    ],
+)
+
+java_testng_test(
+    name = "qa_coverage_tests",
+    size = "small",
+    srcs = TEST_SRCS,
+    data = TEST_DATA,
+    jvm_flags = TEST_JVM_FLAGS,
+    tags = ["manual"],
+    test_classes = TEST_CLASSES,
+    testng_args = [
+        "-excludegroups",
+        "external_javac",
+    ],
+    runtime_deps = [
+        "//tools/java-format:com_palantir_javaformat__palantir_java_format",
+    ],
+    deps = TEST_DEPS + [
+        ":processor_test_support",
+    ],
+)
+
+test_suite(
+    name = "all_tests",
+    tests = [
+        ":qa_tests",
+    ],
+)

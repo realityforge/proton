@@ -1,0 +1,10 @@
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "fixtures",
+    srcs = [
+        "//qa/src/test/fixtures/expected/com/example/generated:files",
+        "//qa/src/test/fixtures/expectedFormatted/com/example/generated:files",
+        "//qa/src/test/fixtures/input/com/example:files",
+    ],
+)

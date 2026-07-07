@@ -1,0 +1,254 @@
+load("@rules_java//java:defs.bzl", _java_binary = "java_binary", _java_import = "java_import", _java_test = "java_test")
+
+package(default_visibility = ["//visibility:public"])
+
+# --- depgen-generated targets start ---
+
+# DO NOT EDIT: Content is auto-generated from //third_party/java:dependencies.yml by https://github.com/realityforge/bazel-depgen version 0.26
+
+# SHA256 of the configuration content that generated this content
+_CONFIG_SHA256 = "4103AD1E665B71DFFC901284EA3D94414320471002F687FDD93808A7CFD946F7"
+
+exports_files(["dependencies.yml"])
+
+# Dependency Graph Generated from the input data
+# +- org.realityforge.bazel.depgen:bazel-depgen:jar:all:0.26 [compile]
+# +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
+# +- org.glassfish:javax.json:jar:1.1 [compile]
+# |  \- javax.json:javax.json-api:jar:1.1 [compile, optional]
+# +- com.palantir.javapoet:javapoet:jar:0.14.0 [compile]
+# +- com.google.guava:guava:jar:27.1-jre [compile]
+# |  +- com.google.guava:failureaccess:jar:1.0.1 [compile]
+# |  +- com.google.guava:listenablefuture:jar:9999.0-empty-to-avoid-conflict-with-guava [compile]
+# |  +- com.google.code.findbugs:jsr305:jar:3.0.2 [compile]
+# |  +- org.checkerframework:checker-qual:jar:2.5.2 [compile]
+# |  +- com.google.errorprone:error_prone_annotations:jar:2.2.0 [compile]
+# |  +- com.google.j2objc:j2objc-annotations:jar:1.1 [compile]
+# |  \- org.codehaus.mojo:animal-sniffer-annotations:jar:1.17 [compile]
+# +- org.testng:testng:jar:6.8 [compile]
+# |  +- org.apache.ant:ant:jar:1.7.0 [compile, optional]
+# |  +- junit:junit:jar:4.10 [compile]
+# |  |  \- org.hamcrest:hamcrest-core:jar:1.1 [compile]
+# |  +- org.beanshell:bsh:jar:2.0b4 [compile]
+# |  +- com.beust:jcommander:jar:1.27 [compile]
+# |  \- org.yaml:snakeyaml:jar:1.6 [compile]
+# +- org.ow2.asm:asm:jar:9.10.1 [compile]
+# \- org.ow2.asm:asm-commons:jar:9.10.1 [compile]
+#    +- org.ow2.asm:asm:jar:9.10.1 [compile]
+#    \- org.ow2.asm:asm-tree:jar:9.10.1 [compile]
+#       \- org.ow2.asm:asm:jar:9.10.1 [compile]
+
+_java_test(
+    name = "verify_config_sha256",
+    size = "small",
+    args = [
+        "--config-file",
+        "$(rootpath //third_party/java:dependencies.yml)",
+        "--verbose",
+        "hash",
+        "--verify-sha256",
+        _CONFIG_SHA256,
+    ],
+    data = ["//third_party/java:dependencies.yml"],
+    main_class = "org.realityforge.bazel.depgen.Main",
+    use_testrunner = False,
+    visibility = ["//visibility:private"],
+    runtime_deps = [":bazel_depgen"],
+)
+
+_java_binary(
+    name = "update_depgen_generated_outputs",
+    args = [
+        "--config-file",
+        "$(rootpath //third_party/java:dependencies.yml)",
+        "--verbose",
+        "generate",
+    ],
+    data = ["//third_party/java:dependencies.yml"],
+    main_class = "org.realityforge.bazel.depgen.Main",
+    tags = [
+        "local",
+        "manual",
+        "no-cache",
+        "no-remote",
+        "no-sandbox",
+    ],
+    visibility = ["//visibility:private"],
+    runtime_deps = [":bazel_depgen"],
+)
+
+_java_import(
+    name = "jcommander",
+    jars = ["@jcommander//file"],
+    tags = ["maven_coordinates=com.beust:jcommander:1.27"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "jsr305",
+    jars = ["@jsr305//file"],
+    tags = ["maven_coordinates=com.google.code.findbugs:jsr305:3.0.2"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "error_prone_annotations",
+    jars = ["@error_prone_annotations//file"],
+    tags = ["maven_coordinates=com.google.errorprone:error_prone_annotations:2.2.0"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "failureaccess",
+    jars = ["@failureaccess//file"],
+    tags = ["maven_coordinates=com.google.guava:failureaccess:1.0.1"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "guava",
+    jars = ["@guava//file"],
+    tags = ["maven_coordinates=com.google.guava:guava:27.1-jre"],
+    deps = [
+        ":animal_sniffer_annotations",
+        ":checker_qual",
+        ":error_prone_annotations",
+        ":failureaccess",
+        ":j2objc_annotations",
+        ":jsr305",
+        ":listenablefuture",
+    ],
+)
+
+_java_import(
+    name = "listenablefuture",
+    jars = ["@listenablefuture//file"],
+    tags = ["maven_coordinates=com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "j2objc_annotations",
+    jars = ["@j2objc_annotations//file"],
+    tags = ["maven_coordinates=com.google.j2objc:j2objc-annotations:1.1"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "javapoet",
+    jars = ["@javapoet//file"],
+    tags = ["maven_coordinates=com.palantir.javapoet:javapoet:0.14.0"],
+)
+
+_java_import(
+    name = "javax_json_api",
+    jars = ["@javax_json_api//file"],
+    tags = ["maven_coordinates=javax.json:javax.json-api:1.1"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "junit",
+    jars = ["@junit//file"],
+    tags = ["maven_coordinates=junit:junit:4.10"],
+    visibility = ["//visibility:private"],
+    deps = [":hamcrest_core"],
+)
+
+_java_import(
+    name = "ant",
+    jars = ["@ant//file"],
+    tags = ["maven_coordinates=org.apache.ant:ant:1.7.0"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "bsh",
+    jars = ["@bsh//file"],
+    tags = ["maven_coordinates=org.beanshell:bsh:2.0b4"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "checker_qual",
+    jars = ["@checker_qual//file"],
+    tags = ["maven_coordinates=org.checkerframework:checker-qual:2.5.2"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "animal_sniffer_annotations",
+    jars = ["@animal_sniffer_annotations//file"],
+    tags = ["maven_coordinates=org.codehaus.mojo:animal-sniffer-annotations:1.17"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "javax_json",
+    jars = ["@javax_json//file"],
+    tags = ["maven_coordinates=org.glassfish:javax.json:1.1"],
+)
+
+_java_import(
+    name = "hamcrest_core",
+    jars = ["@hamcrest_core//file"],
+    tags = ["maven_coordinates=org.hamcrest:hamcrest-core:1.1"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "asm",
+    jars = ["@asm//file"],
+    tags = ["maven_coordinates=org.ow2.asm:asm:9.10.1"],
+)
+
+_java_import(
+    name = "asm_commons",
+    jars = ["@asm_commons//file"],
+    tags = ["maven_coordinates=org.ow2.asm:asm-commons:9.10.1"],
+    deps = [
+        ":asm",
+        ":asm_tree",
+    ],
+)
+
+_java_import(
+    name = "asm_tree",
+    jars = ["@asm_tree//file"],
+    tags = ["maven_coordinates=org.ow2.asm:asm-tree:9.10.1"],
+    visibility = ["//visibility:private"],
+    deps = [":asm"],
+)
+
+_java_import(
+    name = "bazel_depgen",
+    jars = ["@bazel_depgen//file"],
+    tags = ["maven_coordinates=org.realityforge.bazel.depgen:bazel-depgen:0.26"],
+)
+
+_java_import(
+    name = "javax_annotation",
+    jars = ["@javax_annotation//file"],
+    tags = ["maven_coordinates=org.realityforge.javax.annotation:javax.annotation:1.1.1"],
+)
+
+_java_import(
+    name = "testng",
+    jars = ["@testng//file"],
+    tags = ["maven_coordinates=org.testng:testng:6.8"],
+    deps = [
+        ":bsh",
+        ":jcommander",
+        ":junit",
+        ":snakeyaml",
+    ],
+)
+
+_java_import(
+    name = "snakeyaml",
+    jars = ["@snakeyaml//file"],
+    tags = ["maven_coordinates=org.yaml:snakeyaml:1.6"],
+    visibility = ["//visibility:private"],
+)
+
+# --- depgen-generated targets end ---

@@ -14,48 +14,40 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
-@SupportedAnnotationTypes( "*" )
-@SupportedSourceVersion( SourceVersion.RELEASE_17 )
-final class SynthesizingProcessor
-  extends AbstractProcessor
-{
-  @Nonnull
-  private final String _classname;
-  @Nonnull
-  private final String _source;
-  private final int _targetRound;
-  private int _round;
+@SupportedAnnotationTypes("*")
+@SupportedSourceVersion(SourceVersion.RELEASE_17)
+final class SynthesizingProcessor extends AbstractProcessor {
+    @Nonnull
+    private final String _classname;
 
-  SynthesizingProcessor( @Nonnull final String classname,
-                         @Nonnull final String source,
-                         final int targetRound )
-  {
-    _classname = Objects.requireNonNull( classname );
-    _source = Objects.requireNonNull( source );
-    _targetRound = targetRound;
-  }
+    @Nonnull
+    private final String _source;
 
-  @Override
-  public boolean process( final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv )
-  {
-    try
-    {
-      if ( _targetRound == _round )
-      {
-        processingEnv.getMessager()
-          .printMessage( Diagnostic.Kind.NOTE, "Synthesizing " + _classname + " in round " + _round );
-        final JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile( _classname );
-        try ( final Writer writer = sourceFile.openWriter() )
-        {
-          writer.write( _source );
+    private final int _targetRound;
+    private int _round;
+
+    SynthesizingProcessor(@Nonnull final String classname, @Nonnull final String source, final int targetRound) {
+        _classname = Objects.requireNonNull(classname);
+        _source = Objects.requireNonNull(source);
+        _targetRound = targetRound;
+    }
+
+    @Override
+    public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
+        try {
+            if (_targetRound == _round) {
+                processingEnv
+                        .getMessager()
+                        .printMessage(Diagnostic.Kind.NOTE, "Synthesizing " + _classname + " in round " + _round);
+                final JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(_classname);
+                try (final Writer writer = sourceFile.openWriter()) {
+                    writer.write(_source);
+                }
+            }
+        } catch (final IOException e) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Error occurred synthesizing files: " + e);
         }
-      }
+        _round++;
+        return false;
     }
-    catch ( final IOException e )
-    {
-      processingEnv.getMessager().printMessage( Diagnostic.Kind.ERROR, "Error occurred synthesizing files: " + e );
-    }
-    _round++;
-    return false;
-  }
 }

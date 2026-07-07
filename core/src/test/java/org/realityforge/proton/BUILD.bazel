@@ -1,0 +1,70 @@
+load("//third_party/java:rules.bzl", "java_library", "java_testng_test")
+
+package(default_visibility = ["//visibility:public"])
+
+TEST_DEPS = [
+    "//core/src/main/java/org/realityforge/proton:core",
+    "//third_party/java:guava",
+    "//third_party/java:javapoet",
+    "//third_party/java:javax_annotation",
+    "//third_party/java:javax_json",
+    "//third_party/java:testng",
+]
+
+java_library(
+    name = "test_support",
+    srcs = [
+        "TestUtil.java",
+    ],
+    deps = TEST_DEPS,
+)
+
+java_testng_test(
+    name = "core_tests",
+    size = "small",
+    srcs = [
+        "AnnotationsUtilTest.java",
+        "DeferredElementSetTest.java",
+        "ElementsUtilTest.java",
+        "GeneratorUtilTest.java",
+        "JsonUtilTest.java",
+        "MemberChecksTest.java",
+        "NamesUtilTest.java",
+        "ProcessorExceptionTest.java",
+        "ResourceUtilTest.java",
+        "StandardProcessorTest.java",
+        "StopWatchTest.java",
+        "SuperficialValidationTest.java",
+        "SuppressWarningsUtilTest.java",
+        "TypesUtilTest.java",
+    ],
+    test_classes = [
+        "org.realityforge.proton.AnnotationsUtilTest",
+        "org.realityforge.proton.DeferredElementSetTest",
+        "org.realityforge.proton.ElementsUtilTest",
+        "org.realityforge.proton.GeneratorUtilTest",
+        "org.realityforge.proton.JsonUtilTest",
+        "org.realityforge.proton.MemberChecksTest",
+        "org.realityforge.proton.NamesUtilTest",
+        "org.realityforge.proton.ProcessorExceptionTest",
+        "org.realityforge.proton.ResourceUtilTest",
+        "org.realityforge.proton.StandardProcessorTest",
+        "org.realityforge.proton.StopWatchTest",
+        "org.realityforge.proton.SuperficialValidationTest",
+        "org.realityforge.proton.SuppressWarningsUtilTest",
+        "org.realityforge.proton.TypesUtilTest",
+    ],
+    runtime_deps = [
+        "//tools/java-format:com_palantir_javaformat__palantir_java_format",
+    ],
+    deps = TEST_DEPS + [
+        ":test_support",
+    ],
+)
+
+test_suite(
+    name = "all_tests",
+    tests = [
+        ":core_tests",
+    ],
+)

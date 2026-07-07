@@ -1,0 +1,29 @@
+load("//third_party/java:rules.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "core",
+    srcs = [
+        "AbstractStandardProcessor.java",
+        "AnnotationsUtil.java",
+        "DeferredElementSet.java",
+        "ElementsUtil.java",
+        "GeneratorUtil.java",
+        "JsonUtil.java",
+        "MemberChecks.java",
+        "NamesUtil.java",
+        "ProcessorException.java",
+        "ResourceUtil.java",
+        "StopWatch.java",
+        "SuperficialValidation.java",
+        "SuppressWarningsUtil.java",
+        "TypesUtil.java",
+    ],
+    deps = [
+        "//third_party/java:guava",
+        "//third_party/java:javapoet",
+        "//third_party/java:javax_annotation",
+        "//third_party/java:javax_json",
+    ],
+)

@@ -1,0 +1,16 @@
+# Shared Bazel project view used by IntelliJ IDEA's Bazel plugin.
+# Keep this list to runnable IDE targets; libraries and generated dependencies
+# are imported transitively from these targets.
+# For more options, see project view file documentation: https://www.jetbrains.com/help/idea/bazel-project-view.html
+
+derive_targets_from_directories: true
+allow_manual_targets_sync: true
+java_source_root_optimization_enable: true
+java_source_root_optimization_patterns:
+  core/src/main/java
+  core/src/test/java
+  qa/src/main/java
+  qa/src/test/java
+  tools/release
+
+directories: .

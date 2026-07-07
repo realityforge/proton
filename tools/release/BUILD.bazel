@@ -1,0 +1,176 @@
+load(
+    ":release.bzl",
+    "release_jar",
+    "release_javadoc_jar",
+    "release_pom",
+    "release_shaded_jar",
+    "release_source_jar",
+    "release_version",
+    "release_version_file",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+CORE_JAVA_TARGETS = [
+    "//core/src/main/java/org/realityforge/proton:core",
+]
+
+QA_JAVA_TARGETS = [
+    "//qa/src/main/java/org/realityforge/proton/qa:qa",
+]
+
+FORMATTER_RELOCATIONS = [
+    "com.palantir.javaformat=org.realityforge.proton.vendor.javaformat",
+    "com.google.common=org.realityforge.proton.vendor.google.common",
+    "com.google.thirdparty=org.realityforge.proton.vendor.google.thirdparty",
+    "com.google.errorprone=org.realityforge.proton.vendor.google.errorprone",
+    "com.google.j2objc=org.realityforge.proton.vendor.google.j2objc",
+    "org.jspecify=org.realityforge.proton.vendor.jspecify",
+    "fj=org.realityforge.proton.vendor.fj",
+    "com.fasterxml.jackson=org.realityforge.proton.vendor.jackson",
+]
+
+CORE_COMPILE_DEPENDENCY_JARS = [
+    "@guava//file",
+    "@javapoet//file",
+    "@javax_annotation//file",
+    "@javax_json//file",
+]
+
+QA_COMPILE_DEPENDENCY_JARS = [
+    "@javax_annotation//file",
+    "@testng//file",
+]
+
+release_version(
+    name = "version",
+    build_setting_default = "0.0.0-SNAPSHOT",
+)
+
+alias(
+    name = "jar_builder",
+    actual = "//tools/release/org/realityforge/proton/release:jar_builder",
+)
+
+alias(
+    name = "javadoc_jar_builder",
+    actual = "//tools/release/org/realityforge/proton/release:javadoc_jar_builder",
+)
+
+alias(
+    name = "dist",
+    actual = "//tools/release/org/realityforge/proton/release:dist",
+)
+
+alias(
+    name = "release_lifecycle",
+    actual = "//tools/release/org/realityforge/proton/release:release_lifecycle",
+)
+
+release_jar(
+    name = "proton_core_unshaded_jar",
+    out = "proton-core-unshaded.jar",
+    java_targets = CORE_JAVA_TARGETS,
+)
+
+release_shaded_jar(
+    name = "proton_core_jar",
+    out = "proton-core.jar",
+    java_targets = CORE_JAVA_TARGETS,
+    relocations = FORMATTER_RELOCATIONS,
+    shade_targets = [
+        "//tools/java-format:com_palantir_javaformat__palantir_java_format",
+    ],
+    skip_prefixes = [
+        "META-INF/versions/21/",
+    ],
+)
+
+release_source_jar(
+    name = "proton_core_sources_jar",
+    out = "proton-core-sources.jar",
+    java_targets = CORE_JAVA_TARGETS,
+)
+
+release_javadoc_jar(
+    name = "proton_core_javadoc_jar",
+    out = "proton-core-javadoc.jar",
+    classpath = CORE_COMPILE_DEPENDENCY_JARS,
+    java_targets = CORE_JAVA_TARGETS,
+)
+
+release_pom(
+    name = "proton_core_pom",
+    out = "proton-core.pom",
+    artifact_id = "proton-core",
+    dependencies = [
+        "org.realityforge.javax.annotation:javax.annotation:1.1.1",
+        "org.glassfish:javax.json:1.1",
+        "com.palantir.javapoet:javapoet:0.14.0",
+        "com.google.guava:guava:27.1-jre",
+    ],
+    description = "Utilities for building annotation processors.",
+    display_name = "Proton Core",
+)
+
+release_jar(
+    name = "proton_qa_jar",
+    out = "proton-qa.jar",
+    java_targets = QA_JAVA_TARGETS,
+)
+
+release_source_jar(
+    name = "proton_qa_sources_jar",
+    out = "proton-qa-sources.jar",
+    java_targets = QA_JAVA_TARGETS,
+)
+
+release_javadoc_jar(
+    name = "proton_qa_javadoc_jar",
+    out = "proton-qa-javadoc.jar",
+    classpath = QA_COMPILE_DEPENDENCY_JARS,
+    java_targets = QA_JAVA_TARGETS,
+)
+
+release_pom(
+    name = "proton_qa_pom",
+    out = "proton-qa.pom",
+    artifact_id = "proton-qa",
+    dependencies = [
+        "org.realityforge.proton:proton-core:{version}",
+        "org.realityforge.javax.annotation:javax.annotation:1.1.1",
+        "org.glassfish:javax.json:1.1",
+        "com.palantir.javapoet:javapoet:0.14.0",
+        "com.google.guava:guava:27.1-jre",
+        "org.testng:testng:6.8",
+    ],
+    description = "Utilities to help testing annotation processors.",
+    display_name = "Proton QA",
+)
+
+release_version_file(
+    name = "release_version",
+    out = "release-version.txt",
+)
+
+filegroup(
+    name = "maven_artifacts",
+    srcs = [
+        ":proton_core_jar",
+        ":proton_core_javadoc_jar",
+        ":proton_core_pom",
+        ":proton_core_sources_jar",
+        ":proton_qa_jar",
+        ":proton_qa_javadoc_jar",
+        ":proton_qa_pom",
+        ":proton_qa_sources_jar",
+    ],
+)
+
+test_suite(
+    name = "all_tests",
+    tests = [
+        "//tools/release/org/realityforge/proton/release:jar_builder_test",
+        "//tools/release/org/realityforge/proton/release:release_lifecycle_tool_test",
+    ],
+)

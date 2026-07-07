@@ -1,0 +1,17 @@
+load("//third_party/java:rules.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "qa",
+    srcs = [
+        "AbstractProcessorTest.java",
+        "Compilation.java",
+        "CompileTestUtil.java",
+        "SynthesizingProcessor.java",
+    ],
+    deps = [
+        "//third_party/java:javax_annotation",
+        "//third_party/java:testng",
+    ],
+)

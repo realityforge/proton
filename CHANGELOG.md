@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+* Move the project from Buildr/Rake to Bazel, including bazel-depgen managed dependencies, GitHub Actions CI,
+  Palantir Java Format automation, Buildifier checks, coverage enforcement, IntelliJ project view generation, and the
+  Maven Central release workflow.
+
 ### [v0.74](https://github.com/realityforge/proton/tree/v0.74) (2026-07-06) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.73...v0.74)
 
 Changes in this release:

@@ -1,69 +1,64 @@
 package org.realityforge.proton;
 
-import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-public final class StopWatchTest
-{
-  @Test
-  public void constructorInitializesNameAndDuration()
-  {
-    final StopWatch stopWatch = new StopWatch( "Load" );
+import org.testng.annotations.Test;
 
-    assertEquals( stopWatch.getName(), "Load" );
-    assertEquals( stopWatch.getTotalDuration(), 0L );
-    assertEquals( stopWatch.toString(), "Load: 0" );
-  }
+public final class StopWatchTest {
+    @Test
+    public void constructorInitializesNameAndDuration() {
+        final StopWatch stopWatch = new StopWatch("Load");
 
-  @Test
-  public void startStopAccumulatesDuration()
-    throws Exception
-  {
-    final StopWatch stopWatch = new StopWatch( "Load" );
+        assertEquals(stopWatch.getName(), "Load");
+        assertEquals(stopWatch.getTotalDuration(), 0L);
+        assertEquals(stopWatch.toString(), "Load: 0");
+    }
 
-    stopWatch.start();
-    Thread.sleep( 1 );
-    stopWatch.stop();
-    final long firstDuration = stopWatch.getTotalDuration();
-    assertTrue( firstDuration > 0L );
+    @Test
+    public void startStopAccumulatesDuration() throws Exception {
+        final StopWatch stopWatch = new StopWatch("Load");
 
-    stopWatch.start();
-    Thread.sleep( 1 );
-    stopWatch.stop();
-    assertTrue( stopWatch.getTotalDuration() > firstDuration );
-  }
+        stopWatch.start();
+        Thread.sleep(1);
+        stopWatch.stop();
+        final long firstDuration = stopWatch.getTotalDuration();
+        assertTrue(firstDuration > 0L);
 
-  @Test
-  public void resetClearsAccumulatedDuration()
-    throws Exception
-  {
-    final StopWatch stopWatch = new StopWatch( "Load" );
-    stopWatch.start();
-    Thread.sleep( 1 );
-    stopWatch.stop();
+        stopWatch.start();
+        Thread.sleep(1);
+        stopWatch.stop();
+        assertTrue(stopWatch.getTotalDuration() > firstDuration);
+    }
 
-    stopWatch.reset();
+    @Test
+    public void resetClearsAccumulatedDuration() throws Exception {
+        final StopWatch stopWatch = new StopWatch("Load");
+        stopWatch.start();
+        Thread.sleep(1);
+        stopWatch.stop();
 
-    assertEquals( stopWatch.getTotalDuration(), 0L );
-  }
+        stopWatch.reset();
 
-  @Test( expectedExceptions = IllegalStateException.class,
-         expectedExceptionsMessageRegExp = "Attempted to start Load timer that had already been started" )
-  public void startFailsWhenAlreadyStarted()
-  {
-    final StopWatch stopWatch = new StopWatch( "Load" );
+        assertEquals(stopWatch.getTotalDuration(), 0L);
+    }
 
-    stopWatch.start();
-    stopWatch.start();
-  }
+    @Test(
+            expectedExceptions = IllegalStateException.class,
+            expectedExceptionsMessageRegExp = "Attempted to start Load timer that had already been started")
+    public void startFailsWhenAlreadyStarted() {
+        final StopWatch stopWatch = new StopWatch("Load");
 
-  @Test( expectedExceptions = IllegalStateException.class,
-         expectedExceptionsMessageRegExp = "Attempted to stop 'Load' timer that had not been started" )
-  public void stopFailsWhenNotStarted()
-  {
-    final StopWatch stopWatch = new StopWatch( "Load" );
+        stopWatch.start();
+        stopWatch.start();
+    }
 
-    stopWatch.stop();
-  }
+    @Test(
+            expectedExceptions = IllegalStateException.class,
+            expectedExceptionsMessageRegExp = "Attempted to stop 'Load' timer that had not been started")
+    public void stopFailsWhenNotStarted() {
+        final StopWatch stopWatch = new StopWatch("Load");
+
+        stopWatch.stop();
+    }
 }

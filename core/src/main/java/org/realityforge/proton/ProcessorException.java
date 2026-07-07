@@ -7,55 +7,51 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 
-public final class ProcessorException
-  extends RuntimeException
-{
-  @Nonnull
-  private final Element _element;
-  @Nullable
-  private final AnnotationMirror _annotation;
-  @Nullable
-  private final AnnotationValue _annotationValue;
+public final class ProcessorException extends RuntimeException {
+    @Nonnull
+    private final Element _element;
 
-  public ProcessorException( @Nonnull final String message, @Nonnull final Element element )
-  {
-    this( message, element, null );
-  }
+    @Nullable
+    private final AnnotationMirror _annotation;
 
-  public ProcessorException( @Nonnull final String message,
-                             @Nonnull final Element element,
-                             @Nullable final AnnotationMirror annotation )
-  {
-    this( message, element, annotation, null );
-  }
+    @Nullable
+    private final AnnotationValue _annotationValue;
 
-  public ProcessorException( final String message,
-                             @Nonnull final Element element,
-                             @Nullable final AnnotationMirror annotation,
-                             @Nullable final AnnotationValue annotationValue )
-  {
-    super( message );
-    assert null == annotationValue || null != annotation;
-    _element = Objects.requireNonNull( element );
-    _annotation = annotation;
-    _annotationValue = annotationValue;
-  }
+    public ProcessorException(@Nonnull final String message, @Nonnull final Element element) {
+        this(message, element, null);
+    }
 
-  @Nonnull
-  public Element getElement()
-  {
-    return _element;
-  }
+    public ProcessorException(
+            @Nonnull final String message,
+            @Nonnull final Element element,
+            @Nullable final AnnotationMirror annotation) {
+        this(message, element, annotation, null);
+    }
 
-  @Nullable
-  public AnnotationMirror getAnnotation()
-  {
-    return _annotation;
-  }
+    public ProcessorException(
+            final String message,
+            @Nonnull final Element element,
+            @Nullable final AnnotationMirror annotation,
+            @Nullable final AnnotationValue annotationValue) {
+        super(message);
+        assert null == annotationValue || null != annotation;
+        _element = Objects.requireNonNull(element);
+        _annotation = annotation;
+        _annotationValue = annotationValue;
+    }
 
-  @Nullable
-  public AnnotationValue getAnnotationValue()
-  {
-    return _annotationValue;
-  }
+    @Nonnull
+    public Element getElement() {
+        return _element;
+    }
+
+    @Nullable
+    public AnnotationMirror getAnnotation() {
+        return _annotation;
+    }
+
+    @Nullable
+    public AnnotationValue getAnnotationValue() {
+        return _annotationValue;
+    }
 }

@@ -1,0 +1,119 @@
+tasks:
+  - id: T-01
+    title: Document migration requirements and implementation plan
+    status: completed
+    priority: high
+    depends_on: []
+    acceptance:
+      - Requirements, plan, and task board exist under plans/bazel-build-migration.
+      - No open questions remain.
+    files:
+      - plans/bazel-build-migration/00-requirements.md
+      - plans/bazel-build-migration/10-implementation-plan.md
+      - plans/bazel-build-migration/20-task-board.yaml
+    evidence:
+      - command: "sed -n '1,160p' plans/bazel-build-migration/00-requirements.md"
+        result: "requirements include scope, locked decisions, command surface, quality gates, divergences, and no open questions"
+      - command: "sed -n '1,180p' plans/bazel-build-migration/10-implementation-plan.md"
+        result: "implementation plan includes phase sequence, risks, mitigations, required full gate, and decision log"
+    commit:
+      hash: not_required
+      message: not_requested
+  - id: T-02
+    title: Add Bazel tooling, dependencies, and CI
+    status: completed
+    priority: high
+    depends_on:
+      - T-01
+    acceptance:
+      - Bazel 9.1.1 and module-mode files exist.
+      - bazel-depgen configs and update script exist.
+      - formatting, buildifier, coverage, IntelliJ, and CI files exist.
+    files:
+      - .bazelversion
+      - .bazelrc
+      - MODULE.bazel
+      - third_party/java/**
+      - tools/**
+      - .github/workflows/ci.yml
+    evidence:
+      - command: "tools/check.sh"
+        result: "passed; regenerated depgen outputs, ran buildifier and Java format checks, built targets, ran tests, and enforced coverage"
+    commit:
+      hash: not_required
+      message: not_requested
+  - id: T-03
+    title: Add source, test, fixture, and release Bazel targets
+    status: completed
+    priority: high
+    depends_on:
+      - T-02
+    acceptance:
+      - All Java source and test packages have explicit BUILD files.
+      - Release artifact targets generate core and QA jars, source jars, javadocs, and POMs.
+      - Shaded formatter classes are preserved in proton-core release jar.
+    files:
+      - BUILD.bazel
+      - core/**
+      - qa/**
+      - tools/release/**
+    evidence:
+      - command: "bazel build //..."
+        result: "passed as part of tools/check.sh"
+      - command: "bazel test //..."
+        result: "passed; 5 test targets passed"
+    commit:
+      hash: not_required
+      message: not_requested
+  - id: T-04
+    title: Update documentation and changelog
+    status: completed
+    priority: medium
+    depends_on:
+      - T-03
+    acceptance:
+      - CONTRIBUTING documents Bazel workflow and release steps.
+      - CHANGELOG Unreleased section mentions the build migration.
+      - Obsolete Buildr/Rake files are removed.
+    files:
+      - CONTRIBUTING.md
+      - CHANGELOG.md
+      - buildfile
+      - build.yaml
+      - Gemfile
+      - tasks/**
+    evidence:
+      - command: "git diff --check"
+        result: "passed; no whitespace errors"
+    commit:
+      hash: not_required
+      message: not_requested
+  - id: T-05
+    title: Regenerate and verify
+    status: completed
+    priority: high
+    depends_on:
+      - T-04
+    acceptance:
+      - Dependency outputs are regenerated.
+      - Formatting and buildifier checks pass.
+      - Build, tests, and coverage gates pass through tools/check.sh.
+    files:
+      - MODULE.bazel
+      - MODULE.bazel.lock
+      - third_party/java/BUILD.bazel
+      - tools/java-format/BUILD.bazel
+    evidence:
+      - command: "tools/java_format.sh write"
+        result: "passed; Java sources formatted with Palantir Java Format"
+      - command: "bazel run //:buildifier"
+        result: "passed; Bazel files formatted"
+      - command: "tools/check.sh"
+        result: "passed; line coverage 72.57% (1058/1458), branch coverage 62.50% (450/720)"
+      - command: "bazel test //..."
+        result: "passed; 5 test targets passed"
+      - command: "git diff --check"
+        result: "passed; no whitespace errors"
+    commit:
+      hash: not_required
+      message: not_requested

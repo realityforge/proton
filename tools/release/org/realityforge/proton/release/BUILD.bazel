@@ -1,0 +1,102 @@
+load("//third_party/java:rules.bzl", "java_binary", "java_test")
+
+package(default_visibility = ["//visibility:public"])
+
+java_binary(
+    name = "jar_builder",
+    srcs = [
+        "JarBuilder.java",
+        "package-info.java",
+    ],
+    main_class = "org.realityforge.proton.release.JarBuilder",
+    deps = [
+        "//third_party/java:asm",
+        "//third_party/java:asm_commons",
+    ],
+)
+
+java_binary(
+    name = "javadoc_jar_builder",
+    srcs = [
+        "JavadocJarBuilder.java",
+        "package-info.java",
+    ],
+    main_class = "org.realityforge.proton.release.JavadocJarBuilder",
+)
+
+java_binary(
+    name = "dist",
+    srcs = [
+        "DistBuilder.java",
+        "package-info.java",
+    ],
+    args = [
+        "--version-file",
+        "$(rootpath //tools/release:release_version)",
+        "--artifact",
+        "proton-core:jar=$(rootpath //tools/release:proton_core_jar)",
+        "--artifact",
+        "proton-core:sources=$(rootpath //tools/release:proton_core_sources_jar)",
+        "--artifact",
+        "proton-core:javadoc=$(rootpath //tools/release:proton_core_javadoc_jar)",
+        "--artifact",
+        "proton-core:pom=$(rootpath //tools/release:proton_core_pom)",
+        "--artifact",
+        "proton-qa:jar=$(rootpath //tools/release:proton_qa_jar)",
+        "--artifact",
+        "proton-qa:sources=$(rootpath //tools/release:proton_qa_sources_jar)",
+        "--artifact",
+        "proton-qa:javadoc=$(rootpath //tools/release:proton_qa_javadoc_jar)",
+        "--artifact",
+        "proton-qa:pom=$(rootpath //tools/release:proton_qa_pom)",
+    ],
+    data = [
+        "//tools/release:proton_core_jar",
+        "//tools/release:proton_core_javadoc_jar",
+        "//tools/release:proton_core_pom",
+        "//tools/release:proton_core_sources_jar",
+        "//tools/release:proton_qa_jar",
+        "//tools/release:proton_qa_javadoc_jar",
+        "//tools/release:proton_qa_pom",
+        "//tools/release:proton_qa_sources_jar",
+        "//tools/release:release_version",
+    ],
+    main_class = "org.realityforge.proton.release.DistBuilder",
+)
+
+java_binary(
+    name = "release_lifecycle",
+    srcs = [
+        "ReleaseLifecycleTool.java",
+        "package-info.java",
+    ],
+    main_class = "org.realityforge.proton.release.ReleaseLifecycleTool",
+)
+
+java_test(
+    name = "jar_builder_test",
+    size = "small",
+    srcs = [
+        "JarBuilder.java",
+        "JarBuilderTest.java",
+        "package-info.java",
+    ],
+    main_class = "org.realityforge.proton.release.JarBuilderTest",
+    use_testrunner = False,
+    deps = [
+        "//third_party/java:asm",
+        "//third_party/java:asm_commons",
+    ],
+)
+
+java_test(
+    name = "release_lifecycle_tool_test",
+    size = "small",
+    srcs = [
+        "ReleaseLifecycleTool.java",
+        "ReleaseLifecycleToolTest.java",
+        "package-info.java",
+    ],
+    main_class = "org.realityforge.proton.release.ReleaseLifecycleToolTest",
+    use_testrunner = False,
+)
