@@ -70,7 +70,7 @@ java_testng_test(
     jvm_flags = TEST_JVM_FLAGS,
     test_classes = TEST_CLASSES,
     runtime_deps = [
-        "//tools/java-format:com_palantir_javaformat__palantir_java_format",
+        "@rules_palantir_java_format_maven//:com_palantir_javaformat_palantir_java_format",
     ],
     deps = TEST_DEPS + [
         ":processor_test_support",
@@ -90,7 +90,7 @@ java_testng_test(
         "external_javac",
     ],
     runtime_deps = [
-        "//tools/java-format:com_palantir_javaformat__palantir_java_format",
+        "@rules_palantir_java_format_maven//:com_palantir_javaformat_palantir_java_format",
     ],
     deps = TEST_DEPS + [
         ":processor_test_support",

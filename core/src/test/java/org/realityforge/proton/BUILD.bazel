@@ -55,7 +55,7 @@ java_testng_test(
         "org.realityforge.proton.TypesUtilTest",
     ],
     runtime_deps = [
-        "//tools/java-format:com_palantir_javaformat__palantir_java_format",
+        "@rules_palantir_java_format_maven//:com_palantir_javaformat_palantir_java_format",
     ],
     deps = TEST_DEPS + [
         ":test_support",

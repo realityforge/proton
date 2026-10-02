@@ -25,7 +25,7 @@ When submitting pull requests, make sure to do the following:
 - Remove trailing whitespace. Many editors will do this automatically.
 - Ensure any new files have [a trailing newline](https://stackoverflow.com/questions/5813311/no-newline-at-end-of-file)
 
-Java source is formatted with Palantir Java Format:
+Java source is formatted with Palantir Java Format through `rules_palantir_java_format`:
 
 ```bash
 tools/java_format.sh write
@@ -35,6 +35,15 @@ Check formatting without changing files:
 
 ```bash
 tools/java_format.sh check
+```
+
+The check builds `//:java_format_check` using persistent workers and checks workspace Java sources reachable through
+its target graph. Write and watch use the existing source roots and exclude the QA fixture trees.
+
+Watch Java sources and format changes as you edit:
+
+```bash
+tools/java_format_watch.sh
 ```
 
 ## Bazel build
@@ -60,7 +69,7 @@ bazel build //...
 bazel test //...
 ```
 
-After editing `third_party/java/dependencies.yml` or `tools/java-format/dependencies.yml`, run:
+After editing `third_party/java/dependencies.yml`, run:
 
 ```bash
 tools/update_java_deps.sh

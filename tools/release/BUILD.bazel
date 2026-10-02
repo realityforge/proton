@@ -81,7 +81,7 @@ release_shaded_jar(
     java_targets = CORE_JAVA_TARGETS,
     relocations = FORMATTER_RELOCATIONS,
     shade_targets = [
-        "//tools/java-format:com_palantir_javaformat__palantir_java_format",
+        "@rules_palantir_java_format_maven//:com_palantir_javaformat_palantir_java_format",
     ],
     skip_prefixes = [
         "META-INF/versions/21/",
