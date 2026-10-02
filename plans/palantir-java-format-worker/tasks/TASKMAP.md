@@ -1,16 +1,16 @@
 # Task Map
 
 - Spec: [SPEC.md](../SPEC.md)
-- Status: implementation-review
-- Current frontier: implementation review
+- Status: reviewed
+- Current frontier: closeout
 - Planning reviewer: /root/planning_review (1/3 rounds; Findings: none)
 - Plan checkpoint: automatic (explicit user evidence-based grill/entry exception and passing planning review)
-- Implementation reviewer: pending (0/5 rounds)
+- Implementation reviewer: /root/implementation_review (2/5 rounds; round 1 interrupted by user pause, round 2 Findings: none)
 
 ## Full-scope validation
 
 - Gate: tools/check.sh, git diff --check, reviewed published assigned PR with verified auto-merge state
-- Evidence: `tools/check.sh` exit 0 after checksum-verified cache recovery; 4 tests + 2 coverage targets pass; line 72.07%, branch 62.64%; git diff --check passes. Implementation review and GitHub delivery continue through closeout/handoff.
+- Evidence: `tools/check.sh` exit 0 after checksum-verified cache recovery; 4 tests + 2 coverage targets pass; line 72.07%, branch 62.64%; git diff --check passes. Implementation review passed with no findings. Restored checkout is the unchanged tested commit bcc8d79; no rebuild during review. GitHub delivery and exact-head CI continue through closeout/handoff.
 
 ## Tasks
 
