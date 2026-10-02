@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Adopt `rules_palantir_java_format` for worker-backed Java formatting checks in the existing CI gate, and add
+  `tools/java_format_watch.sh` to format source changes while editing.
+
 ### [v0.75](https://github.com/realityforge/proton/tree/v0.75) (2026-07-07) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.74...v0.75)
 
 Changes in this release:

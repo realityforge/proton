@@ -4,37 +4,22 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MODE="${1:-write}"
 
+cd "${ROOT}"
+
+format_roots=(--root=core/src --root=qa/src/main --root=qa/src/test/java --root=tools)
+
 case "${MODE}" in
-  write | check)
+  write)
+    exec bazel run @rules_palantir_java_format//:java_format -- "${format_roots[@]}"
+    ;;
+  watch)
+    exec bazel run @rules_palantir_java_format//:java_format_watch -- "${format_roots[@]}"
+    ;;
+  check)
+    exec bazel build //:java_format_check
     ;;
   *)
-    echo "usage: tools/java_format.sh [write|check]" >&2
+    echo "usage: tools/java_format.sh [write|check|watch]" >&2
     exit 2
     ;;
 esac
-
-cd "${ROOT}"
-
-args_file="$(mktemp)"
-trap 'rm -f "${args_file}"' EXIT
-
-while IFS= read -r source_file; do
-  printf '%s/%s\n' "${ROOT}" "${source_file}" >> "${args_file}"
-done < <(rg --files -g '*.java' core/src qa/src/main qa/src/test/java tools | sort)
-
-if [[ ! -s "${args_file}" ]]; then
-  exit 0
-fi
-
-if [[ "${MODE}" == "check" ]]; then
-  bazel run //tools/java-format:palantir_java_format -- \
-    --palantir \
-    --dry-run \
-    --set-exit-if-changed \
-    "@${args_file}"
-else
-  bazel run //tools/java-format:palantir_java_format -- \
-    --palantir \
-    --replace \
-    "@${args_file}"
-fi
