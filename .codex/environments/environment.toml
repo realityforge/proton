@@ -1,0 +1,11 @@
+version = 1
+name = "proton"
+
+[setup]
+script = ""
+
+[cleanup]
+script = '''
+bazel clean --expunge_async
+bazel shutdown
+'''

@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Clean Bazel output and shut down its server when a Codex environment is cleaned up.
 * Adopt `rules_palantir_java_format` for worker-backed Java formatting checks in the existing CI gate, and add
   `tools/java_format_watch.sh` to format source changes while editing.
 
