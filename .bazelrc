@@ -11,7 +11,4 @@ build --strategy=PalantirJavaFormat=worker,local
 build --worker_max_instances=PalantirJavaFormat=1
 test --explicit_java_test_deps
 
-# Generate the symlink tree as a peer directory.
-# If we generate in the current directory, IDEA can start scanning and get stuck.
-common --symlink_prefix=../.bazel/proton/
 common --flag_alias=release_version=//tools/release:version
