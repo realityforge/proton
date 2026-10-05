@@ -28,12 +28,15 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Bazel
-        uses: bazel-contrib/setup-bazel@0.19.0
-        with:
-          bazelisk-cache: true
-          disk-cache: ${{ github.workflow }}
-          cache-save: ${{ github.event_name != 'pull_request' }}
+      - name: Set up Bazelisk
+        shell: bash
+        run: |
+          bazelisk_dir="${RUNNER_TEMP}/bazelisk"
+          mkdir -p "${bazelisk_dir}"
+          curl -fsSL "https://github.com/bazelbuild/bazelisk/releases/download/v1.29.0/bazelisk-linux-amd64" -o "${bazelisk_dir}/bazel"
+          printf '%s  %s\n' '5a408715e932c0250d28bd84555f12edbf70117de42f9181691c736eacc4a992' "${bazelisk_dir}/bazel" | sha256sum -c -
+          chmod +x "${bazelisk_dir}/bazel"
+          echo "${bazelisk_dir}" >> "${GITHUB_PATH}"
 
       - name: Install ripgrep
         run: |
