@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Upgrade the pinned Bazel version to 9.3.0.
 * Use Bazel's default output symlink and repository cache locations, and ignore workspace output symlinks in Git.
 * Clean Bazel output and shut down its server when a Codex environment is cleaned up.
 * Adopt `rules_palantir_java_format` for worker-backed Java formatting checks in the existing CI gate, and add
