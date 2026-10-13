@@ -25,8 +25,11 @@ Migrated dependencies, fixtures, public migration documentation and release meta
 - Rebased the plan/implementation commits onto current origin/master (1970a44), retaining upstream Bazel 9.3.0, rules_java 9.9.0 and Palantir worker formatting.
 - Verified remote Zulu JDK 17.0.20 reads binary type-use annotations with -XDaddTypeAnnotationsToSymbol=true; retained the existing remote Java 17 runtime/source level and JDK 25 tooling.
 - Focused Java 17 QA target passed, including exactly two NullAway errors in the deliberately invalid @Generated/@NullMarked source.
-- Final `tools/check.sh` passed: regenerated dependency metadata, Buildifier, worker formatting, all builds, packaging/release tests and core/QA coverage. Line coverage 74.21% (1145/1543); branch coverage 64.59% (498/771).
+- Final `tools/check.sh` passed: regenerated dependency metadata, Buildifier, worker formatting, all builds, packaging/release tests and core/QA coverage. Line coverage 74.26% (1148/1546); branch coverage 64.65% (501/775).
 - Parsed generated core and QA Maven POMs: JSpecify 1.0.0 present; direct legacy annotation artifact absent.
 - Owned-source/reference scan finds no legacy generation helpers/constants/dependencies; historical changelog and migration/absence assertions intentionally name removed APIs/artifacts.
 - Inspected final scope and diff; no Sting files modified. README documents the generator/QA APIs, local labels and compiler requirements.
 - No domain directories exist; no canonical promotion is required. Ready for persistent implementation review and subsequent closeout.
+
+- After upstream 4885caa and the review fix, tools/check.sh passed again with NullAway 0.14.2; focused core/QA tests passed.
+- A separate minimal consumer module with local_path_override and the root formatter archive_override built the public core/QA libraries plus proton_core_jar and proton_core_sources_jar. No Sting files were modified; the README now distinguishes raw JavaInfo from the bundled formatter artifact.

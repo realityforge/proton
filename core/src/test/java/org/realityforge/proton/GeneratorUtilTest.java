@@ -82,9 +82,13 @@ public final class GeneratorUtilTest {
               @Nullable T inherited(@Nullable T value);
               <X extends List<@Nullable T>> X inheritedBound();
             }
+            interface MultiParent<A, B> {
+              <X extends List<A> & Comparable<B>> X intersection();
+            }
             class Outer<T> { class Inner<U> {} }
             @NullMarked
-            public interface Signatures extends Parent<List<@Nullable String>> {
+            public interface Signatures extends Parent<List<@Nullable String>>,
+                MultiParent<List<@Nullable String>, @Nullable Integer> {
               @Nullable List<@Nullable String> nested(@Nullable List<@Nullable String> input);
               @Nullable String @Nullable [] arrays(@Nullable String @Nullable ... input);
               List<? extends @Nullable CharSequence> wildcard(List<? super @Nullable String> input);
@@ -151,6 +155,19 @@ public final class GeneratorUtilTest {
                             assertTrue(signature.contains("Outer<java.lang.@org.jspecify.annotations.Nullable"
                                     + " String>.Inner<java.lang.@org.jspecify.annotations.Nullable"
                                     + " Integer>"));
+                        case "intersection" -> {
+                            assertEquals(
+                                    override.typeVariables().get(0).bounds().size(), 2);
+                            assertTrue(
+                                    signature.contains(
+                                            "List<java.util.List<java.lang.@org.jspecify.annotations.Nullable"
+                                                    + " String>>"),
+                                    signature);
+                            assertTrue(
+                                    signature.contains(
+                                            "Comparable<java.lang.@org.jspecify.annotations.Nullable Integer>"),
+                                    signature);
+                        }
                         case "inheritedBound" ->
                             assertTrue(
                                     signature.contains("List<java.util.@org.jspecify.annotations.Nullable"

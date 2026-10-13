@@ -4,6 +4,7 @@ import static org.testng.Assert.*;
 
 import com.google.errorprone.BaseErrorProneJavaCompiler;
 import com.google.errorprone.scanner.ScannerSupplier;
+import com.uber.nullaway.JSpecifyUnrecognizedAnnotationLocation;
 import com.uber.nullaway.NullAway;
 import com.uber.nullaway.RequireExplicitNullMarking;
 import java.io.File;
@@ -42,8 +43,8 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
 
     @Override
     protected JavaCompiler javaCompiler() {
-        return new BaseErrorProneJavaCompiler(
-                ScannerSupplier.fromBugCheckerClasses(NullAway.class, RequireExplicitNullMarking.class));
+        return new BaseErrorProneJavaCompiler(ScannerSupplier.fromBugCheckerClasses(
+                NullAway.class, RequireExplicitNullMarking.class, JSpecifyUnrecognizedAnnotationLocation.class));
     }
 
     @Override
@@ -56,6 +57,7 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
                 "-XDaddTypeAnnotationsToSymbol=true",
                 "-Xep:NullAway:ERROR",
                 "-Xep:RequireExplicitNullMarking:ERROR",
+                "-Xep:JSpecifyUnrecognizedAnnotationLocation:ERROR",
                 "-XepOpt:NullAway:JSpecifyMode=true",
                 "-XepOpt:NullAway:OnlyNullMarked=true"));
         return options;

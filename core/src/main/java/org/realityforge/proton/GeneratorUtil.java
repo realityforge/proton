@@ -186,9 +186,13 @@ public final class GeneratorUtil {
 
     private static TypeVariableName getTypeVariableName(final TypeVariable variable) {
         final TypeMirror upper = variable.getUpperBound();
-        final List<? extends TypeMirror> bounds =
+        List<? extends TypeMirror> bounds =
                 upper instanceof IntersectionType intersection ? intersection.getBounds() : List.of(upper);
         final var element = (TypeParameterElement) variable.asElement();
+        if (bounds.size() > element.getBounds().size()
+                && "java.lang.Object".equals(bounds.get(0).toString())) {
+            bounds = bounds.subList(1, bounds.size());
+        }
         final List<TypeName> names = new ArrayList<>();
         for (int i = 0; i < bounds.size(); i++) {
             names.add(getTypeName(bounds.get(i), element.getBounds().get(i)));

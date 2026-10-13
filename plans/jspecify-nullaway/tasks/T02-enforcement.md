@@ -30,3 +30,5 @@ Marked generation, strict JSpecify-mode checking across owned sourceful rules, a
 - Resolved inherited method bounds preserve declaration annotations; compiler-backed core fixture covers substituted nested nullable bounds.
 
 - T03 rebased onto current origin/master (1970a44), whose remote JDK 17 is Zulu 17.0.20. Its binary annotation probe passes with the flag, so final delivery retains the existing remote Java 17 runtime instead of the temporary JDK 25 configuration.
+
+- Integrated concurrent upstream master 4885caa: retained NullAway 0.14.2 and JSpecifyUnrecognizedAnnotationLocation at error level; QA checking now selects that checker too. Focused core and QA tests pass with the stronger current checker.

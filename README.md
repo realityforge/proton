@@ -41,8 +41,8 @@ override `AbstractProcessorTest.javaCompiler()` with a checking `JavaCompiler`, 
 `assertCompilesWithoutWarnings(...)` also have overloads taking a `JavaCompiler` as their first argument; existing
 entry points continue to use the system compiler.
 
-Proton's QA tests use Error Prone's `BaseErrorProneJavaCompiler` with `NullAway` and `RequireExplicitNullMarking`,
-and these options:
+Proton's QA tests use Error Prone's `BaseErrorProneJavaCompiler` with `NullAway`, `RequireExplicitNullMarking` and
+`JSpecifyUnrecognizedAnnotationLocation`, and these options:
 
 ```text
 --release 17
@@ -50,6 +50,7 @@ and these options:
 -XDaddTypeAnnotationsToSymbol=true
 -Xep:NullAway:ERROR
 -Xep:RequireExplicitNullMarking:ERROR
+-Xep:JSpecifyUnrecognizedAnnotationLocation:ERROR
 -XepOpt:NullAway:JSpecifyMode=true
 -XepOpt:NullAway:OnlyNullMarked=true
 ```
@@ -72,6 +73,11 @@ Local Bazel consumers can use these public targets before a release:
 //core/src/main/java/org/realityforge/proton:core
 //qa/src/main/java/org/realityforge/proton/qa:qa
 ```
+
+Processors using default source formatting should consume `//tools/release:proton_core_jar`, with
+`//tools/release:proton_core_sources_jar` for sources. The raw `core` JavaInfo target does not bundle the formatter.
+These artifacts build from the local checkout. A consuming root module must carry Proton's formatter
+`archive_override` from `MODULE.bazel`; [only root-module overrides take effect](https://bazel.build/external/module#overrides).
 
 # Generated Source Formatting
 
