@@ -13,9 +13,6 @@ Proton recognises JSpecify nullability and marks generated types with `@NullMark
 `org.jspecify:jspecify` to the compilation and processor classpaths. Use
 `GeneratorUtil.getTypeName(TypeMirror)` to preserve explicit type-use annotations when building JavaPoet types.
 
-Migrating from `javax.annotation` is a breaking change. See [CHANGELOG.md](CHANGELOG.md) for the removed
-nonnull helpers and API changes.
-
 # Generated Source Formatting
 
 Processors extending `AbstractStandardProcessor` support the `<optionPrefix>.format_generated_source` option. The
