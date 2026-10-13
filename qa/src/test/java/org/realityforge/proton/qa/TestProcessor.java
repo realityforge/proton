@@ -16,7 +16,7 @@ import org.realityforge.proton.AbstractStandardProcessor;
 import org.realityforge.proton.StopWatch;
 
 @SupportedAnnotationTypes("org.realityforge.proton.qa.GenerateType")
-@SupportedSourceVersion(SourceVersion.RELEASE_17)
+@SupportedSourceVersion(SourceVersion.RELEASE_21)
 @SupportedOptions("proton_test.custom_option")
 public final class TestProcessor extends AbstractStandardProcessor {
     private final StopWatch _generateStopWatch = new StopWatch("Generate Test Type");

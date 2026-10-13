@@ -4,6 +4,8 @@
 
 Proton is a library of utilities that simplify building annotation processors.
 
+Proton requires Java 21 or later to run annotation processors. Generated sources can still target Java 17.
+
 The code base has yet to develop useful documentation. For the source code and project support please visit
 the [GitHub project](https://github.com/realityforge/proton).
 

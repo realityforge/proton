@@ -9,6 +9,7 @@ import com.uber.nullaway.NullAway;
 import com.uber.nullaway.RequireExplicitNullMarking;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -109,6 +110,22 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
     @Test
     public void assertSuccessfulCompileChecksExpectedAndExpectedFormatted() throws Exception {
         assertSuccessfulCompile("com.example.Model", "com/example/generated/GeneratedModel.java");
+    }
+
+    @Test
+    public void generatedCodeTargetsJava17() throws Exception {
+        final Compilation compilation = CompileTestUtil.assertCompilesWithoutWarnings(
+                javaCompiler(), inputs("com.example.Model"), getOptions(), processors(), List.of());
+        try {
+            final Path generatedClass = compilation.classOutput().resolve("com/example/generated/GeneratedModel.class");
+            assertEquals(
+                    ByteBuffer.wrap(Files.readAllBytes(generatedClass)).getShort(6),
+                    (short) 61,
+                    "Generated class must use Java 17 bytecode");
+        } finally {
+            deleteDir(compilation.sourceOutput());
+            deleteDir(compilation.classOutput());
+        }
     }
 
     @Test
@@ -325,6 +342,8 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
                     .resolve("bin/javac")
                     .toString());
             command.addAll(formatterJdkExports().stream().map(e -> "-J" + e).toList());
+            command.add("--release");
+            command.add("17");
             command.add("-classpath");
             command.add(classPath);
             command.add("-processorpath");
@@ -345,6 +364,13 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
             final var output = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
             final int exitCode = process.waitFor();
             final Path generatedSource = sourceOutput.resolve("com/example/generated/GeneratedModel.java");
+            if (0 == exitCode) {
+                final Path generatedClass = classOutput.resolve("com/example/generated/GeneratedModel.class");
+                assertEquals(
+                        ByteBuffer.wrap(Files.readAllBytes(generatedClass)).getShort(6),
+                        (short) 61,
+                        "Generated class must use Java 17 bytecode");
+            }
             return new JavacResult(
                     exitCode,
                     output,

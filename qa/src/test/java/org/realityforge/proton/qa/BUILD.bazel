@@ -5,7 +5,7 @@ package(default_visibility = ["//visibility:public"])
 TEST_DEPS = [
     "//core/src/main/java/org/realityforge/proton:core",
     "//qa/src/main/java/org/realityforge/proton/qa:qa",
-    "//third_party/java:error_prone_core",
+    "//third_party/java:bazel_error_prone",
     "//third_party/java:nullaway",
     "//third_party/java:guava",
     "//third_party/java:javapoet",
@@ -61,6 +61,7 @@ TEST_CLASSES = [
 
 java_library(
     name = "processor_test_support",
+    testonly = True,
     srcs = [
         "GenerateType.java",
         "TestProcessor.java",

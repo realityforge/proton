@@ -100,7 +100,7 @@ _TEST_ERROR_PRONE_JAVACOPTS = [
 
 _JAVA_JAVACOPTS = [
     "--release",
-    "17",
+    "21",
     "-Werror",
     "-Xep:NullAway:ERROR",
     "-Xep:RequireExplicitNullMarking:ERROR",

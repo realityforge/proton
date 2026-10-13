@@ -24,9 +24,6 @@ artifacts:
   - coord: org.testng:testng:6.8
   - coord: org.ow2.asm:asm:9.10.1
   - coord: org.ow2.asm:asm-commons:9.10.1
-  - coord: com.google.errorprone:error_prone_core:jar:with-dependencies:2.42.0
-    excludes:
-      - "*:*"
   - coord: com.uber.nullaway:nullaway:0.14.2
   - coord: org.jspecify:jspecify:1.0.0
     excludes:

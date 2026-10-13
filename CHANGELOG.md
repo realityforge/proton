@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* **Breaking:** Require Java 21 to run Proton and processor QA. Generated code remains compatible with Java 17,
+  verified by compiling processor fixtures with `--release 17`. QA reuses Bazel's bundled Error Prone.
 * Upgrade NullAway to 0.14.2 and enforce JSpecify mode and recognized nullness annotation locations in Bazel Java compilation.
   Correct name-extraction callback types to allow the nullable results already handled by the utilities.
 * Upgrade the pinned Bazel version to 9.3.0.

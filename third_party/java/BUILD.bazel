@@ -7,12 +7,19 @@ _java_plugin(
     deps = [":nullaway"],
 )
 
+_java_import(
+    name = "bazel_error_prone",
+    testonly = True,
+    jars = ["@remote_java_tools//:JavaBuilder"],
+    visibility = ["//qa/src/test/java/org/realityforge/proton/qa:__pkg__"],
+)
+
 # --- depgen-generated targets start ---
 
 # DO NOT EDIT: Content is auto-generated from //third_party/java:dependencies.yml by https://github.com/realityforge/bazel-depgen version 0.26
 
 # SHA256 of the configuration content that generated this content
-_CONFIG_SHA256 = "E44DEC4616B5A0EE3F268F9C09226FF29860776CB2D39AB7537CAE3B8F66819F"
+_CONFIG_SHA256 = "E5E60F7603C55A88AE6010F150DBC493FC8BBB94F16C18523A0EEF661E842BCF"
 
 exports_files(["dependencies.yml"])
 
@@ -40,7 +47,6 @@ exports_files(["dependencies.yml"])
 # |  +- org.ow2.asm:asm:jar:9.10.1 [compile]
 # |  \- org.ow2.asm:asm-tree:jar:9.10.1 [compile]
 # |     \- org.ow2.asm:asm:jar:9.10.1 [compile]
-# +- com.google.errorprone:error_prone_core:jar:with-dependencies:2.42.0 [compile]
 # +- com.uber.nullaway:nullaway:jar:0.14.2 [compile]
 # |  +- org.jspecify:jspecify:jar:1.0.1 [compile] (conflicts with 1.0.0)
 # |  +- org.checkerframework:dataflow-nullaway:jar:4.2.3 [runtime]
@@ -106,12 +112,6 @@ _java_import(
     jars = ["@error_prone_annotations//file"],
     tags = ["maven_coordinates=com.google.errorprone:error_prone_annotations:2.2.0"],
     visibility = ["//visibility:private"],
-)
-
-_java_import(
-    name = "error_prone_core",
-    jars = ["@error_prone_core//file"],
-    tags = ["maven_coordinates=com.google.errorprone:error_prone_core:2.42.0"],
 )
 
 _java_import(

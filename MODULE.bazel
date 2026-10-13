@@ -5,6 +5,10 @@ module(
 bazel_dep(name = "buildifier_prebuilt", version = "8.5.1", dev_dependency = True)
 
 bazel_dep(name = "rules_java", version = "9.9.0")
+
+java_toolchains = use_extension("@rules_java//java:extensions.bzl", "toolchains")
+use_repo(java_toolchains, "remote_java_tools")
+
 bazel_dep(name = "rules_jvm_external", version = "7.1")
 bazel_dep(name = "rules_palantir_java_format", version = "0.1.1")
 archive_override(
@@ -43,13 +47,6 @@ _http_file(
     downloaded_file_path = "com/google/errorprone/error_prone_annotations/2.2.0/error_prone_annotations-2.2.0.jar",
     sha256 = "6ebd22ca1b9d8ec06d41de8d64e0596981d9607b42035f9ed374f9de271a481a",
     urls = ["https://repo.maven.apache.org/maven2/com/google/errorprone/error_prone_annotations/2.2.0/error_prone_annotations-2.2.0.jar"],
-)
-
-_http_file(
-    name = "error_prone_core",
-    downloaded_file_path = "com/google/errorprone/error_prone_core/2.42.0/error_prone_core-2.42.0-with-dependencies.jar",
-    sha256 = "f9e747a2ff76dfae6bc0f71fc8c259b7493ecc093a96d3223d5b2669a996b0a7",
-    urls = ["https://repo.maven.apache.org/maven2/com/google/errorprone/error_prone_core/2.42.0/error_prone_core-2.42.0-with-dependencies.jar"],
 )
 
 _http_file(
