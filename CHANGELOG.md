@@ -9,6 +9,9 @@
 * Clean Bazel output and shut down its server when a Codex environment is cleaned up.
 * Adopt `rules_palantir_java_format` for worker-backed Java formatting checks in the existing CI gate, and add
   `tools/java_format_watch.sh` to format source changes while editing.
+* **Breaking:** Recognize and generate JSpecify type-use nullability instead of `javax.annotation` nullability.
+  Remove legacy nonnull helpers and preserve explicit annotations in generated generic, array and resolved override
+  signatures with `GeneratorUtil.getTypeName(TypeMirror)`. Nonnull reference returns use the marked default.
 
 ### [v0.75](https://github.com/realityforge/proton/tree/v0.75) (2026-07-07) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.74...v0.75)
 

@@ -35,8 +35,8 @@ public final class AnnotationsUtilTest {
         TestUtil.compile(TestUtil.source("com.example.AnnotationTarget", """
             package com.example;
             import java.lang.annotation.Repeatable;
-            import javax.annotation.Nonnull;
-            import javax.annotation.Nullable;
+            import java.util.List;
+            import org.jspecify.annotations.Nullable;
             enum Mode { FAST, SLOW }
             @interface Marker {
               String name() default "defaultName";
@@ -59,10 +59,15 @@ public final class AnnotationsUtilTest {
             public final class AnnotationTarget {
               @Marker
               String defaultMarker;
-              @Nonnull
               String nonnullField;
               @Nullable
               String nullableField;
+              String @Nullable [] nullableArray;
+              @Nullable String[] nullableComponents;
+              List<@Nullable String> nullableArguments;
+              @Nullable String nullableReturn(String @Nullable [] outer, @Nullable String[] components,
+                  List<@Nullable String> arguments) { return null; }
+              String[] componentReturn() { return null; }
               @Tag("single")
               void singleTag() {}
               @Naming("renamed")
@@ -151,7 +156,18 @@ public final class AnnotationsUtilTest {
                     "defaultName");
             assertNull(AnnotationsUtil.findAnnotationValueNoDefaults(marker, "name"));
 
-            assertTrue(AnnotationsUtil.hasNonnullAnnotation(field(target, "nonnullField")));
+            assertTrue(AnnotationsUtil.hasNullableAnnotation(field(target, "nullableArray")));
+            assertFalse(AnnotationsUtil.hasNullableAnnotation(field(target, "nullableComponents")));
+            assertFalse(AnnotationsUtil.hasNullableAnnotation(field(target, "nullableArguments")));
+            final ExecutableElement nullableReturn = method(target, "nullableReturn");
+            assertTrue(AnnotationsUtil.hasNullableAnnotation(nullableReturn));
+            assertTrue(AnnotationsUtil.hasNullableAnnotation(
+                    nullableReturn.getParameters().get(0)));
+            assertFalse(AnnotationsUtil.hasNullableAnnotation(
+                    nullableReturn.getParameters().get(1)));
+            assertFalse(AnnotationsUtil.hasNullableAnnotation(
+                    nullableReturn.getParameters().get(2)));
+            assertFalse(AnnotationsUtil.hasNullableAnnotation(method(target, "componentReturn")));
             assertTrue(AnnotationsUtil.hasNullableAnnotation(field(target, "nullableField")));
             assertFalse(AnnotationsUtil.hasNullableAnnotation(field(target, "nonnullField")));
         }

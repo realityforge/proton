@@ -1,6 +1,6 @@
 # T01 — JSpecify recognition and signatures
 
-- Status: `pending`
+- Status: `complete`
 - Blocked by: None
 - Spec coverage: R1, R2, AC1, AC2
 
@@ -10,9 +10,9 @@ Outer type-use recognition and annotation-preserving generated signatures with n
 
 ## Acceptance criteria
 
-- [ ] Outer return/parameter/field nullable recognition excludes nested arguments and array components.
-- [ ] JavaPoet output preserves root/nested/array/varargs/wildcard/type-variable-bound annotations and inherited resolved signatures.
-- [ ] Generated signatures compile; reference return remains nonnull with nested/parameter annotations preserved.
+- [x] Outer return/parameter/field nullable recognition excludes nested arguments and array components.
+- [x] JavaPoet output preserves root/nested/array/varargs/wildcard/type-variable-bound annotations and inherited resolved signatures.
+- [x] Generated signatures compile; reference return remains nonnull with nested/parameter annotations preserved.
 
 ## Validation
 
@@ -21,4 +21,7 @@ Outer type-use recognition and annotation-preserving generated signatures with n
 
 ## Evidence
 
-- pending
+- `bazel test //core/src/test/java/org/realityforge/proton:core_tests --test_arg=-verbose --test_arg=2 --test_output=errors` passed: 46 tests.
+- New processor test emits abstract overrides and javac compiles them; it covers nested annotations, both array positions, varargs, wildcard bounds, recursive intersection bounds, resolved inherited signatures and ref returns.
+- javac substitution drops explicit annotations on type-variable roots; declaration/resolved pairing preserves them without nullness inference.
+- JDK probe: Oracle 17.0.12 with -XDaddTypeAnnotationsToSymbol=true reads no binary type annotations; OpenJDK 25 reads @Marker from the same classfile. T02 will use the already available remote JDK 25 for strict fixture checking while retaining --release 17.

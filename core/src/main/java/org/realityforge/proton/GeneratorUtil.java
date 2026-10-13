@@ -1,15 +1,17 @@
 package org.realityforge.proton;
 
 import com.palantir.javapoet.AnnotationSpec;
+import com.palantir.javapoet.ArrayTypeName;
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.FieldSpec;
 import com.palantir.javapoet.MethodSpec;
 import com.palantir.javapoet.ParameterSpec;
+import com.palantir.javapoet.ParameterizedTypeName;
 import com.palantir.javapoet.TypeName;
 import com.palantir.javapoet.TypeSpec;
 import com.palantir.javapoet.TypeVariableName;
+import com.palantir.javapoet.WildcardTypeName;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -24,10 +26,16 @@ import javax.lang.model.element.NestingKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
+import javax.lang.model.type.IntersectionType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
+import javax.lang.model.type.WildcardType;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 @SuppressWarnings({
     "SameParameterValue",
@@ -37,11 +45,9 @@ import javax.lang.model.type.TypeVariable;
     "BooleanMethodIsAlwaysInverted"
 })
 public final class GeneratorUtil {
-    public static final ClassName NONNULL_CLASSNAME = ClassName.get("javax.annotation", "Nonnull");
-    public static final ClassName NULLABLE_CLASSNAME = ClassName.get("javax.annotation", "Nullable");
+    public static final ClassName NULLABLE_CLASSNAME = ClassName.get(Nullable.class);
 
-    public static final List<String> ANNOTATION_WHITELIST = Collections.unmodifiableList(Arrays.asList(
-            AnnotationsUtil.NONNULL_CLASSNAME, AnnotationsUtil.NULLABLE_CLASSNAME, Deprecated.class.getName()));
+    public static final List<String> ANNOTATION_WHITELIST = List.of(Deprecated.class.getName());
 
     private GeneratorUtil() {}
 
@@ -94,9 +100,97 @@ public final class GeneratorUtil {
     public static List<TypeVariableName> getTypeArgumentsAsNames(final DeclaredType declaredType) {
         final List<TypeVariableName> variables = new ArrayList<>();
         for (final TypeMirror argument : declaredType.getTypeArguments()) {
-            variables.add(TypeVariableName.get((TypeVariable) argument));
+            variables.add(getTypeVariableName((TypeVariable) argument));
         }
         return variables;
+    }
+
+    public static TypeName getTypeName(final TypeMirror type) {
+        return getTypeName(type, type);
+    }
+
+    private static TypeName getTypeName(final TypeMirror type, final @Nullable TypeMirror declaration) {
+        final TypeName name =
+                switch (type.getKind()) {
+                    case ARRAY ->
+                        ArrayTypeName.of(getTypeName(
+                                ((ArrayType) type).getComponentType(),
+                                declaration instanceof ArrayType array ? array.getComponentType() : null));
+                    case DECLARED, ERROR -> {
+                        final var declared = (DeclaredType) type;
+                        final var element = (TypeElement) declared.asElement();
+                        ClassName raw = ClassName.get(element);
+                        final List<? extends TypeMirror> originalArguments =
+                                declaration instanceof DeclaredType original ? original.getTypeArguments() : List.of();
+                        final List<TypeName> arguments = new ArrayList<>();
+                        for (int i = 0; i < declared.getTypeArguments().size(); i++) {
+                            arguments.add(getTypeName(
+                                    declared.getTypeArguments().get(i),
+                                    i < originalArguments.size() ? originalArguments.get(i) : null));
+                        }
+                        final TypeMirror enclosing = declared.getEnclosingType();
+                        if (TypeKind.NONE != enclosing.getKind()
+                                && !element.getModifiers().contains(Modifier.STATIC)) {
+                            final TypeName owner = getTypeName(
+                                    enclosing,
+                                    declaration instanceof DeclaredType original ? original.getEnclosingType() : null);
+                            if (owner instanceof ParameterizedTypeName parameterized) {
+                                yield parameterized.nestedClass(raw.simpleName(), arguments);
+                            }
+                            raw = ((ClassName) owner).nestedClass(raw.simpleName());
+                        }
+                        yield arguments.isEmpty()
+                                ? raw
+                                : ParameterizedTypeName.get(raw, arguments.toArray(TypeName[]::new));
+                    }
+                    case TYPEVAR ->
+                        TypeVariableName.get(((TypeVariable) type)
+                                .asElement()
+                                .getSimpleName()
+                                .toString());
+                    case WILDCARD -> {
+                        final var wildcard = (WildcardType) type;
+                        final TypeMirror lower = wildcard.getSuperBound();
+                        final TypeMirror upper = wildcard.getExtendsBound();
+                        yield null != lower
+                                ? WildcardTypeName.supertypeOf(getTypeName(
+                                        lower,
+                                        declaration instanceof WildcardType original ? original.getSuperBound() : null))
+                                : WildcardTypeName.subtypeOf(
+                                        null == upper
+                                                ? ClassName.get(Object.class)
+                                                : getTypeName(
+                                                        upper,
+                                                        declaration instanceof WildcardType original
+                                                                ? original.getExtendsBound()
+                                                                : null));
+                    }
+                    default -> TypeName.get(type);
+                };
+        final List<? extends AnnotationMirror> originalAnnotations = null == declaration
+                ? List.of()
+                : declaration.getAnnotationMirrors().stream()
+                        .filter(a -> List.of(Nullable.class.getName(), NonNull.class.getName())
+                                .contains(a.getAnnotationType().toString()))
+                        .toList();
+        final List<AnnotationSpec> annotations = (originalAnnotations.isEmpty()
+                        ? type.getAnnotationMirrors()
+                        : originalAnnotations)
+                .stream()
+                        .filter(a -> List.of(Nullable.class.getName(), NonNull.class.getName())
+                                .contains(a.getAnnotationType().toString()))
+                        .map(AnnotationSpec::get)
+                        .toList();
+        return annotations.isEmpty() ? name : name.annotated(annotations);
+    }
+
+    private static TypeVariableName getTypeVariableName(final TypeVariable variable) {
+        final TypeMirror upper = variable.getUpperBound();
+        final List<? extends TypeMirror> bounds =
+                upper instanceof IntersectionType intersection ? intersection.getBounds() : List.of(upper);
+        return TypeVariableName.get(
+                variable.asElement().getSimpleName().toString(),
+                bounds.stream().map(GeneratorUtil::getTypeName).toArray(TypeName[]::new));
     }
 
     public static void copyAccessModifiers(final TypeElement element, final TypeSpec.Builder builder) {
@@ -121,25 +215,25 @@ public final class GeneratorUtil {
 
     public static void copyExceptions(final ExecutableType method, final MethodSpec.Builder builder) {
         for (final TypeMirror thrownType : method.getThrownTypes()) {
-            builder.addException(TypeName.get(thrownType));
+            builder.addException(getTypeName(thrownType));
         }
     }
 
     public static void copyTypeParameters(final ExecutableType action, final MethodSpec.Builder builder) {
         for (final TypeVariable typeParameter : action.getTypeVariables()) {
-            builder.addTypeVariable(TypeVariableName.get(typeParameter));
+            builder.addTypeVariable(getTypeVariableName(typeParameter));
         }
     }
 
     public static void copyTypeParameters(final TypeElement element, final MethodSpec.Builder builder) {
         for (final TypeParameterElement typeParameter : element.getTypeParameters()) {
-            builder.addTypeVariable(TypeVariableName.get(typeParameter));
+            builder.addTypeVariable(getTypeVariableName((TypeVariable) typeParameter.asType()));
         }
     }
 
     public static void copyTypeParameters(final TypeElement element, final TypeSpec.Builder builder) {
         for (final TypeParameterElement typeParameter : element.getTypeParameters()) {
-            builder.addTypeVariable(TypeVariableName.get(typeParameter));
+            builder.addTypeVariable(getTypeVariableName((TypeVariable) typeParameter.asType()));
         }
     }
 
@@ -233,13 +327,7 @@ public final class GeneratorUtil {
                 processingEnv, method, additionalSuppressions, Collections.singletonList(executableType));
         copyAccessModifiers(executableElement, method);
         copyTypeParameters(executableType, method);
-        if (copyNullabilityAnnotations) {
-            copyWhitelistedAnnotations(executableElement, method);
-        } else {
-            if (AnnotationsUtil.hasAnnotationOfType(executableElement, Deprecated.class.getName())) {
-                method.addAnnotation(Deprecated.class);
-            }
-        }
+        copyWhitelistedAnnotations(executableElement, method);
 
         method.varargs(executableElement.isVarArgs());
 
@@ -249,7 +337,9 @@ public final class GeneratorUtil {
         copyExceptions(executableType, method);
 
         // Copy return type
-        method.returns(TypeName.get(executableType.getReturnType()));
+        final TypeMirror returnType = executableType.getReturnType();
+        final TypeName returnTypeName = getTypeName(returnType, executableElement.getReturnType());
+        method.returns(copyNullabilityAnnotations ? returnTypeName : returnTypeName.withoutAnnotations());
         return method;
     }
 
@@ -259,9 +349,9 @@ public final class GeneratorUtil {
             final MethodSpec.Builder method) {
         int paramIndex = 0;
         for (final TypeMirror parameterType : executableType.getParameterTypes()) {
-            final TypeName typeName = TypeName.get(parameterType);
             final VariableElement variableElement =
                     executableElement.getParameters().get(paramIndex);
+            final TypeName typeName = getTypeName(parameterType, variableElement.asType());
             final String name = variableElement.getSimpleName().toString();
             final ParameterSpec.Builder parameter = ParameterSpec.builder(typeName, name, Modifier.FINAL);
             copyWhitelistedAnnotations(variableElement, parameter);
@@ -284,8 +374,9 @@ public final class GeneratorUtil {
             final Collection<String> additionalSuppressions) {
         final MethodSpec.Builder method =
                 overrideMethod(processingEnv, typeElement, executableElement, additionalSuppressions, false);
-        if (!executableElement.getReturnType().getKind().isPrimitive()) {
-            method.addAnnotation(NONNULL_CLASSNAME);
+        if (method.build().returnType() instanceof TypeVariableName variable) {
+            method.returns(
+                    variable.annotated(AnnotationSpec.builder(NonNull.class).build()));
         }
         return method;
     }

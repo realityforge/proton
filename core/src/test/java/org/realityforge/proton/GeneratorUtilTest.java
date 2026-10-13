@@ -8,11 +8,13 @@ import static org.testng.Assert.assertTrue;
 import com.palantir.javapoet.AnnotationSpec;
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.FieldSpec;
+import com.palantir.javapoet.JavaFile;
 import com.palantir.javapoet.MethodSpec;
 import com.palantir.javapoet.ParameterSpec;
 import com.palantir.javapoet.TypeName;
 import com.palantir.javapoet.TypeSpec;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.lang.model.element.Element;
@@ -45,26 +47,134 @@ public final class GeneratorUtilTest {
             package com.example;
             import java.io.IOException;
             import java.util.List;
-            import javax.annotation.Nonnull;
+            import org.jspecify.annotations.Nullable;
             class Base {}
             @Deprecated
             @SuppressWarnings("unused")
             public class GeneratorTarget<T extends Number> extends Base {
-              @Nonnull
-              public <X extends CharSequence> List<T> convert(@Nonnull final String name) throws IOException {
+              @Deprecated
+              public <X extends CharSequence> List<T> convert(@Deprecated @Nullable final String name) throws IOException {
                 return null;
               }
               public int primitiveRef() {
                 return 0;
               }
               protected void protectedMethod() {}
-              @Nonnull
+              @Deprecated
               String nonnullField;
               public static class Nested {}
             }
             """), processor);
 
         assertTrue(processor.wasValidated());
+    }
+
+    @Test
+    public void generatedOverridesPreserveTypeUseAnnotationsAndResolvedTypes() throws Exception {
+        final var processor = new AnnotatedGeneratorProcessor();
+        TestUtil.compile(TestUtil.source("com.example.Signatures", """
+            package com.example;
+            import java.util.List;
+            import org.jspecify.annotations.NullMarked;
+            import org.jspecify.annotations.Nullable;
+            import org.jspecify.annotations.NonNull;
+            interface Parent<T extends @Nullable Object> {
+              @Nullable T inherited(@Nullable T value);
+            }
+            class Outer<T> { class Inner<U> {} }
+            @NullMarked
+            public interface Signatures extends Parent<List<@Nullable String>> {
+              @Nullable List<@Nullable String> nested(@Nullable List<@Nullable String> input);
+              @Nullable String @Nullable [] arrays(@Nullable String @Nullable ... input);
+              List<? extends @Nullable CharSequence> wildcard(List<? super @Nullable String> input);
+              <T extends @Nullable Object & Comparable<T>> @NonNull T variable(@Nullable T input);
+              Outer<@Nullable String>.Inner<@Nullable Integer> inner();
+              @Nullable String ref(@Nullable String value);
+            }
+            """), processor);
+        assertTrue(processor._validated);
+    }
+
+    private static final class AnnotatedGeneratorProcessor extends TestUtil.TestProcessor {
+        private boolean _validated;
+
+        @Override
+        public boolean process(
+                final Set<? extends TypeElement> annotations,
+                final javax.annotation.processing.RoundEnvironment roundEnv) {
+            if (!_validated && !roundEnv.processingOver()) {
+                _validated = true;
+                final TypeElement target = processingEnv.getElementUtils().getTypeElement("com.example.Signatures");
+                assertNotNull(target);
+                final TypeSpec.Builder generated = TypeSpec.classBuilder("GeneratedSignatures")
+                        .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                        .addAnnotation(org.jspecify.annotations.NullMarked.class)
+                        .addSuperinterface(ClassName.get(target));
+                for (final ExecutableElement method :
+                        ElementFilter.methodsIn(processingEnv.getElementUtils().getAllMembers(target))) {
+                    if (Objects.requireNonNull(method.getEnclosingElement())
+                            .toString()
+                            .equals("java.lang.Object")) {
+                        continue;
+                    }
+                    final MethodSpec override = GeneratorUtil.overrideMethod(processingEnv, target, method)
+                            .addModifiers(Modifier.ABSTRACT)
+                            .build();
+                    final String signature = override.toString().replace(". @", ".@");
+                    switch (method.getSimpleName().toString()) {
+                        case "nested" -> {
+                            assertTrue(override.returnType().isAnnotated());
+                            assertEquals(signature.split("@org.jspecify.annotations.Nullable", -1).length - 1, 4);
+                        }
+                        case "arrays" -> {
+                            assertTrue(override.returnType().isAnnotated());
+                            assertTrue(signature.contains("@org.jspecify.annotations.Nullable []"));
+                            assertTrue(signature.contains("@org.jspecify.annotations.Nullable ..."));
+                        }
+                        case "wildcard" -> {
+                            assertTrue(signature.contains(
+                                    "? extends java.lang.@org.jspecify.annotations.Nullable CharSequence"));
+                            assertTrue(
+                                    signature.contains("? super java.lang.@org.jspecify.annotations.Nullable String"));
+                        }
+                        case "variable" -> {
+                            assertTrue(
+                                    signature.contains("extends java.lang.@org.jspecify.annotations.Nullable Object &"
+                                            + " java.lang.Comparable<T>"));
+                            assertTrue(signature.contains("@org.jspecify.annotations.NonNull T"));
+                            final MethodSpec ref = GeneratorUtil.refMethod(processingEnv, target, method)
+                                    .build();
+                            assertEquals(ref.returnType().toString(), "@org.jspecify.annotations.NonNull T");
+                        }
+                        case "inner" ->
+                            assertTrue(signature.contains("Outer<java.lang.@org.jspecify.annotations.Nullable"
+                                    + " String>.Inner<java.lang.@org.jspecify.annotations.Nullable"
+                                    + " Integer>"));
+                        case "inherited" -> {
+                            assertTrue(override.returnType().isAnnotated());
+                            assertTrue(
+                                    signature.contains("List<java.lang.@org.jspecify.annotations.Nullable String>"),
+                                    signature);
+                            assertFalse(signature.contains(" T "));
+                        }
+                        case "ref" -> {
+                            final MethodSpec ref = GeneratorUtil.refMethod(processingEnv, target, method)
+                                    .build();
+                            assertFalse(ref.returnType().isAnnotated());
+                            assertTrue(ref.parameters().get(0).type().isAnnotated());
+                        }
+                        default -> throw new AssertionError(signature);
+                    }
+                    generated.addMethod(override);
+                }
+                try {
+                    JavaFile.builder("com.example", generated.build()).build().writeTo(processingEnv.getFiler());
+                } catch (final java.io.IOException e) {
+                    throw new java.io.UncheckedIOException(e);
+                }
+            }
+            return false;
+        }
     }
 
     private static final class GeneratorProcessor extends TestUtil.TestProcessor {
@@ -163,16 +273,16 @@ public final class GeneratorUtilTest {
             final ExecutableElement convert = method(target, "convert");
             final MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("copy");
             GeneratorUtil.copyWhitelistedAnnotations(convert, methodBuilder);
-            assertTrue(annotationStrings(methodBuilder.build().annotations()).contains("@javax.annotation.Nonnull"));
+            assertTrue(annotationStrings(methodBuilder.build().annotations()).contains("@java.lang.Deprecated"));
 
             final VariableElement parameter = convert.getParameters().get(0);
             final ParameterSpec.Builder parameterBuilder = ParameterSpec.builder(TypeName.get(String.class), "name");
             GeneratorUtil.copyWhitelistedAnnotations(parameter, parameterBuilder);
-            assertTrue(annotationStrings(parameterBuilder.build().annotations()).contains("@javax.annotation.Nonnull"));
+            assertTrue(annotationStrings(parameterBuilder.build().annotations()).contains("@java.lang.Deprecated"));
 
             final FieldSpec.Builder fieldBuilder = FieldSpec.builder(TypeName.get(String.class), "name");
             GeneratorUtil.copyWhitelistedAnnotations(field(target, "nonnullField"), fieldBuilder);
-            assertTrue(annotationStrings(fieldBuilder.build().annotations()).contains("@javax.annotation.Nonnull"));
+            assertTrue(annotationStrings(fieldBuilder.build().annotations()).contains("@java.lang.Deprecated"));
         }
 
         private void validateOverrideAndRefMethodHelpers(final TypeElement target) {
@@ -190,14 +300,14 @@ public final class GeneratorUtilTest {
             assertEquals(copiedMethod.parameters().get(0).name(), "name");
             assertTrue(copiedMethod.parameters().get(0).modifiers().contains(Modifier.FINAL));
             assertTrue(annotationStrings(copiedMethod.parameters().get(0).annotations())
-                    .contains("@javax.annotation.Nonnull"));
+                    .contains("@java.lang.Deprecated"));
 
             final MethodSpec override = GeneratorUtil.overrideMethod(
                             processingEnv, target, convert, List.of("unchecked"), true)
                     .build();
             final List<String> overrideAnnotations = annotationStrings(override.annotations());
             assertTrue(overrideAnnotations.contains("@java.lang.Override"));
-            assertTrue(overrideAnnotations.contains("@javax.annotation.Nonnull"));
+            assertTrue(overrideAnnotations.contains("@java.lang.Deprecated"));
             assertTrue(overrideAnnotations.stream()
                     .anyMatch(a -> a.contains("SuppressWarnings") && a.contains("unchecked")));
             assertTrue(override.modifiers().contains(Modifier.PUBLIC));
@@ -209,19 +319,19 @@ public final class GeneratorUtilTest {
 
             final MethodSpec ref =
                     GeneratorUtil.refMethod(processingEnv, target, convert).build();
-            assertTrue(annotationStrings(ref.annotations()).contains("@javax.annotation.Nonnull"));
+            assertFalse(ref.returnType().isAnnotated());
 
             final MethodSpec refWithSuppressions = GeneratorUtil.refMethod(
                             processingEnv, target, convert, List.of("unchecked"))
                     .build();
             assertTrue(annotationStrings(refWithSuppressions.annotations()).stream()
                     .anyMatch(a -> a.contains("SuppressWarnings") && a.contains("unchecked")));
-            assertTrue(annotationStrings(refWithSuppressions.annotations()).contains("@javax.annotation.Nonnull"));
+            assertFalse(refWithSuppressions.returnType().isAnnotated());
 
             final MethodSpec primitiveRef = GeneratorUtil.refMethod(
                             processingEnv, target, method(target, "primitiveRef"))
                     .build();
-            assertFalse(annotationStrings(primitiveRef.annotations()).contains("@javax.annotation.Nonnull"));
+            assertFalse(primitiveRef.returnType().isAnnotated());
         }
 
         private TypeElement type(final String classname) {
