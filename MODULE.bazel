@@ -193,13 +193,6 @@ _http_file(
 )
 
 _http_file(
-    name = "javax_annotation",
-    downloaded_file_path = "org/realityforge/javax/annotation/javax.annotation/1.1.1/javax.annotation-1.1.1.jar",
-    sha256 = "147d086711cd48670097ac626bfe1ed137786144c2a2c46b2aa1bb7292adc77b",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/javax/annotation/javax.annotation/1.1.1/javax.annotation-1.1.1.jar"],
-)
-
-_http_file(
     name = "testng",
     downloaded_file_path = "org/testng/testng/6.8/testng-6.8.jar",
     sha256 = "c0f2845a7cc87e10845d6f99d41ddbeda590972aead83e672714ff7b1642cd03",

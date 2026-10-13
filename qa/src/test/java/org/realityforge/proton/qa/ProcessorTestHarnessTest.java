@@ -65,6 +65,7 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
     public void generatedNullableDereferenceFailsNullAwayChecking() throws Exception {
         final Processor invalid = new SynthesizingProcessor("com.example.generated.Invalid", """
             package com.example.generated;
+            @javax.annotation.processing.Generated("NullAwayControl")
             @org.jspecify.annotations.NullMarked
             public final class Invalid {
               public static int length(@org.jspecify.annotations.Nullable String value) {
@@ -184,7 +185,7 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
     }
 
     @Test
-    public void corePomExcludesFormatterDependenciesAndPreservesExistingDependencies() throws Exception {
+    public void corePomUsesJSpecifyWithoutLegacyOrFormatterDependencies() throws Exception {
         final Document pom = loadPom();
         assertTrue(dependencyVersions(pom, "com.palantir.javaformat", "palantir-java-format")
                 .isEmpty());
@@ -212,9 +213,8 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
         assertTrue(dependencyVersions(pom, "com.fasterxml.jackson.module", "jackson-module-parameter-names")
                 .isEmpty());
 
-        assertEquals(
-                dependencyVersions(pom, "org.realityforge.javax.annotation", "javax.annotation"),
-                Arrays.asList("1.1.1"));
+        assertTrue(dependencyVersions(pom, "org.realityforge.javax.annotation", "javax.annotation")
+                .isEmpty());
         assertEquals(dependencyVersions(pom, "org.glassfish", "javax.json"), Arrays.asList("1.1"));
         assertEquals(dependencyVersions(pom, "com.palantir.javapoet", "javapoet"), Arrays.asList("0.14.0"));
         assertEquals(dependencyVersions(pom, "com.google.guava", "guava"), Arrays.asList("27.1-jre"));
@@ -313,7 +313,6 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
             final String processorPath = joinPaths(
                     testClasses,
                     corePath,
-                    Path.of(System.getProperty("proton.javax_annotation.jar")),
                     Path.of(System.getProperty("proton.jspecify.jar")),
                     Path.of(System.getProperty("proton.javapoet.jar")),
                     Path.of(System.getProperty("proton.guava.jar")));

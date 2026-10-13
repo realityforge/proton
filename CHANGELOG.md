@@ -15,6 +15,8 @@
 * Mark emitted types with `@NullMarked` and enforce NullAway JSpecify mode on owned code. Processor QA can supply
   a checking compiler through `AbstractProcessorTest.javaCompiler()` and the compiler-taking `CompileTestUtil`
   overloads; generated-source checking is verified with a failing control. Java 17 output remains supported.
+* Remove the direct legacy annotation dependency from core, QA and Maven metadata. Preserve nullable name-extractor
+  results in the JSpecify generic API contract. Verify generated-code checking on the existing remote Java 17 runtime.
 
 ### [v0.75](https://github.com/realityforge/proton/tree/v0.75) (2026-07-07) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.74...v0.75)
 

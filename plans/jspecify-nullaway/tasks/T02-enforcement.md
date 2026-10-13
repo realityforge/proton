@@ -28,3 +28,5 @@ Marked generation, strict JSpecify-mode checking across owned sourceful rules, a
 - Oracle 17.0.12 failed binary annotation-reading probe despite -XDaddTypeAnnotationsToSymbol=true; the already configured remote JDK 25 is now the runtime for fixture javac, retaining --release 17.
 - Strict generic checking exposed the existing nullable name-extractor contract; annotation now expresses nullable callback results without changing runtime behavior.
 - Resolved inherited method bounds preserve declaration annotations; compiler-backed core fixture covers substituted nested nullable bounds.
+
+- T03 rebased onto current origin/master (1970a44), whose remote JDK 17 is Zulu 17.0.20. Its binary annotation probe passes with the flag, so final delivery retains the existing remote Java 17 runtime instead of the temporary JDK 25 configuration.

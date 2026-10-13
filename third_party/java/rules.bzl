@@ -4,7 +4,6 @@ _JSPECIFY = "//third_party/java:jspecify"
 _NULLAWAY_PLUGIN = "//third_party/java:nullaway_plugin"
 
 _ERROR_PRONE_JAVACOPTS = [
-    "-XepExcludedPaths:.*/external/.*",
     "-Xep:AlmostJavadoc:ERROR",
     "-Xep:AlreadyChecked:ERROR",
     "-Xep:AmbiguousMethodReference:ERROR",

@@ -12,13 +12,12 @@ _java_plugin(
 # DO NOT EDIT: Content is auto-generated from //third_party/java:dependencies.yml by https://github.com/realityforge/bazel-depgen version 0.26
 
 # SHA256 of the configuration content that generated this content
-_CONFIG_SHA256 = "2EB4DB352AF4F6181B592361750EAFF11B6DED998A1C4881BF3775CE68F3FC3B"
+_CONFIG_SHA256 = "E44DEC4616B5A0EE3F268F9C09226FF29860776CB2D39AB7537CAE3B8F66819F"
 
 exports_files(["dependencies.yml"])
 
 # Dependency Graph Generated from the input data
 # +- org.realityforge.bazel.depgen:bazel-depgen:jar:all:0.26 [compile]
-# +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
 # +- org.glassfish:javax.json:jar:1.1 [compile]
 # |  \- javax.json:javax.json-api:jar:1.1 [compile, optional]
 # +- com.palantir.javapoet:javapoet:jar:0.14.0 [compile]
@@ -265,12 +264,6 @@ _java_import(
     name = "bazel_depgen",
     jars = ["@bazel_depgen//file"],
     tags = ["maven_coordinates=org.realityforge.bazel.depgen:bazel-depgen:0.26"],
-)
-
-_java_import(
-    name = "javax_annotation",
-    jars = ["@javax_annotation//file"],
-    tags = ["maven_coordinates=org.realityforge.javax.annotation:javax.annotation:1.1.1"],
 )
 
 _java_import(
