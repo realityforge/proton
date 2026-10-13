@@ -9,7 +9,6 @@ TEST_DEPS = [
     "//third_party/java:nullaway",
     "//third_party/java:guava",
     "//third_party/java:javapoet",
-    "//third_party/java:javax_json",
     "//third_party/java:jspecify",
     "//third_party/java:testng",
 ]

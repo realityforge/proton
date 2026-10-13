@@ -19,14 +19,12 @@ _java_import(
 # DO NOT EDIT: Content is auto-generated from //third_party/java:dependencies.yml by https://github.com/realityforge/bazel-depgen version 0.26
 
 # SHA256 of the configuration content that generated this content
-_CONFIG_SHA256 = "E5E60F7603C55A88AE6010F150DBC493FC8BBB94F16C18523A0EEF661E842BCF"
+_CONFIG_SHA256 = "2A79B6B9E7ED3AE324D114E45FFB925F621F2CA9E195E5EFED6E0B725BA33C42"
 
 exports_files(["dependencies.yml"])
 
 # Dependency Graph Generated from the input data
 # +- org.realityforge.bazel.depgen:bazel-depgen:jar:all:0.26 [compile]
-# +- org.glassfish:javax.json:jar:1.1 [compile]
-# |  \- javax.json:javax.json-api:jar:1.1 [compile, optional]
 # +- com.palantir.javapoet:javapoet:jar:0.14.0 [compile]
 # +- com.google.guava:guava:jar:27.1-jre [compile]
 # |  +- com.google.guava:failureaccess:jar:1.0.1 [compile]
@@ -167,13 +165,6 @@ _java_import(
 )
 
 _java_import(
-    name = "javax_json_api",
-    jars = ["@javax_json_api//file"],
-    tags = ["maven_coordinates=javax.json:javax.json-api:1.1"],
-    visibility = ["//visibility:private"],
-)
-
-_java_import(
     name = "junit",
     jars = ["@junit//file"],
     tags = ["maven_coordinates=junit:junit:4.10"],
@@ -215,12 +206,6 @@ _java_import(
     jars = ["@animal_sniffer_annotations//file"],
     tags = ["maven_coordinates=org.codehaus.mojo:animal-sniffer-annotations:1.17"],
     visibility = ["//visibility:private"],
-)
-
-_java_import(
-    name = "javax_json",
-    jars = ["@javax_json//file"],
-    tags = ["maven_coordinates=org.glassfish:javax.json:1.1"],
 )
 
 _java_import(

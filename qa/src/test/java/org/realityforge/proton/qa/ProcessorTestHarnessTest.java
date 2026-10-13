@@ -234,7 +234,7 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
 
         assertTrue(dependencyVersions(pom, "org.realityforge.javax.annotation", "javax.annotation")
                 .isEmpty());
-        assertEquals(dependencyVersions(pom, "org.glassfish", "javax.json"), Arrays.asList("1.1"));
+        assertTrue(dependencyVersions(pom, "org.glassfish", "javax.json").isEmpty());
         assertEquals(dependencyVersions(pom, "com.palantir.javapoet", "javapoet"), Arrays.asList("0.14.0"));
         assertEquals(dependencyVersions(pom, "com.google.guava", "guava"), Arrays.asList("27.1-jre"));
         assertEquals(dependencyVersions(pom, "org.jspecify", "jspecify"), Arrays.asList("1.0.0"));

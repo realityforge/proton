@@ -6,7 +6,6 @@ TEST_DEPS = [
     "//core/src/main/java/org/realityforge/proton:core",
     "//third_party/java:guava",
     "//third_party/java:javapoet",
-    "//third_party/java:javax_json",
     "//third_party/java:testng",
 ]
 
@@ -26,7 +25,6 @@ java_testng_test(
         "DeferredElementSetTest.java",
         "ElementsUtilTest.java",
         "GeneratorUtilTest.java",
-        "JsonUtilTest.java",
         "MemberChecksTest.java",
         "NamesUtilTest.java",
         "ProcessorExceptionTest.java",
@@ -42,7 +40,6 @@ java_testng_test(
         "org.realityforge.proton.DeferredElementSetTest",
         "org.realityforge.proton.ElementsUtilTest",
         "org.realityforge.proton.GeneratorUtilTest",
-        "org.realityforge.proton.JsonUtilTest",
         "org.realityforge.proton.MemberChecksTest",
         "org.realityforge.proton.NamesUtilTest",
         "org.realityforge.proton.ProcessorExceptionTest",

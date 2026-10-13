@@ -92,13 +92,6 @@ _http_file(
 )
 
 _http_file(
-    name = "javax_json_api",
-    downloaded_file_path = "javax/json/javax.json-api/1.1/javax.json-api-1.1.jar",
-    sha256 = "208746be8ab088e6c4b17e8ecdb07ff7a6f7e62bb2b88bb09b993335ea17c615",
-    urls = ["https://repo.maven.apache.org/maven2/javax/json/javax.json-api/1.1/javax.json-api-1.1.jar"],
-)
-
-_http_file(
     name = "junit",
     downloaded_file_path = "junit/junit/4.10/junit-4.10.jar",
     sha256 = "36a747ca1e0b86f6ea88055b8723bb87030d627766da6288bf077afdeeb0f75a",
@@ -138,13 +131,6 @@ _http_file(
     downloaded_file_path = "org/codehaus/mojo/animal-sniffer-annotations/1.17/animal-sniffer-annotations-1.17.jar",
     sha256 = "92654f493ecfec52082e76354f0ebf87648dc3d5cec2e3c3cdb947c016747a53",
     urls = ["https://repo.maven.apache.org/maven2/org/codehaus/mojo/animal-sniffer-annotations/1.17/animal-sniffer-annotations-1.17.jar"],
-)
-
-_http_file(
-    name = "javax_json",
-    downloaded_file_path = "org/glassfish/javax.json/1.1/javax.json-1.1.jar",
-    sha256 = "4b1f21bc50b728aaae5f44ff550383182b58b67647362959e31004e4522ee24f",
-    urls = ["https://repo.maven.apache.org/maven2/org/glassfish/javax.json/1.1/javax.json-1.1.jar"],
 )
 
 _http_file(
