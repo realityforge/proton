@@ -1,3 +1,12 @@
-/tmp
-/dist
+# Ignore project files
+.idea/
+.bazelbsp/
+
+# Ignore bazel link trees
 /bazel-*
+
+# Ignore project local temp files
+/tmp/
+
+# Generated build output
+/dist
