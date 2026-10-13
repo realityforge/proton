@@ -188,9 +188,12 @@ public final class GeneratorUtil {
         final TypeMirror upper = variable.getUpperBound();
         final List<? extends TypeMirror> bounds =
                 upper instanceof IntersectionType intersection ? intersection.getBounds() : List.of(upper);
-        return TypeVariableName.get(
-                variable.asElement().getSimpleName().toString(),
-                bounds.stream().map(GeneratorUtil::getTypeName).toArray(TypeName[]::new));
+        final var element = (TypeParameterElement) variable.asElement();
+        final List<TypeName> names = new ArrayList<>();
+        for (int i = 0; i < bounds.size(); i++) {
+            names.add(getTypeName(bounds.get(i), element.getBounds().get(i)));
+        }
+        return TypeVariableName.get(element.getSimpleName().toString(), names.toArray(TypeName[]::new));
     }
 
     public static void copyAccessModifiers(final TypeElement element, final TypeSpec.Builder builder) {

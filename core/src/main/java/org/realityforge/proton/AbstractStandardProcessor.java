@@ -1,5 +1,6 @@
 package org.realityforge.proton;
 
+import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.JavaFile;
 import com.palantir.javapoet.TypeSpec;
 import java.io.IOException;
@@ -32,6 +33,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 public abstract class AbstractStandardProcessor extends AbstractProcessor {
@@ -501,7 +503,11 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
         if (_profile) {
             _emitJavaTypeStopWatch.start();
         }
-        final var javaFile = JavaFile.builder(packageName, typeSpec)
+        final TypeSpec markedType =
+                typeSpec.annotations().stream().anyMatch(a -> a.type().equals(ClassName.get(NullMarked.class)))
+                        ? typeSpec
+                        : typeSpec.toBuilder().addAnnotation(NullMarked.class).build();
+        final var javaFile = JavaFile.builder(packageName, markedType)
                 .skipJavaLangImports(true)
                 .build();
         if (_formatGeneratedSource) {

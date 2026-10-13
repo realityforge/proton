@@ -5,6 +5,9 @@ common --java_runtime_version=remotejdk_17
 common --tool_java_language_version=25
 common --tool_java_runtime_version=remotejdk_25
 
+# Fixture javac must read binary type-use annotations. The local JDK may be too old.
+common --java_runtime_version=remotejdk_25
+
 build --nojava_header_compilation
 build --experimental_strict_java_deps=error
 build --strategy=PalantirJavaFormat=worker,local

@@ -80,6 +80,7 @@ public final class GeneratorUtilTest {
             import org.jspecify.annotations.NonNull;
             interface Parent<T extends @Nullable Object> {
               @Nullable T inherited(@Nullable T value);
+              <X extends List<@Nullable T>> X inheritedBound();
             }
             class Outer<T> { class Inner<U> {} }
             @NullMarked
@@ -150,6 +151,11 @@ public final class GeneratorUtilTest {
                             assertTrue(signature.contains("Outer<java.lang.@org.jspecify.annotations.Nullable"
                                     + " String>.Inner<java.lang.@org.jspecify.annotations.Nullable"
                                     + " Integer>"));
+                        case "inheritedBound" ->
+                            assertTrue(
+                                    signature.contains("List<java.util.@org.jspecify.annotations.Nullable"
+                                            + " List<java.lang.@org.jspecify.annotations.Nullable String>>"),
+                                    signature);
                         case "inherited" -> {
                             assertTrue(override.returnType().isAnnotated());
                             assertTrue(

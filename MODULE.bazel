@@ -46,6 +46,13 @@ _http_file(
 )
 
 _http_file(
+    name = "error_prone_core",
+    downloaded_file_path = "com/google/errorprone/error_prone_core/2.42.0/error_prone_core-2.42.0-with-dependencies.jar",
+    sha256 = "f9e747a2ff76dfae6bc0f71fc8c259b7493ecc093a96d3223d5b2669a996b0a7",
+    urls = ["https://repo.maven.apache.org/maven2/com/google/errorprone/error_prone_core/2.42.0/error_prone_core-2.42.0-with-dependencies.jar"],
+)
+
+_http_file(
     name = "failureaccess",
     downloaded_file_path = "com/google/guava/failureaccess/1.0.1/failureaccess-1.0.1.jar",
     sha256 = "a171ee4c734dd2da837e4b16be9df4661afab72a41adaf31eb84dfdaf936ca26",

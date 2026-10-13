@@ -2,6 +2,10 @@ package org.realityforge.proton.qa;
 
 import static org.testng.Assert.*;
 
+import com.google.errorprone.BaseErrorProneJavaCompiler;
+import com.google.errorprone.scanner.ScannerSupplier;
+import com.uber.nullaway.NullAway;
+import com.uber.nullaway.RequireExplicitNullMarking;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -15,6 +19,8 @@ import java.util.jar.JarFile;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import javax.annotation.processing.Processor;
+import javax.tools.Diagnostic;
+import javax.tools.JavaCompiler;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.testng.annotations.Test;
 import org.w3c.dom.Document;
@@ -32,6 +38,69 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
     @Override
     protected Processor processor() {
         return new TestProcessor();
+    }
+
+    @Override
+    protected JavaCompiler javaCompiler() {
+        return new BaseErrorProneJavaCompiler(
+                ScannerSupplier.fromBugCheckerClasses(NullAway.class, RequireExplicitNullMarking.class));
+    }
+
+    @Override
+    protected List<String> getOptions() {
+        final List<String> options = new ArrayList<>(super.getOptions());
+        options.addAll(List.of(
+                "--release",
+                "17",
+                "-XDcompilePolicy=simple",
+                "-XDaddTypeAnnotationsToSymbol=true",
+                "-Xep:NullAway:ERROR",
+                "-Xep:RequireExplicitNullMarking:ERROR",
+                "-XepOpt:NullAway:JSpecifyMode=true",
+                "-XepOpt:NullAway:OnlyNullMarked=true"));
+        return options;
+    }
+
+    @Test
+    public void generatedNullableDereferenceFailsNullAwayChecking() throws Exception {
+        final Processor invalid = new SynthesizingProcessor("com.example.generated.Invalid", """
+            package com.example.generated;
+            @org.jspecify.annotations.NullMarked
+            public final class Invalid {
+              public static int length(@org.jspecify.annotations.Nullable String value) {
+                return value.length();
+              }
+              public static java.util.List<String> nested(java.util.List<@org.jspecify.annotations.Nullable String> values) {
+                return values;
+              }
+            }
+            """, 0);
+        final Compilation compilation = CompileTestUtil.compile(
+                javaCompiler(),
+                inputs("com.example.Model"),
+                getOptions(),
+                List.of(new TestProcessor(), invalid),
+                List.of());
+        try {
+            assertFalse(compilation.success());
+            assertTrue(
+                    compilation.diagnostics().stream()
+                            .anyMatch(d -> d.getKind() == Diagnostic.Kind.ERROR
+                                    && d.toString().contains("[NullAway]")
+                                    && d.toString().contains("Invalid.java")),
+                    describeFailureDiagnostics(compilation));
+            assertEquals(
+                    compilation.diagnostics().stream()
+                            .filter(d -> d.getKind() == Diagnostic.Kind.ERROR
+                                    && d.toString().contains("[NullAway]"))
+                            .count(),
+                    2L,
+                    describeFailureDiagnostics(compilation));
+            compilation.assertSourceOutputFilenamePresent("com/example/generated/GeneratedModel.java");
+        } finally {
+            deleteDir(compilation.sourceOutput());
+            deleteDir(compilation.classOutput());
+        }
     }
 
     @Test
@@ -72,6 +141,7 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
             Files.writeString(
                     input,
                     "package com.example;\n" + "import org.realityforge.proton.qa.GenerateType;\n"
+                            + "@org.jspecify.annotations.NullMarked\n"
                             + "@GenerateType\n"
                             + "public class Model {}\n");
             System.setProperty("proton_test.fixture_dir", dir.toString());
@@ -234,11 +304,12 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
             Files.writeString(
                     source,
                     "package com.example;\n" + "import org.realityforge.proton.qa.GenerateType;\n"
+                            + "@org.jspecify.annotations.NullMarked\n"
                             + "@GenerateType\n"
                             + "public class Model {}\n");
 
             final var testClasses = Path.of(System.getProperty("baseDir"));
-            final String classPath = testClasses.toString();
+            final String classPath = joinPaths(testClasses, Path.of(System.getProperty("proton.jspecify.jar")));
             final String processorPath = joinPaths(
                     testClasses,
                     corePath,

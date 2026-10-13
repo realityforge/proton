@@ -4,7 +4,7 @@ _JSPECIFY = "//third_party/java:jspecify"
 _NULLAWAY_PLUGIN = "//third_party/java:nullaway_plugin"
 
 _ERROR_PRONE_JAVACOPTS = [
-    "-XepExcludedPaths:(.*/" + "external/.*|.*/_javac/.*/.*_sources/.*)",
+    "-XepExcludedPaths:.*/external/.*",
     "-Xep:AlmostJavadoc:ERROR",
     "-Xep:AlreadyChecked:ERROR",
     "-Xep:AmbiguousMethodReference:ERROR",
@@ -108,6 +108,7 @@ _JAVA_JAVACOPTS = [
     "-Xep:JSpecifyUnrecognizedAnnotationLocation:ERROR",
     "-XepOpt:NullAway:JSpecifyMode=true",
     "-XepOpt:NullAway:OnlyNullMarked=true",
+    "-XDaddTypeAnnotationsToSymbol=true",
     "-Xlint:all,-processing,-serial,-path,-options,-classfile,-this-escape",
 ] + _ERROR_PRONE_JAVACOPTS
 

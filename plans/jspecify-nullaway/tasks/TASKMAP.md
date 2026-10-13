@@ -2,7 +2,7 @@
 
 - Spec: [SPEC.md](../SPEC.md)
 - Status: `implementing`
-- Current frontier: `T02`
+- Current frontier: `T03`
 - Planning reviewer: `/root/planning_reviewer` (`1/3` rounds), Findings: none
 - Plan checkpoint: `automatic`; authority: confirmed originating grill and passing planning review
 - Implementation reviewer: `pending` (`0/5` rounds)
@@ -17,7 +17,7 @@
 | ID | Task | Status | Blocked by |
 | --- | --- | --- | --- |
 | T01 | [JSpecify recognition and signatures](T01-type-use.md) | complete | None |
-| T02 | [Generated marking and active NullAway checking](T02-enforcement.md) | pending | T01 |
+| T02 | [Generated marking and active NullAway checking](T02-enforcement.md) | complete | T01 |
 | T03 | [Distribution migration and full validation](T03-integration.md) | pending | T02 |
 
 ## Sequencing notes

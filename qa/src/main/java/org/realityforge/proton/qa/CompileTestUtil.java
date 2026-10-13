@@ -51,14 +51,23 @@ public final class CompileTestUtil {
         return diagnostics.stream().map(Object::toString).collect(Collectors.joining("\n"));
     }
 
-    @SuppressWarnings("resource")
     public static Compilation compile(
             final List<JavaFileObject> inputs,
             final Iterable<String> options,
             final Iterable<? extends Processor> processors,
             final Collection<? extends File> classpath) {
+        return compile(
+                Objects.requireNonNull(ToolProvider.getSystemJavaCompiler()), inputs, options, processors, classpath);
+    }
+
+    @SuppressWarnings("resource")
+    public static Compilation compile(
+            final JavaCompiler javaCompiler,
+            final List<JavaFileObject> inputs,
+            final Iterable<String> options,
+            final Iterable<? extends Processor> processors,
+            final Collection<? extends File> classpath) {
         try {
-            final JavaCompiler javaCompiler = ToolProvider.getSystemJavaCompiler();
             final DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<>();
             final StandardJavaFileManager fileManager =
                     javaCompiler.getStandardFileManager(diagnosticCollector, Locale.getDefault(), UTF_8);
@@ -105,7 +114,17 @@ public final class CompileTestUtil {
             final Iterable<String> options,
             final Iterable<? extends Processor> processors,
             final Collection<? extends File> classpath) {
-        final Compilation results = compile(inputs, options, processors, classpath);
+        return assertCompilesWithoutWarnings(
+                Objects.requireNonNull(ToolProvider.getSystemJavaCompiler()), inputs, options, processors, classpath);
+    }
+
+    public static Compilation assertCompilesWithoutWarnings(
+            final JavaCompiler javaCompiler,
+            final List<JavaFileObject> inputs,
+            final Iterable<String> options,
+            final Iterable<? extends Processor> processors,
+            final Collection<? extends File> classpath) {
+        final Compilation results = compile(javaCompiler, inputs, options, processors, classpath);
         assertNoErrors(results.diagnostics());
         assertNoWarnings(results.diagnostics());
         assertTrue(results.success());
