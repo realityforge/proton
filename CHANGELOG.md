@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Upgrade NullAway to 0.14.2 and enforce JSpecify mode and recognized nullness annotation locations in Bazel Java compilation.
+  Correct name-extraction callback types to allow the nullable results already handled by the utilities.
 * Upgrade the pinned Bazel version to 9.3.0.
 * Use Bazel's default output symlink and repository cache locations, and ignore workspace output symlinks in Git.
 * Clean Bazel output and shut down its server when a Codex environment is cleaned up.
