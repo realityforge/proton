@@ -2,7 +2,7 @@
 
 - Status: `pending`
 - Blocked by: T02
-- Spec coverage: R5, R6, AC5, AC6
+- Spec coverage: R5, R6, AC5, AC6 (implementation and full-gate portions; post-implementation gates owned by workflow closeout)
 
 ## Delivers
 
@@ -13,7 +13,7 @@ Migrated dependencies, fixtures, public migration documentation and release meta
 - [ ] Owned legacy generation dependencies/references removed; packaging checks prove JSpecify metadata and artifacts.
 - [ ] Unreleased changelog and docs state the breaking migration, generator API and local core/QA labels.
 - [ ] Focused checks and full tools/check.sh pass, with final diff inspection.
-- [ ] Persistent implementation review passes; exact plan tree removed in closeout; PR created and attached, left open without release.
+- [ ] Implementation and full-gate evidence are committed and ready for persistent implementation review, closeout and the authorized open PR.
 
 ## Validation
 

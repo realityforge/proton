@@ -1,9 +1,9 @@
 # Task Map
 
 - Spec: [SPEC.md](../SPEC.md)
-- Status: `implementing`
+- Status: `planned`
 - Current frontier: `T03`
-- Planning reviewer: `/root/planning_reviewer` (`1/3` rounds), Findings: none
+- Planning reviewer: `/root/planning_reviewer` (`2/3` rounds), Findings: none (round 2 confirms post-implementation gate ownership)
 - Plan checkpoint: `automatic`; authority: confirmed originating grill and passing planning review
 - Implementation reviewer: `pending` (`0/5` rounds)
 
@@ -24,7 +24,7 @@
 
 - T01 establishes behavior before enforcement. T02 validates actual generated compiler checking. T03 owns release/dependency/docs migration and the full gate.
 - Reviewers are read-only and persistent within each phase. The primary agent implements sequentially.
-- Closeout removes this exact temporary tree after implementation review, then creates and attaches the authorized open PR.
+- T03 completion covers implementation and the full gate. The workflow owns the remaining AC6 gates: persistent implementation review, deletion of this exact temporary tree in closeout, then creating and attaching the authorized open PR.
 
 ## Promoted knowledge
 
