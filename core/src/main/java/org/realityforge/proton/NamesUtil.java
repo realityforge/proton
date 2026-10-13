@@ -92,7 +92,7 @@ public final class NamesUtil {
 
     public static String extractName(
             final ExecutableElement method,
-            final Function<ExecutableElement, String> defaultExtractor,
+            final Function<ExecutableElement, ? extends @Nullable String> defaultExtractor,
             final String annotationClassname,
             final String parameterName,
             final String sentinelValue,
