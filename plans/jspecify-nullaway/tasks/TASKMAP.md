@@ -1,11 +1,11 @@
 # Task Map
 
 - Spec: [SPEC.md](../SPEC.md)
-- Status: `implementation-review`
+- Status: `closeout`
 - Current frontier: none (all implementation tasks complete)
 - Planning reviewer: `/root/planning_reviewer` (`2/3` rounds), Findings: none (round 2 confirms post-implementation gate ownership)
 - Plan checkpoint: `automatic`; authority: confirmed originating grill and passing planning review
-- Implementation reviewer: `/root/implementation_reviewer` (`1/5` rounds); round 1 found inherited intersection bound crash; reproduced and fixed, confirmation pending
+- Implementation reviewer: `/root/implementation_reviewer` (`2/5` rounds); Findings: none after fixing the round 1 intersection-bound crash
 
 ## Full-scope validation
 
