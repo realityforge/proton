@@ -5,9 +5,10 @@ package(default_visibility = ["//visibility:public"])
 TEST_DEPS = [
     "//core/src/main/java/org/realityforge/proton:core",
     "//qa/src/main/java/org/realityforge/proton/qa:qa",
+    "//third_party/java:bazel_error_prone",
+    "//third_party/java:nullaway",
     "//third_party/java:guava",
     "//third_party/java:javapoet",
-    "//third_party/java:javax_annotation",
     "//third_party/java:javax_json",
     "//third_party/java:jspecify",
     "//third_party/java:testng",
@@ -26,7 +27,6 @@ TEST_DATA = [
     "//tools/release:proton_core_unshaded_jar",
     "@guava//file",
     "@javapoet//file",
-    "@javax_annotation//file",
     "@jspecify//file",
 ]
 
@@ -37,10 +37,16 @@ TEST_JVM_FLAGS = [
     "-Dproton.core.unshaded.jar=$(rootpath //tools/release:proton_core_unshaded_jar)",
     "-Dproton.guava.jar=$(rootpath @guava//file)",
     "-Dproton.javapoet.jar=$(rootpath @javapoet//file)",
-    "-Dproton.javax_annotation.jar=$(rootpath @javax_annotation//file)",
     "-Dproton.jspecify.jar=$(rootpath @jspecify//file)",
     "-Dproton_test.fixture_dir=qa/src/test/fixtures",
     "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+    "--add-exports=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED",
+    "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+    "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
     "--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
     "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
     "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
@@ -55,6 +61,7 @@ TEST_CLASSES = [
 
 java_library(
     name = "processor_test_support",
+    testonly = True,
     srcs = [
         "GenerateType.java",
         "TestProcessor.java",

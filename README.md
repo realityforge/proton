@@ -4,8 +4,16 @@
 
 Proton is a library of utilities that simplify building annotation processors.
 
+Proton requires Java 21 or later to run annotation processors. Generated sources can still target Java 17.
+
 The code base has yet to develop useful documentation. For the source code and project support please visit
 the [GitHub project](https://github.com/realityforge/proton).
+
+# JSpecify Nullability
+
+Proton recognises JSpecify nullability and marks generated types with `@NullMarked`. Add
+`org.jspecify:jspecify` to the compilation and processor classpaths. Use
+`GeneratorUtil.getTypeName(TypeMirror)` to preserve explicit type-use annotations when building JavaPoet types.
 
 # Generated Source Formatting
 

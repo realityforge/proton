@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* **Breaking:** Require Java 21 to run Proton and processor QA. Generated code remains compatible with Java 17,
+  verified by compiling processor fixtures with `--release 17`. QA reuses Bazel's bundled Error Prone.
 * Upgrade NullAway to 0.14.2 and enforce JSpecify mode and recognized nullness annotation locations in Bazel Java compilation.
   Correct name-extraction callback types to allow the nullable results already handled by the utilities.
 * Upgrade the pinned Bazel version to 9.3.0.
@@ -9,6 +11,13 @@
 * Clean Bazel output and shut down its server when a Codex environment is cleaned up.
 * Adopt `rules_palantir_java_format` for worker-backed Java formatting checks in the existing CI gate, and add
   `tools/java_format_watch.sh` to format source changes while editing.
+* **Breaking:** Recognize and generate JSpecify type-use nullability instead of `javax.annotation` nullability.
+  Remove legacy nonnull helpers and preserve explicit annotations in generated generic, array and resolved override
+  signatures with `GeneratorUtil.getTypeName(TypeMirror)`. Nonnull reference returns use the marked default.
+* Mark emitted types with `@NullMarked` and enforce NullAway JSpecify mode on owned code. Processor QA can supply
+  a checking compiler through `AbstractProcessorTest.javaCompiler()` and the compiler-taking `CompileTestUtil`
+  overloads; generated-source checking is verified with a failing control. Java 17 output remains supported.
+* Remove the direct legacy annotation dependency from core, QA and Maven metadata.
 
 ### [v0.75](https://github.com/realityforge/proton/tree/v0.75) (2026-07-07) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.74...v0.75)
 

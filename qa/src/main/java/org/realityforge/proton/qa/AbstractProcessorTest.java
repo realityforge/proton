@@ -16,11 +16,13 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import javax.annotation.processing.Processor;
 import javax.tools.Diagnostic;
+import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
@@ -58,6 +60,10 @@ public abstract class AbstractProcessorTest {
     protected abstract String getOptionPrefix();
 
     protected abstract Processor processor();
+
+    protected JavaCompiler javaCompiler() {
+        return Objects.requireNonNull(ToolProvider.getSystemJavaCompiler());
+    }
 
     protected List<String> getOptions() {
         return Arrays.asList(
@@ -103,8 +109,8 @@ public abstract class AbstractProcessorTest {
             final String expectedDirectory,
             final List<String> options)
             throws Exception {
-        final Compilation compilation =
-                CompileTestUtil.assertCompilesWithoutWarnings(inputs, options, processors(), Collections.emptyList());
+        final Compilation compilation = CompileTestUtil.assertCompilesWithoutWarnings(
+                javaCompiler(), inputs, options, processors(), Collections.emptyList());
 
         _dirsToDelete.add(compilation.sourceOutput());
         _dirsToDelete.add(compilation.classOutput());
@@ -269,7 +275,7 @@ public abstract class AbstractProcessorTest {
 
     protected final Compilation assertCompilesWithoutWarnings(final List<JavaFileObject> inputs) {
         return CompileTestUtil.assertCompilesWithoutWarnings(
-                inputs, getOptions(), processors(), Collections.emptyList());
+                javaCompiler(), inputs, getOptions(), processors(), Collections.emptyList());
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -298,7 +304,11 @@ public abstract class AbstractProcessorTest {
         final List<String> options = new ArrayList<>(getOptions());
         options.add("-A" + getOptionPrefix() + ".warnings_as_errors=true");
         final Compilation compilation = CompileTestUtil.compile(
-                Collections.singletonList(input("input", classname)), options, processors(), Collections.emptyList());
+                javaCompiler(),
+                Collections.singletonList(input("input", classname)),
+                options,
+                processors(),
+                Collections.emptyList());
         assertFalse(compilation.success());
         assertErrorDiagnostic(compilation, messageFragment);
     }
@@ -427,7 +437,7 @@ public abstract class AbstractProcessorTest {
     }
 
     protected final Compilation compile(final List<JavaFileObject> inputs, final Collection<? extends File> classpath) {
-        return CompileTestUtil.compile(inputs, getOptions(), processors(), classpath);
+        return CompileTestUtil.compile(javaCompiler(), inputs, getOptions(), processors(), classpath);
     }
 
     protected final Path fixtureDir() {

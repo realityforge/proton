@@ -2,8 +2,14 @@ package org.realityforge.proton.qa;
 
 import static org.testng.Assert.*;
 
+import com.google.errorprone.BaseErrorProneJavaCompiler;
+import com.google.errorprone.scanner.ScannerSupplier;
+import com.uber.nullaway.JSpecifyUnrecognizedAnnotationLocation;
+import com.uber.nullaway.NullAway;
+import com.uber.nullaway.RequireExplicitNullMarking;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,6 +21,8 @@ import java.util.jar.JarFile;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import javax.annotation.processing.Processor;
+import javax.tools.Diagnostic;
+import javax.tools.JavaCompiler;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.testng.annotations.Test;
 import org.w3c.dom.Document;
@@ -34,9 +42,90 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
         return new TestProcessor();
     }
 
+    @Override
+    protected JavaCompiler javaCompiler() {
+        return new BaseErrorProneJavaCompiler(ScannerSupplier.fromBugCheckerClasses(
+                NullAway.class, RequireExplicitNullMarking.class, JSpecifyUnrecognizedAnnotationLocation.class));
+    }
+
+    @Override
+    protected List<String> getOptions() {
+        final List<String> options = new ArrayList<>(super.getOptions());
+        options.addAll(List.of(
+                "--release",
+                "17",
+                "-XDcompilePolicy=simple",
+                "-XDaddTypeAnnotationsToSymbol=true",
+                "-Xep:NullAway:ERROR",
+                "-Xep:RequireExplicitNullMarking:ERROR",
+                "-Xep:JSpecifyUnrecognizedAnnotationLocation:ERROR",
+                "-XepOpt:NullAway:JSpecifyMode=true",
+                "-XepOpt:NullAway:OnlyNullMarked=true"));
+        return options;
+    }
+
+    @Test
+    public void generatedNullableDereferenceFailsNullAwayChecking() throws Exception {
+        final Processor invalid = new SynthesizingProcessor("com.example.generated.Invalid", """
+            package com.example.generated;
+            @javax.annotation.processing.Generated("NullAwayControl")
+            @org.jspecify.annotations.NullMarked
+            public final class Invalid {
+              public static int length(@org.jspecify.annotations.Nullable String value) {
+                return value.length();
+              }
+              public static java.util.List<String> nested(java.util.List<@org.jspecify.annotations.Nullable String> values) {
+                return values;
+              }
+            }
+            """, 0);
+        final Compilation compilation = CompileTestUtil.compile(
+                javaCompiler(),
+                inputs("com.example.Model"),
+                getOptions(),
+                List.of(new TestProcessor(), invalid),
+                List.of());
+        try {
+            assertFalse(compilation.success());
+            assertTrue(
+                    compilation.diagnostics().stream()
+                            .anyMatch(d -> d.getKind() == Diagnostic.Kind.ERROR
+                                    && d.toString().contains("[NullAway]")
+                                    && d.toString().contains("Invalid.java")),
+                    describeFailureDiagnostics(compilation));
+            assertEquals(
+                    compilation.diagnostics().stream()
+                            .filter(d -> d.getKind() == Diagnostic.Kind.ERROR
+                                    && d.toString().contains("[NullAway]"))
+                            .count(),
+                    2L,
+                    describeFailureDiagnostics(compilation));
+            compilation.assertSourceOutputFilenamePresent("com/example/generated/GeneratedModel.java");
+        } finally {
+            deleteDir(compilation.sourceOutput());
+            deleteDir(compilation.classOutput());
+        }
+    }
+
     @Test
     public void assertSuccessfulCompileChecksExpectedAndExpectedFormatted() throws Exception {
         assertSuccessfulCompile("com.example.Model", "com/example/generated/GeneratedModel.java");
+    }
+
+    @Test
+    public void generatedCodeTargetsJava17() throws Exception {
+        final Compilation compilation = CompileTestUtil.assertCompilesWithoutWarnings(
+                javaCompiler(), inputs("com.example.Model"), getOptions(), processors(), List.of());
+        try {
+            final Path generatedClass = compilation.classOutput().resolve("com/example/generated/GeneratedModel.class");
+            assertEquals(
+                    ByteBuffer.wrap(Files.readAllBytes(generatedClass)).getShort(6),
+                    (short) 61,
+                    "Generated class must use Java 17 bytecode");
+        } finally {
+            deleteDir(compilation.sourceOutput());
+            deleteDir(compilation.classOutput());
+        }
     }
 
     @Test
@@ -72,6 +161,7 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
             Files.writeString(
                     input,
                     "package com.example;\n" + "import org.realityforge.proton.qa.GenerateType;\n"
+                            + "@org.jspecify.annotations.NullMarked\n"
                             + "@GenerateType\n"
                             + "public class Model {}\n");
             System.setProperty("proton_test.fixture_dir", dir.toString());
@@ -114,7 +204,7 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
     }
 
     @Test
-    public void corePomExcludesFormatterDependenciesAndPreservesExistingDependencies() throws Exception {
+    public void corePomUsesJSpecifyWithoutLegacyOrFormatterDependencies() throws Exception {
         final Document pom = loadPom();
         assertTrue(dependencyVersions(pom, "com.palantir.javaformat", "palantir-java-format")
                 .isEmpty());
@@ -142,9 +232,8 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
         assertTrue(dependencyVersions(pom, "com.fasterxml.jackson.module", "jackson-module-parameter-names")
                 .isEmpty());
 
-        assertEquals(
-                dependencyVersions(pom, "org.realityforge.javax.annotation", "javax.annotation"),
-                Arrays.asList("1.1.1"));
+        assertTrue(dependencyVersions(pom, "org.realityforge.javax.annotation", "javax.annotation")
+                .isEmpty());
         assertEquals(dependencyVersions(pom, "org.glassfish", "javax.json"), Arrays.asList("1.1"));
         assertEquals(dependencyVersions(pom, "com.palantir.javapoet", "javapoet"), Arrays.asList("0.14.0"));
         assertEquals(dependencyVersions(pom, "com.google.guava", "guava"), Arrays.asList("27.1-jre"));
@@ -234,15 +323,15 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
             Files.writeString(
                     source,
                     "package com.example;\n" + "import org.realityforge.proton.qa.GenerateType;\n"
+                            + "@org.jspecify.annotations.NullMarked\n"
                             + "@GenerateType\n"
                             + "public class Model {}\n");
 
             final var testClasses = Path.of(System.getProperty("baseDir"));
-            final String classPath = testClasses.toString();
+            final String classPath = joinPaths(testClasses, Path.of(System.getProperty("proton.jspecify.jar")));
             final String processorPath = joinPaths(
                     testClasses,
                     corePath,
-                    Path.of(System.getProperty("proton.javax_annotation.jar")),
                     Path.of(System.getProperty("proton.jspecify.jar")),
                     Path.of(System.getProperty("proton.javapoet.jar")),
                     Path.of(System.getProperty("proton.guava.jar")));
@@ -253,6 +342,8 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
                     .resolve("bin/javac")
                     .toString());
             command.addAll(formatterJdkExports().stream().map(e -> "-J" + e).toList());
+            command.add("--release");
+            command.add("17");
             command.add("-classpath");
             command.add(classPath);
             command.add("-processorpath");
@@ -273,6 +364,13 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
             final var output = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
             final int exitCode = process.waitFor();
             final Path generatedSource = sourceOutput.resolve("com/example/generated/GeneratedModel.java");
+            if (0 == exitCode) {
+                final Path generatedClass = classOutput.resolve("com/example/generated/GeneratedModel.class");
+                assertEquals(
+                        ByteBuffer.wrap(Files.readAllBytes(generatedClass)).getShort(6),
+                        (short) 61,
+                        "Generated class must use Java 17 bytecode");
+            }
             return new JavacResult(
                     exitCode,
                     output,

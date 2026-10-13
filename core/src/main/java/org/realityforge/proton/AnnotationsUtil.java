@@ -19,9 +19,7 @@ import org.jspecify.annotations.Nullable;
 
 @SuppressWarnings({"SameParameterValue", "WeakerAccess", "unused", "RedundantSuppression"})
 public final class AnnotationsUtil {
-    public static final String NULLABLE_CLASSNAME = "javax.annotation.Nullable";
-
-    public static final String NONNULL_CLASSNAME = "javax.annotation.Nonnull";
+    public static final String NULLABLE_CLASSNAME = "org.jspecify.annotations.Nullable";
 
     private AnnotationsUtil() {}
 
@@ -165,11 +163,12 @@ public final class AnnotationsUtil {
                 method, defaultExtractor, annotationClassname, parameterName, sentinelValue, declaredName);
     }
 
-    public static boolean hasNonnullAnnotation(final Element element) {
-        return hasAnnotationOfType(element, NONNULL_CLASSNAME);
+    public static boolean hasNullableAnnotation(final TypeMirror type) {
+        return hasAnnotationOfType(type, NULLABLE_CLASSNAME);
     }
 
     public static boolean hasNullableAnnotation(final Element element) {
-        return hasAnnotationOfType(element, NULLABLE_CLASSNAME);
+        return hasNullableAnnotation(
+                element instanceof ExecutableElement method ? method.getReturnType() : element.asType());
     }
 }

@@ -5,6 +5,10 @@ module(
 bazel_dep(name = "buildifier_prebuilt", version = "8.5.1", dev_dependency = True)
 
 bazel_dep(name = "rules_java", version = "9.9.0")
+
+java_toolchains = use_extension("@rules_java//java:extensions.bzl", "toolchains")
+use_repo(java_toolchains, "remote_java_tools")
+
 bazel_dep(name = "rules_jvm_external", version = "7.1")
 bazel_dep(name = "rules_palantir_java_format", version = "0.1.1")
 archive_override(
@@ -183,13 +187,6 @@ _http_file(
     downloaded_file_path = "org/realityforge/bazel/depgen/bazel-depgen/0.26/bazel-depgen-0.26-all.jar",
     sha256 = "217987b5d60162bf6afe78a838b64818abef511852e39b094824e0b01a9bbd8c",
     urls = ["https://repo.maven.apache.org/maven2/org/realityforge/bazel/depgen/bazel-depgen/0.26/bazel-depgen-0.26-all.jar"],
-)
-
-_http_file(
-    name = "javax_annotation",
-    downloaded_file_path = "org/realityforge/javax/annotation/javax.annotation/1.1.1/javax.annotation-1.1.1.jar",
-    sha256 = "147d086711cd48670097ac626bfe1ed137786144c2a2c46b2aa1bb7292adc77b",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/javax/annotation/javax.annotation/1.1.1/javax.annotation-1.1.1.jar"],
 )
 
 _http_file(

@@ -14,7 +14,6 @@ options:
 
 artifacts:
   - coord: org.realityforge.bazel.depgen:bazel-depgen:jar:all:0.26
-  - coord: org.realityforge.javax.annotation:javax.annotation:1.1.1
   - coord: org.glassfish:javax.json:1.1
   - coord: com.palantir.javapoet:javapoet:0.14.0
     excludes:

@@ -33,13 +33,11 @@ FORMATTER_RELOCATIONS = [
 CORE_COMPILE_DEPENDENCY_JARS = [
     "@guava//file",
     "@javapoet//file",
-    "@javax_annotation//file",
     "@javax_json//file",
     "@jspecify//file",
 ]
 
 QA_COMPILE_DEPENDENCY_JARS = [
-    "@javax_annotation//file",
     "@jspecify//file",
     "@testng//file",
 ]
@@ -106,7 +104,6 @@ release_pom(
     out = "proton-core.pom",
     artifact_id = "proton-core",
     dependencies = [
-        "org.realityforge.javax.annotation:javax.annotation:1.1.1",
         "org.glassfish:javax.json:1.1",
         "com.palantir.javapoet:javapoet:0.14.0",
         "com.google.guava:guava:27.1-jre",
@@ -141,7 +138,6 @@ release_pom(
     artifact_id = "proton-qa",
     dependencies = [
         "org.realityforge.proton:proton-core:{version}",
-        "org.realityforge.javax.annotation:javax.annotation:1.1.1",
         "org.glassfish:javax.json:1.1",
         "com.palantir.javapoet:javapoet:0.14.0",
         "com.google.guava:guava:27.1-jre",
