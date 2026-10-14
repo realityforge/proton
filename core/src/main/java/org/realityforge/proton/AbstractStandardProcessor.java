@@ -33,7 +33,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
-import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 public abstract class AbstractStandardProcessor extends AbstractProcessor {
@@ -503,10 +502,11 @@ public abstract class AbstractStandardProcessor extends AbstractProcessor {
         if (_profile) {
             _emitJavaTypeStopWatch.start();
         }
+        final ClassName nullMarked = ClassName.get("org.jspecify.annotations", "NullMarked");
         final TypeSpec markedType =
-                typeSpec.annotations().stream().anyMatch(a -> a.type().equals(ClassName.get(NullMarked.class)))
+                typeSpec.annotations().stream().anyMatch(a -> a.type().equals(nullMarked))
                         ? typeSpec
-                        : typeSpec.toBuilder().addAnnotation(NullMarked.class).build();
+                        : typeSpec.toBuilder().addAnnotation(nullMarked).build();
         final var javaFile = JavaFile.builder(packageName, markedType)
                 .skipJavaLangImports(true)
                 .build();
