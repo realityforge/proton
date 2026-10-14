@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v0.76](https://github.com/realityforge/proton/tree/v0.76) (2026-10-14) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.75...v0.76)
+
+Changes in this release:
 
 * **Breaking:** Remove `JsonUtil` and the JSON-P dependency from core, QA and Maven metadata.
 * Add Ahab 0.4.0 hermeticity analysis with report, check, update and explain targets. The full verification gate checks
