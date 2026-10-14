@@ -17,9 +17,6 @@ artifacts:
   - coord: com.palantir.javapoet:javapoet:0.14.0
     excludes:
       - com.palantir.javapoet:javapoet-root
-  - coord: com.google.guava:guava:27.1-jre
-    excludes:
-      - org.checkerframework:checker-qual
   - coord: org.testng:testng:6.8
   - coord: org.ow2.asm:asm:9.10.1
   - coord: org.ow2.asm:asm-commons:9.10.1

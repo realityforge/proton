@@ -5,6 +5,7 @@
 * Add public Bazel `//:core` and `//:qa` Java dependency targets backed by the Maven release JARs and source JARs.
 * **Breaking:** Remove the unused Guava dependency from core and the unused core, JavaPoet and Guava dependencies from
   QA's Maven POM.
+* Remove the direct Guava version pin and use NullAway's transitive dependency.
 
 ### [v0.76](https://github.com/realityforge/proton/tree/v0.76) (2026-10-14) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.75...v0.76)
 
