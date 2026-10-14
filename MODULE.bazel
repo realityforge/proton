@@ -4,6 +4,10 @@ module(
 
 bazel_dep(name = "buildifier_prebuilt", version = "8.5.1", dev_dependency = True)
 
+# TODO: Once https://github.com/mrkkrp/ahab/pull/33 merges (> v0.4.0) then
+#       remove reproducibility rule for @rules_java+toolchains//java_tools/src/tools/singlejar/singlejar_local
+bazel_dep(name = "ahab", version = "0.4.0", dev_dependency = True)
+
 bazel_dep(name = "rules_java", version = "9.9.0")
 
 java_toolchains = use_extension("@rules_java//java:extensions.bzl", "toolchains")

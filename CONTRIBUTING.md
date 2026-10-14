@@ -56,8 +56,9 @@ Run the full local verification gate before submitting changes:
 tools/check.sh
 ```
 
-The full gate regenerates bazel-depgen outputs, checks Buildifier formatting, checks Java formatting, builds all Bazel
-targets, runs tests, and enforces the current coverage baseline: 72% line coverage and 62% branch coverage.
+The full gate regenerates bazel-depgen outputs, checks Buildifier formatting and the Ahab hermeticity baseline, checks
+Java formatting, builds all Bazel targets, runs tests, and enforces the current coverage baseline: 72% line coverage and
+62% branch coverage.
 
 Useful focused commands:
 
@@ -73,6 +74,35 @@ After editing `third_party/java/dependencies.yml`, run:
 
 ```bash
 tools/update_java_deps.sh
+```
+
+## Hermeticity
+
+Ahab 0.4.0 analyzes the `//...` action graph. Run the report or compare it with the checked-in baseline:
+
+```bash
+bazel run //tools/ahab:hermeticity
+bazel run //tools/ahab:hermeticity.check
+```
+
+The report and explain targets exit nonzero when findings exist. The baseline check passes only when findings and
+occurrence counts match `tools/ahab/baseline.json`; `tools/check.sh` runs this check in CI.
+
+The baseline is empty. `tools/ahab/reproducibility.json` describes the formatter worker and release builders. It also
+requires singlejar to normalize timestamps and either exclude build metadata or use Bazel's fixed redacted properties;
+stamped metadata is rejected. No findings are suppressed by `tools/ahab/exceptions.json`.
+
+Print the saved findings without analyzing the build:
+
+```bash
+bazel run //tools/ahab:hermeticity.explain
+```
+
+After reviewing a change to the findings, update the baseline and inspect its diff:
+
+```bash
+bazel run //tools/ahab:hermeticity.update
+git diff -- tools/ahab/baseline.json
 ```
 
 ## How to speed the merging of pull requests

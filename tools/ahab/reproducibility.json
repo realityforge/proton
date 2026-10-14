@@ -1,0 +1,39 @@
+{
+  "programs": {
+    "@rules_java+toolchains//java_tools/src/tools/singlejar/singlejar_local": {
+      "spec": {
+        "reproducibility": "sometimes",
+        "required_flags": ["--normalize"],
+        "takes_value": ["--build_info_file"],
+        "requirements": [
+          {
+            "because": "build metadata must be excluded or use Bazel's fixed redacted properties",
+            "any_of": [
+              "--exclude_build_data",
+              "--build_info_file=bazel-out/*/bin/external/bazel_tools/tools/build_defs/build_info/redacted_file.properties"
+            ]
+          }
+        ],
+        "breaking_flags": [
+          "--build_info_file=bazel-out/*/bin/external/bazel_tools/tools/build_defs/build_info/non_volatile_file.properties",
+          "--build_info_file=bazel-out/*/bin/external/bazel_tools/tools/build_defs/build_info/volatile_file.properties"
+        ]
+      }
+    },
+    "@rules_palantir_java_format//java_format/private/java/org/realityforge/rules/palantirjavaformat/palantir_java_format_worker": {
+      "spec": {
+        "reproducibility": "always"
+      }
+    },
+    "//tools/release/org/realityforge/proton/release/jar_builder": {
+      "spec": {
+        "reproducibility": "always"
+      }
+    },
+    "//tools/release/org/realityforge/proton/release/javadoc_jar_builder": {
+      "spec": {
+        "reproducibility": "always"
+      }
+    }
+  }
+}

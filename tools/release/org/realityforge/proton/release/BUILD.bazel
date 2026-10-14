@@ -90,6 +90,18 @@ java_test(
 )
 
 java_test(
+    name = "javadoc_jar_builder_test",
+    size = "small",
+    srcs = [
+        "JavadocJarBuilder.java",
+        "JavadocJarBuilderTest.java",
+        "package-info.java",
+    ],
+    main_class = "org.realityforge.proton.release.JavadocJarBuilderTest",
+    use_testrunner = False,
+)
+
+java_test(
     name = "release_lifecycle_tool_test",
     size = "small",
     srcs = [

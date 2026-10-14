@@ -3,6 +3,10 @@
 ### Unreleased
 
 * **Breaking:** Remove `JsonUtil` and the JSON-P dependency from core, QA and Maven metadata.
+* Add Ahab 0.4.0 hermeticity analysis with report, check, update and explain targets. The full verification gate checks
+  an empty baseline, with reproducibility specifications for the formatter, release builders and singlejar's fixed
+  redacted build metadata.
+* Make release JARs reproducible by fixing manifest entry timestamps and omitting Javadoc generation timestamps.
 * **Breaking:** Require Java 21 to run Proton and processor QA. Generated code remains compatible with Java 17,
   verified by compiling processor fixtures with `--release 17`. QA reuses Bazel's bundled Error Prone.
 * Upgrade NullAway to 0.14.2 and enforce JSpecify mode and recognized nullness annotation locations in Bazel Java compilation.

@@ -26,6 +26,7 @@ COVERAGE_REPORT="${EXECUTION_ROOT}/bazel-out/_coverage/_coverage_report.dat"
 
 BAZEL_OUTPUT_BASE="${OUTPUT_BASE}" tools/update_java_deps.sh
 bazel run //:buildifier_check
+bazel run //tools/ahab:hermeticity.check
 tools/java_format.sh check
 bazel build //...
 

@@ -20,6 +20,7 @@ public final class JarBuilderTest {
             testSkipsModuleDescriptors(root);
             testDuplicateRealEntryFails(root);
             testRelocatesServiceFiles(root);
+            testReproducibleOutput(root);
         } finally {
             deleteTree(root);
         }
@@ -110,6 +111,29 @@ public final class JarBuilderTest {
             }
             final var content = new String(jar.getInputStream(entry).readAllBytes(), StandardCharsets.UTF_8);
             assertContains(content, "org.example.vendor.impl.ServiceImpl", "relocated service content");
+        }
+    }
+
+    private static void testReproducibleOutput(final Path root) throws Exception {
+        final Path directory = Files.createDirectories(root.resolve("reproducible-output"));
+        final Path input = directory.resolve("input.jar");
+        final Path first = directory.resolve("first.jar");
+        final Path second = directory.resolve("second.jar");
+        writeJar(input, entries("com/example/Second.class", "second", "com/example/First.class", "first"));
+
+        merge(first, input);
+        merge(second, input);
+
+        if (Files.mismatch(first, second) != -1) {
+            throw new AssertionError("Identical inputs must produce identical release jars");
+        }
+        try (JarFile jar = new JarFile(first.toFile())) {
+            assertExists(jar, JarFile.MANIFEST_NAME);
+            for (final JarEntry entry : jar.stream().toList()) {
+                if (entry.getTime() != 0L) {
+                    throw new AssertionError("Unstable timestamp for " + entry.getName() + ": " + entry.getTime());
+                }
+            }
         }
     }
 

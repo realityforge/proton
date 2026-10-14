@@ -105,6 +105,7 @@ public final class JavadocJarBuilder {
         final var argsFile = Files.createTempFile("proton-javadoc", ".args");
         final var argLines = new ArrayList<String>();
         argLines.add("-quiet");
+        argLines.add("-notimestamp");
         argLines.add("-d");
         argLines.add(docs.toString());
         argLines.add("-encoding");
@@ -135,7 +136,12 @@ public final class JavadocJarBuilder {
 
     private static void writeJar(final Path output, final Path docs) throws IOException {
         Files.createDirectories(output.toAbsolutePath().getParent());
-        try (JarOutputStream out = new JarOutputStream(Files.newOutputStream(output), new Manifest())) {
+        try (JarOutputStream out = new JarOutputStream(Files.newOutputStream(output))) {
+            final var manifestEntry = new JarEntry(JarFile.MANIFEST_NAME);
+            manifestEntry.setTime(STABLE_TIME);
+            out.putNextEntry(manifestEntry);
+            new Manifest().write(out);
+            out.closeEntry();
             final List<Path> files;
             try (Stream<Path> stream = Files.walk(docs)) {
                 files = stream.filter(Files::isRegularFile).sorted().toList();

@@ -168,6 +168,7 @@ test_suite(
     name = "all_tests",
     tests = [
         "//tools/release/org/realityforge/proton/release:jar_builder_test",
+        "//tools/release/org/realityforge/proton/release:javadoc_jar_builder_test",
         "//tools/release/org/realityforge/proton/release:release_lifecycle_tool_test",
     ],
 )
