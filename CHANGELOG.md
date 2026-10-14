@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+* Add public Bazel `//:core` and `//:qa` Java dependency targets backed by the Maven release JARs and source JARs.
+* **Breaking:** Remove the unused Guava dependency from core and the unused core, JavaPoet and Guava dependencies from
+  QA's Maven POM.
+
 ### [v0.76](https://github.com/realityforge/proton/tree/v0.76) (2026-10-14) · [Full Changelog](https://github.com/realityforge/proton/compare/v0.75...v0.76)
 
 Changes in this release:

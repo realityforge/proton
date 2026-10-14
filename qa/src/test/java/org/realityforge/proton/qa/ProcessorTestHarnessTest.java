@@ -205,7 +205,7 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
 
     @Test
     public void corePomUsesJSpecifyWithoutLegacyOrFormatterDependencies() throws Exception {
-        final Document pom = loadPom();
+        final Document pom = loadPom(corePom());
         assertTrue(dependencyVersions(pom, "com.palantir.javaformat", "palantir-java-format")
                 .isEmpty());
         assertTrue(dependencyVersions(pom, "com.palantir.javaformat", "palantir-java-format-spi")
@@ -236,8 +236,16 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
                 .isEmpty());
         assertTrue(dependencyVersions(pom, "org.glassfish", "javax.json").isEmpty());
         assertEquals(dependencyVersions(pom, "com.palantir.javapoet", "javapoet"), Arrays.asList("0.14.0"));
-        assertEquals(dependencyVersions(pom, "com.google.guava", "guava"), Arrays.asList("27.1-jre"));
+        assertTrue(dependencyVersions(pom, "com.google.guava", "guava").isEmpty());
         assertEquals(dependencyVersions(pom, "org.jspecify", "jspecify"), Arrays.asList("1.0.0"));
+    }
+
+    @Test
+    public void qaPomOnlyDependsOnJSpecifyAndTestNG() throws Exception {
+        final Document pom = loadPom(Path.of(System.getProperty("proton.qa.pom")));
+        assertEquals(pom.getElementsByTagName("dependency").getLength(), 2);
+        assertEquals(dependencyVersions(pom, "org.jspecify", "jspecify"), Arrays.asList("1.0.0"));
+        assertEquals(dependencyVersions(pom, "org.testng", "testng"), Arrays.asList("6.8"));
     }
 
     @Test(groups = "external_javac")
@@ -287,10 +295,10 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
         }
     }
 
-    private Document loadPom() throws Exception {
+    private Document loadPom(final Path path) throws Exception {
         final var factory = DocumentBuilderFactory.newInstance();
         factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-        return factory.newDocumentBuilder().parse(corePom().toFile());
+        return factory.newDocumentBuilder().parse(path.toFile());
     }
 
     private List<String> dependencyVersions(final Document pom, final String groupId, final String artifactId) {
@@ -333,8 +341,7 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
                     testClasses,
                     corePath,
                     Path.of(System.getProperty("proton.jspecify.jar")),
-                    Path.of(System.getProperty("proton.javapoet.jar")),
-                    Path.of(System.getProperty("proton.guava.jar")));
+                    Path.of(System.getProperty("proton.javapoet.jar")));
             assertFalse(processorPath.contains("palantir-java-format"));
 
             final var command = new ArrayList<String>();

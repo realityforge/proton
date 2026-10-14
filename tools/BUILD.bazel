@@ -1,0 +1,31 @@
+load("@buildifier_prebuilt//:rules.bzl", "buildifier")
+
+package(default_visibility = ["//visibility:public"])
+
+WARNINGS = [
+    "+unsorted-dict-items",
+    "-module-docstring",
+    "-function-docstring",
+]
+
+buildifier(
+    name = "buildifier",
+    exclude_patterns = [
+        "./.git/*",
+        "./.bazelbsp/*",
+    ],
+    lint_mode = "fix",
+    lint_warnings = WARNINGS,
+)
+
+buildifier(
+    name = "buildifier_check",
+    diff_command = "diff -u",
+    exclude_patterns = [
+        "./.git/*",
+        "./.bazelbsp/*",
+    ],
+    lint_mode = "warn",
+    lint_warnings = WARNINGS,
+    mode = "diff",
+)

@@ -21,7 +21,6 @@ java_library(
         "package-info.java",
     ],
     deps = [
-        "//third_party/java:guava",
         "//third_party/java:javapoet",
     ],
 )

@@ -1,34 +1,36 @@
-load("@buildifier_prebuilt//:rules.bzl", "buildifier")
+load("@rules_java//java:defs.bzl", "java_import")
 load("@rules_palantir_java_format//:defs.bzl", "java_format_check")
 
 package(default_visibility = ["//visibility:public"])
 
-WARNINGS = [
-    "+unsorted-dict-items",
-    "-module-docstring",
-    "-function-docstring",
-]
-
-buildifier(
-    name = "buildifier",
-    exclude_patterns = [
-        "./.git/*",
-        "./.bazelbsp/*",
+java_import(
+    name = "core",
+    jars = ["//tools/release:proton_core_jar"],
+    srcjar = "//tools/release:proton_core_sources_jar",
+    deps = [
+        "//third_party/java:javapoet",
+        "//third_party/java:jspecify",
     ],
-    lint_mode = "fix",
-    lint_warnings = WARNINGS,
 )
 
-buildifier(
-    name = "buildifier_check",
-    diff_command = "diff -u",
-    exclude_patterns = [
-        "./.git/*",
-        "./.bazelbsp/*",
+java_import(
+    name = "qa",
+    jars = ["//tools/release:proton_qa_jar"],
+    srcjar = "//tools/release:proton_qa_sources_jar",
+    deps = [
+        "//third_party/java:jspecify",
+        "//third_party/java:testng",
     ],
-    lint_mode = "warn",
-    lint_warnings = WARNINGS,
-    mode = "diff",
+)
+
+alias(
+    name = "buildifier",
+    actual = "//tools:buildifier",
+)
+
+alias(
+    name = "buildifier_check",
+    actual = "//tools:buildifier_check",
 )
 
 test_suite(

@@ -4,7 +4,6 @@ package(default_visibility = ["//visibility:public"])
 
 TEST_DEPS = [
     "//core/src/main/java/org/realityforge/proton:core",
-    "//third_party/java:guava",
     "//third_party/java:javapoet",
     "//third_party/java:testng",
 ]

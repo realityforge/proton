@@ -9,6 +9,30 @@ Proton requires Java 21 or later to run annotation processors. Generated sources
 The code base has yet to develop useful documentation. For the source code and project support please visit
 the [GitHub project](https://github.com/realityforge/proton).
 
+# Bazel Dependencies
+
+Use `@proton//:core` and `@proton//:qa` in Java `deps`. These public targets import the same binary and source JARs
+used for Maven Central releases. Core includes the bundled formatter and depends on JavaPoet and JSpecify. QA depends
+on TestNG and JSpecify; add core separately when your processor uses it.
+
+To use an unreleased checkout beside your consumer project, add this to the consumer's `MODULE.bazel`:
+
+```starlark
+bazel_dep(name = "proton_project", repo_name = "proton")
+local_path_override(module_name = "proton_project", path = "../proton")
+
+archive_override(
+    module_name = "rules_palantir_java_format",
+    integrity = "sha256-4h/h0cVmPQ/7jkXnvW69rmABbfXOOzoXuBh3gMJDMk8=",
+    strip_prefix = "rules_palantir_java_format-0.1.1",
+    urls = ["https://github.com/realityforge/rules_palantir_java_format/releases/download/v0.1.1/rules_palantir_java_format-v0.1.1.tar.gz"],
+)
+```
+
+The formatter rule module is not in the Bazel Central Registry, so its archive override must be declared by the
+consumer. Bazel only applies overrides from the root module. Use a Java 21 or later toolchain; Proton's `.bazelrc`
+is not inherited by consumer projects.
+
 # JSpecify Nullability
 
 Proton recognises JSpecify nullability and marks generated types with `@NullMarked`. Add
