@@ -36,7 +36,8 @@ is not inherited by consumer projects.
 # JSpecify Nullability
 
 Proton recognises JSpecify nullability and marks generated types with `@NullMarked`. Add
-`org.jspecify:jspecify` to the compilation and processor classpaths. Use
+`org.jspecify:jspecify` to the compilation classpath. Proton reads and generates annotation names without loading
+JSpecify classes, so a bundled processor can omit JSpecify from its isolated processor path. Use
 `GeneratorUtil.getTypeName(TypeMirror)` to preserve explicit type-use annotations when building JavaPoet types.
 
 # Generated Source Formatting

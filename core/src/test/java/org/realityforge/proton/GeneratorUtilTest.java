@@ -13,6 +13,8 @@ import com.palantir.javapoet.MethodSpec;
 import com.palantir.javapoet.ParameterSpec;
 import com.palantir.javapoet.TypeName;
 import com.palantir.javapoet.TypeSpec;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -28,6 +30,29 @@ import javax.lang.model.util.ElementFilter;
 import org.testng.annotations.Test;
 
 public final class GeneratorUtilTest {
+    @Test
+    @SuppressWarnings("BanClassLoader")
+    public void generatorHelpersLoadWithoutJSpecifyRuntimeClasses() throws Exception {
+        final var parent = new ClassLoader(GeneratorUtilTest.class.getClassLoader()) {
+            @Override
+            protected Class<?> loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
+                if (name.startsWith("org.jspecify.") || name.startsWith("org.realityforge.proton.")) {
+                    throw new ClassNotFoundException(name);
+                }
+                return super.loadClass(name, resolve);
+            }
+        };
+        try (final var loader = new URLClassLoader(
+                new URL[] {
+                    GeneratorUtil.class.getProtectionDomain().getCodeSource().getLocation()
+                },
+                parent)) {
+            final Class<?> generator = Class.forName(GeneratorUtil.class.getName(), true, loader);
+            assertEquals(
+                    generator.getField("NULLABLE_CLASSNAME").get(null).toString(), "org.jspecify.annotations.Nullable");
+        }
+    }
+
     @Test
     public void generatedClassNameHelpersIncludeNestedClassPrefixes() {
         final ClassName nested = ClassName.get("com.example", "Outer", "Inner");

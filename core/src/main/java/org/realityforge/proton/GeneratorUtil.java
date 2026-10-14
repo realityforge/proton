@@ -34,7 +34,6 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 import javax.lang.model.type.WildcardType;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 @SuppressWarnings({
@@ -45,7 +44,9 @@ import org.jspecify.annotations.Nullable;
     "BooleanMethodIsAlwaysInverted"
 })
 public final class GeneratorUtil {
-    public static final ClassName NULLABLE_CLASSNAME = ClassName.get(Nullable.class);
+    public static final ClassName NULLABLE_CLASSNAME = ClassName.get("org.jspecify.annotations", "Nullable");
+
+    private static final ClassName NONNULL_CLASSNAME = ClassName.get("org.jspecify.annotations", "NonNull");
 
     public static final List<String> ANNOTATION_WHITELIST = List.of(Deprecated.class.getName());
 
@@ -170,14 +171,14 @@ public final class GeneratorUtil {
         final List<? extends AnnotationMirror> originalAnnotations = null == declaration
                 ? List.of()
                 : declaration.getAnnotationMirrors().stream()
-                        .filter(a -> List.of(Nullable.class.getName(), NonNull.class.getName())
+                        .filter(a -> List.of(NULLABLE_CLASSNAME.canonicalName(), NONNULL_CLASSNAME.canonicalName())
                                 .contains(a.getAnnotationType().toString()))
                         .toList();
         final List<AnnotationSpec> annotations = (originalAnnotations.isEmpty()
                         ? type.getAnnotationMirrors()
                         : originalAnnotations)
                 .stream()
-                        .filter(a -> List.of(Nullable.class.getName(), NonNull.class.getName())
+                        .filter(a -> List.of(NULLABLE_CLASSNAME.canonicalName(), NONNULL_CLASSNAME.canonicalName())
                                 .contains(a.getAnnotationType().toString()))
                         .map(AnnotationSpec::get)
                         .toList();
@@ -383,7 +384,7 @@ public final class GeneratorUtil {
                 overrideMethod(processingEnv, typeElement, executableElement, additionalSuppressions, false);
         if (method.build().returnType() instanceof TypeVariableName variable) {
             method.returns(
-                    variable.annotated(AnnotationSpec.builder(NonNull.class).build()));
+                    variable.annotated(AnnotationSpec.builder(NONNULL_CLASSNAME).build()));
         }
         return method;
     }
