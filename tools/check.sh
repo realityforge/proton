@@ -43,4 +43,4 @@ bazel coverage \
   //qa/src/test/java/org/realityforge/proton/qa:qa_coverage_tests \
   --combined_report=lcov \
   --instrumentation_filter="${COVERAGE_FILTER}"
-tools/check_coverage.py "${COVERAGE_REPORT}" 0.72 0.62
+tools/check_coverage.py "${COVERAGE_REPORT}" 0.73 0.65
