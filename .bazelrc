@@ -5,7 +5,6 @@ common --java_runtime_version=remotejdk_21
 common --tool_java_language_version=25
 common --tool_java_runtime_version=remotejdk_25
 
-build --nojava_header_compilation
 build --experimental_strict_java_deps=error
 build --strategy=PalantirJavaFormat=worker,local
 build --worker_max_instances=PalantirJavaFormat=1
