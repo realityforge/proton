@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Add `ElementsUtil.getOrigin(Elements, Element)` to correctly identify implicit constructors under Turbine header compilation while preserving explicit constructor origins.
 * Read and generate JSpecify annotations by canonical name so processors can isolate their runtime dependencies from consumer annotations.
 * Add public Bazel `//:core` and `//:qa` Java dependency targets backed by the Maven release JARs and source JARs.
 * **Breaking:** Remove the unused Guava dependency from core and the unused core, JavaPoet and Guava dependencies from
