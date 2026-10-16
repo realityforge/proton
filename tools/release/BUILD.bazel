@@ -103,7 +103,7 @@ release_pom(
     artifact_id = "proton-core",
     dependencies = [
         "com.palantir.javapoet:javapoet:0.14.0",
-        "org.jspecify:jspecify:1.0.0",
+        "org.jspecify:jspecify:1.0.1",
     ],
     description = "Utilities for building annotation processors.",
     display_name = "Proton Core",
@@ -133,7 +133,7 @@ release_pom(
     out = "proton-qa.pom",
     artifact_id = "proton-qa",
     dependencies = [
-        "org.jspecify:jspecify:1.0.0",
+        "org.jspecify:jspecify:1.0.1",
         "org.testng:testng:6.8",
     ],
     description = "Utilities to help testing annotation processors.",

@@ -237,14 +237,14 @@ public final class ProcessorTestHarnessTest extends AbstractProcessorTest {
         assertTrue(dependencyVersions(pom, "org.glassfish", "javax.json").isEmpty());
         assertEquals(dependencyVersions(pom, "com.palantir.javapoet", "javapoet"), Arrays.asList("0.14.0"));
         assertTrue(dependencyVersions(pom, "com.google.guava", "guava").isEmpty());
-        assertEquals(dependencyVersions(pom, "org.jspecify", "jspecify"), Arrays.asList("1.0.0"));
+        assertEquals(dependencyVersions(pom, "org.jspecify", "jspecify"), Arrays.asList("1.0.1"));
     }
 
     @Test
     public void qaPomOnlyDependsOnJSpecifyAndTestNG() throws Exception {
         final Document pom = loadPom(Path.of(System.getProperty("proton.qa.pom")));
         assertEquals(pom.getElementsByTagName("dependency").getLength(), 2);
-        assertEquals(dependencyVersions(pom, "org.jspecify", "jspecify"), Arrays.asList("1.0.0"));
+        assertEquals(dependencyVersions(pom, "org.jspecify", "jspecify"), Arrays.asList("1.0.1"));
         assertEquals(dependencyVersions(pom, "org.testng", "testng"), Arrays.asList("6.8"));
     }
 
