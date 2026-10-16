@@ -2,6 +2,7 @@ package org.realityforge.proton;
 
 import com.palantir.javapoet.ParameterizedTypeName;
 import com.palantir.javapoet.TypeName;
+import java.lang.reflect.InaccessibleObjectException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -29,6 +30,43 @@ import org.jspecify.annotations.Nullable;
 
 public final class ElementsUtil {
     private ElementsUtil() {}
+
+    /**
+     * Return the element's origin, correcting Turbine's implicit constructor classification.
+     *
+     * @param elementUtils the compiler's element utilities.
+     * @param element the element to inspect.
+     * @return the compiler's origin, or {@link Elements.Origin#MANDATED} for a Turbine default constructor.
+     * @throws IllegalStateException if Turbine's constructor metadata cannot be read.
+     */
+    public static Elements.Origin getOrigin(final Elements elementUtils, final Element element) {
+        final Elements.Origin origin = elementUtils.getOrigin(element);
+        if (Elements.Origin.EXPLICIT == origin
+                && ElementKind.CONSTRUCTOR == element.getKind()
+                && "com.google.turbine.processing.TurbineElement$TurbineExecutableElement"
+                        .equals(element.getClass().getName())) {
+            return isTurbineDefaultConstructor(element) ? Elements.Origin.MANDATED : origin;
+        }
+        return origin;
+    }
+
+    private static boolean isTurbineDefaultConstructor(final Element element) {
+        // Turbine inherits Elements.getOrigin's EXPLICIT default: https://github.com/google/turbine/issues/537
+        // Both the executable element and info() are package-private in Bazel JavaTools 21.0.
+        try {
+            final Class<?> elementClass = element.getClass();
+            final var infoMethod = elementClass.getDeclaredMethod("info");
+            infoMethod.setAccessible(true);
+            final Object info = Objects.requireNonNull(infoMethod.invoke(element));
+            final int access = (Integer) info.getClass().getMethod("access").invoke(info);
+            final int mask = Class.forName("com.google.turbine.model.TurbineFlag", false, elementClass.getClassLoader())
+                    .getField("ACC_SYNTH_CTOR")
+                    .getInt(null);
+            return 0 != (access & mask);
+        } catch (final ReflectiveOperationException | InaccessibleObjectException | SecurityException e) {
+            throw new IllegalStateException("Unable to determine Turbine constructor origin for " + element, e);
+        }
+    }
 
     public static boolean isWarningNotSuppressed(final Element element, final String warning) {
         return !isWarningSuppressed(element, warning);

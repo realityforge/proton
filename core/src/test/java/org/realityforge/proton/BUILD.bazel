@@ -22,6 +22,7 @@ java_testng_test(
     srcs = [
         "AnnotationsUtilTest.java",
         "DeferredElementSetTest.java",
+        "ElementOriginTest.java",
         "ElementsUtilTest.java",
         "GeneratorUtilTest.java",
         "MemberChecksTest.java",
@@ -34,9 +35,12 @@ java_testng_test(
         "SuppressWarningsUtilTest.java",
         "TypesUtilTest.java",
     ],
+    data = ["@remote_java_tools//:TurbineDirect"],
+    jvm_flags = ["-Dproton.turbine.jar=$(rootpath @remote_java_tools//:TurbineDirect)"],
     test_classes = [
         "org.realityforge.proton.AnnotationsUtilTest",
         "org.realityforge.proton.DeferredElementSetTest",
+        "org.realityforge.proton.ElementOriginTest",
         "org.realityforge.proton.ElementsUtilTest",
         "org.realityforge.proton.GeneratorUtilTest",
         "org.realityforge.proton.MemberChecksTest",
