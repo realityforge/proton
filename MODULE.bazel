@@ -8,7 +8,7 @@ bazel_dep(name = "buildifier_prebuilt", version = "8.5.1", dev_dependency = True
 #       remove reproducibility rule for @rules_java+toolchains//java_tools/src/tools/singlejar/singlejar_local
 bazel_dep(name = "ahab", version = "0.4.0", dev_dependency = True)
 
-bazel_dep(name = "rules_java")
+bazel_dep(name = "rules_java", version = "9.9.0")
 git_override(
     module_name = "rules_java",
     commit = "8f847aa0ea2221ede4625696551d62c42627cb3d",
